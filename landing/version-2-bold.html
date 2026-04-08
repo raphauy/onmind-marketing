@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnMind — Versión 2: Bold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://cdn.jsdelivr.net/npm/geist@1/dist/fonts/geist-sans/style.css" rel="stylesheet">
+<style>
+  :root {
+    --primary: #007056;
+    --primary-hover: #00876D;
+    --primary-light: #00AB89;
+    --primary-dark: #004A37;
+    --accent-bg: #E1F3ED;
+    --fg: #0A0A0A;
+    --muted: #737373;
+    --border: #E5E5E5;
+    --surface: #F4F4F4;
+    --bg: #FEFEFE;
+    --dark: #0C1F1A;
+    --dark-surface: #132B24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Geist Sans', 'Geist', system-ui, sans-serif; color: var(--fg); background: var(--bg); line-height: 1.6; }
+  a { text-decoration: none; color: inherit; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--primary); color: #fff; padding: 12px 28px;
+    border-radius: 50px; font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer; transition: all .2s;
+  }
+  .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,112,86,.3); }
+  .btn-white { background: #fff; color: var(--primary-dark); }
+  .btn-white:hover { background: var(--accent-bg); box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+  .btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.3); }
+  .btn-ghost:hover { border-color: #fff; background: rgba(255,255,255,.1); box-shadow: none; }
+  .btn-lg { padding: 16px 36px; font-size: 17px; }
+
+  /* ---- Header ---- */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1200px; margin: 0 auto; padding: 20px 40px;
+    position: relative; z-index: 10;
+  }
+  .header svg { height: 32px; }
+  .header nav { display: flex; gap: 32px; align-items: center; }
+  .header nav a { color: rgba(255,255,255,.7); font-size: 15px; font-weight: 500; transition: color .2s; }
+  .header nav a:hover { color: #fff; }
+
+  /* ---- Hero ---- */
+  .hero-wrap {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--primary-dark) 50%, var(--primary) 100%);
+    color: #fff; padding-bottom: 100px; position: relative; overflow: hidden;
+  }
+  .hero-wrap::after {
+    content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 80px;
+    background: var(--bg); clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .hero-glow {
+    position: absolute; top: -200px; right: -200px; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,171,137,.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero {
+    max-width: 800px; margin: 0 auto; padding: 80px 40px 40px; text-align: center;
+    position: relative; z-index: 2;
+  }
+  .hero h1 {
+    font-size: 56px; font-weight: 900; line-height: 1.1; letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: normal; color: var(--primary-light); }
+  .hero p { font-size: 20px; opacity: .8; margin-bottom: 40px; max-width: 580px; margin-left: auto; margin-right: auto; }
+  .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---- Sections ---- */
+  section { padding: 96px 40px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .section-tag {
+    display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--primary); margin-bottom: 12px;
+  }
+  .section-title { font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; line-height: 1.15; }
+  .section-sub { font-size: 17px; color: var(--muted); max-width: 540px; }
+
+  /* ---- Problema ---- */
+  .problema { background: var(--bg); }
+  .problema-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .problema-items { display: flex; flex-direction: column; gap: 24px; }
+  .problema-item {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .problema-item .num {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+    background: #FEE2E2; color: #DC2626; font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .problema-item p { font-size: 16px; }
+  .problema-cierre {
+    font-size: 28px; font-weight: 800; color: var(--primary-dark); line-height: 1.3;
+  }
+  .problema-cierre em { font-style: normal; color: var(--primary); }
+
+  /* ---- Solución ---- */
+  .solucion {
+    background: var(--accent-bg);
+  }
+  .solucion-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .solucion-desc { font-size: 17px; color: var(--muted); margin-bottom: 32px; }
+  .solucion-puntos { list-style: none; display: flex; flex-direction: column; gap: 20px; }
+  .solucion-puntos li {
+    display: flex; gap: 14px; align-items: flex-start; font-size: 16px;
+  }
+  .check-circle {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary); color: #fff; font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ---- Features ---- */
+  .features { background: var(--dark); color: #fff; }
+  .features .section-tag { color: var(--primary-light); }
+  .features .section-sub { color: rgba(255,255,255,.6); }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card {
+    padding: 32px; border-radius: 16px;
+    background: var(--dark-surface); border: 1px solid rgba(255,255,255,.08);
+    transition: all .2s;
+  }
+  .feature-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .feature-icon {
+    font-size: 28px; margin-bottom: 16px;
+  }
+  .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 14px; color: rgba(255,255,255,.6); line-height: 1.6; }
+
+  /* ---- Cómo funciona ---- */
+  .como { background: var(--bg); }
+  .pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: step; }
+  .paso {
+    position: relative; padding: 32px; border-radius: 16px;
+    background: var(--surface); text-align: center;
+  }
+  .paso-num {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #fff; font-size: 26px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .paso h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .paso p { font-size: 14px; color: var(--muted); }
+  .paso-connector {
+    position: absolute; top: 50%; right: -20px; width: 40px; height: 2px;
+    background: var(--border); z-index: 1;
+  }
+
+  /* ---- Historia ---- */
+  .historia {
+    background: var(--surface);
+  }
+  .historia-card {
+    max-width: 760px; margin: 0 auto; background: var(--bg);
+    border-radius: 20px; padding: 48px; border: 1px solid var(--border);
+    position: relative;
+  }
+  .historia-card::before {
+    content: '"'; position: absolute; top: 20px; left: 32px;
+    font-size: 80px; color: var(--accent-bg); font-family: Georgia, serif; line-height: 1;
+  }
+  .historia-card p { font-size: 17px; color: var(--muted); margin-bottom: 20px; line-height: 1.7; position: relative; }
+  .historia-card .resultado { color: var(--fg); font-weight: 600; font-size: 18px; }
+  .historia-card .cierre {
+    font-size: 20px; font-weight: 700; color: var(--primary);
+    margin-top: 28px; padding-top: 24px; border-top: 2px solid var(--accent-bg);
+  }
+
+  /* ---- Para quién ---- */
+  .para-quien { background: var(--bg); }
+  .perfiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .perfil {
+    padding: 32px; border-radius: 16px; border: 2px solid var(--border);
+    transition: all .2s; text-align: center;
+  }
+  .perfil:hover { border-color: var(--primary); }
+  .perfil-emoji { font-size: 40px; margin-bottom: 16px; }
+  .perfil h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .perfil p { font-size: 14px; color: var(--muted); }
+
+  /* ---- CTA Final ---- */
+  .cta-final {
+    text-align: center; padding: 96px 40px;
+    background: linear-gradient(135deg, var(--dark) 0%, var(--primary-dark) 100%);
+    color: #fff; position: relative; overflow: hidden;
+  }
+  .cta-final::before {
+    content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 80px;
+    background: var(--bg); clip-path: ellipse(55% 100% at 50% 0%);
+  }
+  .cta-final h2 { font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.02em; }
+  .cta-final p { font-size: 18px; opacity: .75; margin-bottom: 36px; }
+
+  /* ---- Footer ---- */
+  .footer {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1200px; margin: 0 auto; padding: 28px 40px;
+    border-top: 1px solid var(--border); font-size: 14px; color: var(--muted);
+  }
+  .footer nav { display: flex; gap: 24px; }
+  .footer nav a:hover { color: var(--fg); }
+
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 36px; }
+    .problema-layout, .solucion-layout { grid-template-columns: 1fr; gap: 32px; }
+    .features-grid, .pasos, .perfiles { grid-template-columns: 1fr; }
+    .paso-connector { display: none; }
+    .header nav a.nav-link { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero Wrapper (header + hero) -->
+<div class="hero-wrap">
+  <div class="hero-glow"></div>
+
+  <header class="header">
+    <a href="#"><svg viewBox="70 400 880 240" fill="#fff" xmlns="http://www.w3.org/2000/svg" style="height:56px"><g transform="translate(0,1034) scale(0.1,-0.1)" stroke="none"><path d="M1820 6120 c-213 -28 -398 -114 -548 -255 -192 -181 -283 -368 -313 -643 -14 -130 4 -275 52 -419 29 -88 113 -243 135 -250 12 -4 224 203 224 218 0 6 -11 29 -24 52 -51 88 -71 180 -70 322 0 114 4 140 27 209 36 105 83 180 165 263 81 81 167 134 277 170 68 22 98 26 195 26 168 0 246 -28 416 -148 11 -8 40 16 126 102 129 129 129 115 4 197 -152 101 -312 152 -496 160 -58 3 -134 1 -170 -4z"/><path d="M6417 5961 c-36 -8 -93 -54 -113 -92 -8 -17 -16 -48 -16 -69 -1 -119 82 -189 213 -177 107 9 169 74 169 175 0 117 -119 194 -253 163z"/><path d="M8980 5625 c0 -140 -2 -255 -5 -255 -3 0 -25 15 -50 34 -80 61 -145 80 -270 80 -126 -1 -199 -22 -295 -86 -70 -46 -100 -78 -145 -153 -59 -98 -80 -181 -79 -315 0 -131 16 -197 71 -303 87 -166 293 -272 493 -253 101 9 164 32 236 87 l66 50 -4 -58 -3 -58 148 -3 147 -3 0 746 0 745 -155 0 -155 0 0 -255z m-152 -426 c111 -55 157 -134 156 -271 -1 -74 -5 -94 -29 -140 -35 -69 -55 -89 -118 -124 -45 -25 -62 -29 -127 -28 -116 1 -193 52 -242 163 -31 69 -30 198 1 269 64 143 220 201 359 131z"/><path d="M4480 5095 l0 -705 150 0 150 0 0 418 0 417 61 -105 c122 -210 302 -516 324 -550 l22 -35 79 3 80 3 71 122 c39 67 116 201 172 297 55 96 114 198 130 225 l30 50 1 -423 0 -423 150 3 151 3 0 248 c-1 136 -1 452 -1 702 l0 455 -139 0 -139 0 -249 -430 c-136 -236 -251 -428 -255 -427 -7 2 -58 87 -382 640 l-128 217 -139 0 -139 0 0 -705z"/><path d="M2643 5579 c-62 -61 -113 -114 -113 -118 0 -3 13 -38 30 -78 50 -120 61 -276 29 -412 -19 -75 -83 -202 -134 -264 -222 -267 -608 -322 -887 -125 -14 10 -33 -4 -130 -97 -62 -60 -114 -112 -116 -115 -4 -10 152 -108 220 -139 148 -67 356 -95 530 -71 365 49 669 294 798 643 64 174 70 422 14 621 -23 82 -108 266 -123 266 -3 0 -57 -50 -118 -111z"/><path d="M3664 5475 c-73 -16 -134 -45 -191 -92 l-43 -34 0 60 0 61 -150 0 -150 0 0 -540 0 -540 155 0 155 0 0 303 c0 359 4 385 79 457 68 66 145 84 248 58 30 -7 59 -24 84 -49 60 -60 69 -120 69 -473 l0 -296 155 0 155 0 0 333 c-1 372 -9 450 -60 553 -79 162 -293 246 -506 199z"/><path d="M7445 5485 c-5 -2 -36 -9 -68 -15 -40 -8 -80 -27 -131 -61 -41 -27 -77 -49 -81 -49 -4 0 -5 25 -3 55 l3 55 -147 0 -148 0 0 -540 0 -540 155 0 155 0 0 303 c0 361 4 385 80 458 50 49 105 69 188 69 50 0 119 -36 155 -82 49 -62 57 -120 57 -451 l0 -298 153 3 152 3 -1 345 c-1 237 -5 364 -14 405 -16 79 -64 176 -109 220 -44 45 -159 102 -230 115 -52 10 -145 12 -166 5z"/><path d="M1829 5467 c-141 -53 -229 -178 -229 -327 0 -100 29 -171 99 -241 168 -168 450 -119 552 96 25 51 29 73 29 141 0 48 -7 100 -16 128 -21 60 -97 143 -166 181 -45 25 -66 30 -143 32 -58 2 -103 -2 -126 -10z"/><path d="M6320 4930 l0 -540 155 0 155 0 0 540 0 540 -155 0 -155 0 0 -540z"/></g></svg></a>
+    <nav>
+      <a href="#features" class="nav-link">Características</a>
+      <a href="#como-funciona" class="nav-link">Cómo funciona</a>
+      <a href="#historia" class="nav-link">La historia</a>
+      <a href="/login" class="btn btn-white" style="padding:8px 20px;font-size:14px;">Solicita una demo</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Que tus clientes <em>piensen en vos</em> cuando te necesiten</h1>
+    <p>OnMind envía mensajes por WhatsApp por vos, con tu número real, en el momento justo. Vos solo revisás y contestás.</p>
+    <div class="hero-btns">
+      <a href="/login" class="btn btn-white btn-lg">Empezar ahora →</a>
+      <a href="#como-funciona" class="btn btn-ghost btn-lg">Ver cómo funciona</a>
+    </div>
+  </section>
+</div>
+
+<!-- Problema -->
+<section class="problema">
+  <div class="container">
+    <div class="problema-layout">
+      <div>
+        <span class="section-tag">El problema</span>
+        <h2 class="problema-cierre">El problema no es tu servicio.<br>Es que tus clientes <em>se olvidan de vos.</em></h2>
+      </div>
+      <div class="problema-items">
+        <div class="problema-item">
+          <span class="num">1</span>
+          <p>Tenés cientos de clientes pero no da el tiempo para escribirles a todos.</p>
+        </div>
+        <div class="problema-item">
+          <span class="num">2</span>
+          <p>Sabés que deberías mantener contacto, pero se te escapan.</p>
+        </div>
+        <div class="problema-item">
+          <span class="num">3</span>
+          <p>Cuando un cliente necesita tu servicio, llama al que tiene más presente — no necesariamente al mejor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Solución -->
+<section class="solucion">
+  <div class="container">
+    <div class="solucion-layout">
+      <div>
+        <span class="section-tag">La solución</span>
+        <h2 class="section-title">OnMind mantiene el vínculo por vos</h2>
+        <p class="solucion-desc">Conectás tu WhatsApp, cargás tus contactos, definís qué mensajes enviar y con qué frecuencia. OnMind se encarga del resto.</p>
+      </div>
+      <ul class="solucion-puntos">
+        <li>
+          <span class="check-circle">✓</span>
+          <span>Tu número de WhatsApp real — tus clientes reciben mensajes de vos, no de un bot desconocido.</span>
+        </li>
+        <li>
+          <span class="check-circle">✓</span>
+          <span>Mensajes pensados, no spam — cada contacto recibe lo que corresponde, cuando corresponde.</span>
+        </li>
+        <li>
+          <span class="check-circle">✓</span>
+          <span>Una sola persona gestiona lo que antes necesitaba un equipo.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="features">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <span class="section-tag">Características</span>
+      <h2 class="section-title">Lo que podés hacer con OnMind</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00AB89" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 14.5a3.5 3.5 0 0 1 3.5 3.5v3"/></svg></div>
+        <h3>Contactos organizados</h3>
+        <p>Categorizá tus clientes por nivel de relación, etiquetas y tipo. Sabé exactamente a quién escribirle y cuándo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00AB89" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="4" x2="9" y2="10"/><line x1="15" y1="4" x2="15" y2="10"/><circle cx="7" cy="15" r="1" fill="#00AB89" stroke="none"/><circle cx="12" cy="15" r="1" fill="#00AB89" stroke="none"/></svg></div>
+        <h3>Mensajes programados</h3>
+        <p>Configurá mensajes automáticos para cumpleaños, fechas especiales, o simplemente para no perder contacto.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00AB89" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-5 4v-4a2 2 0 0 1-1-1.7V8a2 2 0 0 1 2-2z"/><line x1="8" y1="11" x2="8" y2="11.01"/><line x1="12" y1="11" x2="12" y2="11.01"/><line x1="16" y1="11" x2="16" y2="11.01"/></svg></div>
+        <h3>Conversaciones en un solo lugar</h3>
+        <p>Todo el historial de WhatsApp con cada cliente, centralizado. Sabé qué se dijo, cuándo y por qué.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00AB89" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M5.5 5.5L3 3"/><path d="M18.5 5.5L21 3"/></svg></div>
+        <h3>Plan de seguimiento</h3>
+        <p>OnMind distribuye los contactos a lo largo del año para que siempre estés presente sin saturar a nadie.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00AB89" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div>
+        <h3>Plantillas personalizadas</h3>
+        <p>Creá mensajes con el nombre del cliente, su empresa o cualquier dato relevante. Cada mensaje se siente personal porque lo es.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00AB89" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><rect x="4" y="14" width="3" height="6" rx="0.5"/><rect x="10.5" y="9" width="3" height="11" rx="0.5"/><rect x="17" y="4" width="3" height="16" rx="0.5"/></svg></div>
+        <h3>Métricas claras</h3>
+        <p>Cuántos mensajes se enviaron, cuántos se entregaron, cuántos se leyeron. Sin misterios.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section id="como-funciona" class="como">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <span class="section-tag">Cómo funciona</span>
+      <h2 class="section-title">Arrancás en minutos</h2>
+    </div>
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <h3>Conectá tu WhatsApp</h3>
+        <p>Escaneás un código QR con tu celular y listo. Tu número, tu WhatsApp, tus clientes.</p>
+        <div class="paso-connector"></div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <h3>Cargá tus contactos</h3>
+        <p>Importá tu base de clientes y organizalos por categoría. OnMind sugiere una frecuencia de contacto para cada nivel.</p>
+        <div class="paso-connector"></div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <h3>Configurá y olvidate</h3>
+        <p>Elegí qué mensajes enviar, cuándo y a quién. OnMind los programa y los envía. Vos solo revisás las respuestas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Historia -->
+<section id="historia" class="historia">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;">
+      <span class="section-tag">Caso real</span>
+      <h2 class="section-title">De dónde viene OnMind</h2>
+    </div>
+    <div class="historia-card">
+      <p>Martín es agente inmobiliario en Uruguay. Tenía un sistema de comunicación con clientes que le daba resultados extraordinarios: dos personas full-time enviando mensajes, planillas compartidas, recordatorios manuales. Funcionaba, pero era insostenible.</p>
+      <p class="resultado">Cuando ese sistema se digitalizó en OnMind, el cambio fue inmediato: una sola persona revisando mensajes unos minutos al día, cero olvidos, mejor calidad de comunicación, y más tiempo para lo que importa — cerrar negocios.</p>
+      <p class="cierre">Lo que antes era un método que pocos podían replicar, ahora es una herramienta que cualquier negocio puede usar desde el día uno.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Para quién -->
+<section class="para-quien">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <span class="section-tag">¿Es para vos?</span>
+      <h2 class="section-title">OnMind es para cualquier negocio que necesite mantener relación con sus clientes por WhatsApp.</h2>
+    </div>
+    <div class="perfiles">
+      <div class="perfil">
+        <h3>Inmobiliarias</h3>
+        <p>Que tu cliente te llame a vos cuando aparezca una propiedad, no al competidor.</p>
+      </div>
+      <div class="perfil">
+        <h3>Profesionales independientes</h3>
+        <p>Abogados, contadores, asesores — mantené el vínculo sin dedicarle horas.</p>
+      </div>
+      <div class="perfil">
+        <h3>Negocios con cartera de clientes</h3>
+        <p>Si tu negocio depende de que los clientes vuelvan, OnMind te ayuda a que no se olviden de vos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Final -->
+<section class="cta-final">
+  <h2>Dejá de perder clientes<br>por falta de contacto</h2>
+  <p>Conectá tu WhatsApp y empezá a estar presente en la mente de tus clientes.</p>
+  <a href="/login" class="btn btn-white btn-lg">Solicita una demo →</a>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <span>© 2026 OnMind. Todos los derechos reservados.</span>
+  <nav>
+    <a href="#features">Características</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="/login">Iniciar sesión</a>
+  </nav>
+</footer>
+
+</body>
+</html>

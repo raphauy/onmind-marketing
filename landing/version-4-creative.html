@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnMind — Versión 4: Creative</title>
+<link href="https://cdn.jsdelivr.net/npm/geist@1/dist/fonts/geist-sans/style.css" rel="stylesheet">
+<style>
+  :root {
+    --primary: #007056;
+    --primary-light: #00AB89;
+    --primary-glow: #00D4A8;
+    --accent-bg: #E1F3ED;
+    --dark: #080F0D;
+    --dark-card: #0E1A16;
+    --dark-border: rgba(0,171,137,.12);
+    --dark-muted: rgba(255,255,255,.5);
+    --teal-10: rgba(0,171,137,.1);
+    --teal-20: rgba(0,171,137,.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
+    color: #fff; background: var(--dark); line-height: 1.6;
+    overflow-x: hidden;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  /* ---- Floating Nav ---- */
+  .floating-nav {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 100; display: flex; align-items: center; gap: 8px;
+    background: rgba(14,26,22,.85); backdrop-filter: blur(20px);
+    border: 1px solid var(--dark-border); border-radius: 100px;
+    padding: 6px 8px 6px 20px;
+  }
+  .floating-nav a { font-size: 13px; color: var(--dark-muted); padding: 6px 14px; border-radius: 100px; transition: all .2s; }
+  .floating-nav a:hover { color: #fff; background: var(--teal-10); }
+  .floating-nav .nav-cta {
+    background: var(--primary); color: #fff; font-weight: 600;
+    padding: 8px 20px; margin-left: 4px;
+  }
+  .floating-nav .nav-cta:hover { background: var(--primary-light); }
+
+  /* ---- Concentric circles motif ---- */
+  .circles-motif {
+    position: absolute; border-radius: 50%;
+    border: 1px solid var(--dark-border);
+    pointer-events: none;
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 120px 32px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,171,137,.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero .circles-motif:nth-child(2) { width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .hero .circles-motif:nth-child(3) { width: 600px; height: 600px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .hero .circles-motif:nth-child(4) { width: 800px; height: 800px; top: 50%; left: 50%; transform: translate(-50%,-50%); opacity: .5; }
+
+  .hero-logo { position: relative; z-index: 2; margin-bottom: 48px; }
+  .hero-logo svg { height: 48px; }
+
+  .hero h1 {
+    position: relative; z-index: 2;
+    font-size: 72px; font-weight: 800; line-height: 1.05;
+    letter-spacing: -0.04em; max-width: 800px;
+    margin-bottom: 28px;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-glow));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    position: relative; z-index: 2;
+    font-size: 20px; color: var(--dark-muted);
+    max-width: 500px; margin-bottom: 44px;
+  }
+  .hero-cta {
+    position: relative; z-index: 2;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--primary); color: #fff;
+    padding: 16px 36px; border-radius: 100px;
+    font-size: 17px; font-weight: 600;
+    transition: all .3s; border: none; cursor: pointer;
+  }
+  .hero-cta:hover {
+    background: var(--primary-light);
+    box-shadow: 0 0 40px rgba(0,171,137,.3);
+    transform: translateY(-2px);
+  }
+  .hero-cta .arrow { transition: transform .2s; }
+  .hero-cta:hover .arrow { transform: translateX(4px); }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    z-index: 2; color: var(--dark-muted); font-size: 13px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: float 2s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+  /* ---- Problem as conversation ---- */
+  .problema {
+    padding: 120px 32px; position: relative;
+  }
+  .problema-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .problema-text h2 {
+    font-size: 44px; font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1.15; margin-bottom: 24px;
+  }
+  .problema-text h2 .dim { color: rgba(255,255,255,.3); }
+  .problema-text p { font-size: 17px; color: var(--dark-muted); line-height: 1.7; }
+
+  /* WhatsApp-style chat simulation */
+  .chat-sim {
+    background: var(--dark-card); border: 1px solid var(--dark-border);
+    border-radius: 20px; padding: 32px; position: relative;
+  }
+  .chat-sim::before {
+    content: 'WhatsApp'; position: absolute; top: -12px; left: 24px;
+    background: var(--dark); padding: 4px 12px; border-radius: 100px;
+    font-size: 11px; color: var(--dark-muted); border: 1px solid var(--dark-border);
+    letter-spacing: .05em; text-transform: uppercase; font-weight: 600;
+  }
+  .chat-bubble {
+    padding: 12px 16px; border-radius: 16px; margin-bottom: 10px;
+    font-size: 14px; max-width: 85%; line-height: 1.5;
+  }
+  .chat-bubble.sent {
+    background: var(--primary); margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-bubble.failed {
+    background: rgba(231,0,10,.15); border: 1px solid rgba(231,0,10,.3);
+    margin-left: auto; border-bottom-right-radius: 4px;
+    color: rgba(255,255,255,.6);
+  }
+  .chat-bubble.received {
+    background: rgba(255,255,255,.08);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-time { font-size: 11px; color: rgba(255,255,255,.25); margin-bottom: 16px; text-align: center; }
+  .chat-gap { height: 20px; display: flex; align-items: center; justify-content: center; }
+  .chat-gap span { font-size: 11px; color: rgba(255,255,255,.2); letter-spacing: .1em; }
+
+  /* ---- Solution ---- */
+  .solucion {
+    padding: 120px 32px; position: relative;
+  }
+  .solucion-inner {
+    max-width: 900px; margin: 0 auto; text-align: center;
+  }
+  .solucion h2 {
+    font-size: 48px; font-weight: 800; letter-spacing: -0.03em;
+    margin-bottom: 24px; line-height: 1.1;
+  }
+  .solucion-desc { font-size: 18px; color: var(--dark-muted); margin-bottom: 56px; max-width: 560px; margin-left: auto; margin-right: auto; }
+  .solucion-pills {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  }
+  .solucion-pill {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--dark-card); border: 1px solid var(--dark-border);
+    padding: 16px 24px; border-radius: 16px; text-align: left;
+    max-width: 340px; flex: 1; min-width: 280px;
+    transition: border-color .2s;
+  }
+  .solucion-pill:hover { border-color: var(--primary-light); }
+  .pill-icon {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px;
+    background: var(--teal-10); color: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .solucion-pill span { font-size: 15px; font-weight: 500; }
+
+  /* ---- Features as bento grid ---- */
+  .features {
+    padding: 120px 32px; position: relative;
+  }
+  .features-header {
+    max-width: 1100px; margin: 0 auto 56px; text-align: center;
+  }
+  .features-header h2 { font-size: 44px; font-weight: 800; letter-spacing: -0.03em; }
+  .bento {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .bento-card {
+    background: var(--dark-card); border: 1px solid var(--dark-border);
+    border-radius: 20px; padding: 36px; position: relative;
+    overflow: hidden; transition: border-color .3s;
+  }
+  .bento-card:hover { border-color: rgba(0,171,137,.3); }
+  .bento-card.span-2 { grid-column: span 2; }
+  .bento-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .bento-card p { font-size: 14px; color: var(--dark-muted); line-height: 1.6; }
+  .bento-card .bento-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--teal-10); color: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+  .bento-card .bento-glow {
+    position: absolute; top: -40px; right: -40px; width: 160px; height: 160px;
+    background: radial-gradient(circle, var(--teal-10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ---- How it works ---- */
+  .como {
+    padding: 120px 32px; position: relative;
+  }
+  .como-inner { max-width: 900px; margin: 0 auto; }
+  .como h2 {
+    font-size: 44px; font-weight: 800; letter-spacing: -0.03em;
+    margin-bottom: 64px; text-align: center;
+  }
+  .como-steps { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .como-step {
+    display: grid; grid-template-columns: 80px 1fr; gap: 32px;
+    padding: 32px 0; border-top: 1px solid var(--dark-border);
+  }
+  .como-step:last-child { border-bottom: 1px solid var(--dark-border); }
+  .step-num {
+    font-size: 56px; font-weight: 800; line-height: 1;
+    background: linear-gradient(180deg, var(--primary-light), rgba(0,171,137,.2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .como-step h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .como-step p { font-size: 15px; color: var(--dark-muted); }
+
+  /* ---- Historia ---- */
+  .historia {
+    padding: 120px 32px; position: relative;
+  }
+  .historia-inner {
+    max-width: 800px; margin: 0 auto; position: relative;
+  }
+  .historia-quote {
+    font-size: 28px; font-weight: 600; line-height: 1.5;
+    margin-bottom: 32px; letter-spacing: -0.01em;
+  }
+  .historia-quote .dim { color: var(--dark-muted); font-weight: 400; }
+  .historia-context {
+    display: flex; gap: 16px; align-items: center;
+    padding-top: 24px; border-top: 1px solid var(--dark-border);
+  }
+  .historia-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700;
+  }
+  .historia-meta span { display: block; }
+  .historia-meta .name { font-size: 15px; font-weight: 600; }
+  .historia-meta .role { font-size: 13px; color: var(--dark-muted); }
+
+  .historia-detail {
+    margin-top: 48px; padding: 32px; background: var(--dark-card);
+    border: 1px solid var(--dark-border); border-radius: 20px;
+  }
+  .historia-detail p { font-size: 16px; color: var(--dark-muted); line-height: 1.7; margin-bottom: 16px; }
+  .historia-detail p:last-child { margin-bottom: 0; color: var(--primary-light); font-weight: 500; }
+
+  /* ---- Para quién ---- */
+  .para-quien {
+    padding: 120px 32px;
+  }
+  .para-quien-inner { max-width: 1100px; margin: 0 auto; }
+  .para-quien h2 {
+    font-size: 44px; font-weight: 800; letter-spacing: -0.03em;
+    margin-bottom: 48px; text-align: center;
+  }
+  .perfiles-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .perfil-card {
+    padding: 36px; background: var(--dark-card);
+    border: 1px solid var(--dark-border); border-radius: 20px;
+    transition: all .3s;
+  }
+  .perfil-card:hover { border-color: var(--primary-light); transform: translateY(-4px); }
+  .perfil-card h3 {
+    font-size: 18px; font-weight: 700; margin-bottom: 8px;
+    color: var(--primary-light);
+  }
+  .perfil-card p { font-size: 14px; color: var(--dark-muted); line-height: 1.6; }
+
+  /* ---- CTA Final ---- */
+  .cta-final {
+    padding: 160px 32px; text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-final .circles-motif:nth-child(1) { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .cta-final .circles-motif:nth-child(2) { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .cta-final .circles-motif:nth-child(3) { width: 700px; height: 700px; top: 50%; left: 50%; transform: translate(-50%,-50%); opacity: .5; }
+  .cta-glow {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,171,137,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-final h2 {
+    position: relative; z-index: 2;
+    font-size: 52px; font-weight: 800; letter-spacing: -0.03em;
+    margin-bottom: 20px; line-height: 1.1;
+  }
+  .cta-final p {
+    position: relative; z-index: 2;
+    font-size: 18px; color: var(--dark-muted); margin-bottom: 40px;
+  }
+  .cta-final .hero-cta { position: relative; z-index: 2; }
+
+  /* ---- Footer ---- */
+  .footer {
+    padding: 32px; border-top: 1px solid var(--dark-border);
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1100px; margin: 0 auto;
+    font-size: 13px; color: rgba(255,255,255,.3);
+  }
+  .footer a:hover { color: var(--dark-muted); }
+  .footer nav { display: flex; gap: 20px; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 42px; }
+    .problema-inner { grid-template-columns: 1fr; gap: 48px; }
+    .bento { grid-template-columns: 1fr; }
+    .bento-card.span-2 { grid-column: span 1; }
+    .perfiles-row { grid-template-columns: 1fr; }
+    .floating-nav { display: none; }
+    .solucion h2, .features-header h2, .como h2, .para-quien h2 { font-size: 32px; }
+    .cta-final h2 { font-size: 36px; }
+    .solucion-pills { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating Nav -->
+<nav class="floating-nav">
+  <a href="#features">Funciones</a>
+  <a href="#como-funciona">Proceso</a>
+  <a href="#historia">Historia</a>
+  <a href="/login" class="nav-cta">Probar</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="circles-motif" style="width:400px;height:400px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="circles-motif" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="circles-motif" style="width:800px;height:800px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.5"></div>
+
+  <div class="hero-logo">
+    <svg viewBox="70 400 880 240" fill="#fff" xmlns="http://www.w3.org/2000/svg" style="height:48px"><g transform="translate(0,1034) scale(0.1,-0.1)" stroke="none"><path d="M1820 6120 c-213 -28 -398 -114 -548 -255 -192 -181 -283 -368 -313 -643 -14 -130 4 -275 52 -419 29 -88 113 -243 135 -250 12 -4 224 203 224 218 0 6 -11 29 -24 52 -51 88 -71 180 -70 322 0 114 4 140 27 209 36 105 83 180 165 263 81 81 167 134 277 170 68 22 98 26 195 26 168 0 246 -28 416 -148 11 -8 40 16 126 102 129 129 129 115 4 197 -152 101 -312 152 -496 160 -58 3 -134 1 -170 -4z"/><path d="M6417 5961 c-36 -8 -93 -54 -113 -92 -8 -17 -16 -48 -16 -69 -1 -119 82 -189 213 -177 107 9 169 74 169 175 0 117 -119 194 -253 163z"/><path d="M8980 5625 c0 -140 -2 -255 -5 -255 -3 0 -25 15 -50 34 -80 61 -145 80 -270 80 -126 -1 -199 -22 -295 -86 -70 -46 -100 -78 -145 -153 -59 -98 -80 -181 -79 -315 0 -131 16 -197 71 -303 87 -166 293 -272 493 -253 101 9 164 32 236 87 l66 50 -4 -58 -3 -58 148 -3 147 -3 0 746 0 745 -155 0 -155 0 0 -255z m-152 -426 c111 -55 157 -134 156 -271 -1 -74 -5 -94 -29 -140 -35 -69 -55 -89 -118 -124 -45 -25 -62 -29 -127 -28 -116 1 -193 52 -242 163 -31 69 -30 198 1 269 64 143 220 201 359 131z"/><path d="M4480 5095 l0 -705 150 0 150 0 0 418 0 417 61 -105 c122 -210 302 -516 324 -550 l22 -35 79 3 80 3 71 122 c39 67 116 201 172 297 55 96 114 198 130 225 l30 50 1 -423 0 -423 150 3 151 3 0 248 c-1 136 -1 452 -1 702 l0 455 -139 0 -139 0 -249 -430 c-136 -236 -251 -428 -255 -427 -7 2 -58 87 -382 640 l-128 217 -139 0 -139 0 0 -705z"/><path d="M2643 5579 c-62 -61 -113 -114 -113 -118 0 -3 13 -38 30 -78 50 -120 61 -276 29 -412 -19 -75 -83 -202 -134 -264 -222 -267 -608 -322 -887 -125 -14 10 -33 -4 -130 -97 -62 -60 -114 -112 -116 -115 -4 -10 152 -108 220 -139 148 -67 356 -95 530 -71 365 49 669 294 798 643 64 174 70 422 14 621 -23 82 -108 266 -123 266 -3 0 -57 -50 -118 -111z"/><path d="M3664 5475 c-73 -16 -134 -45 -191 -92 l-43 -34 0 60 0 61 -150 0 -150 0 0 -540 0 -540 155 0 155 0 0 303 c0 359 4 385 79 457 68 66 145 84 248 58 30 -7 59 -24 84 -49 60 -60 69 -120 69 -473 l0 -296 155 0 155 0 0 333 c-1 372 -9 450 -60 553 -79 162 -293 246 -506 199z"/><path d="M7445 5485 c-5 -2 -36 -9 -68 -15 -40 -8 -80 -27 -131 -61 -41 -27 -77 -49 -81 -49 -4 0 -5 25 -3 55 l3 55 -147 0 -148 0 0 -540 0 -540 155 0 155 0 0 303 c0 361 4 385 80 458 50 49 105 69 188 69 50 0 119 -36 155 -82 49 -62 57 -120 57 -451 l0 -298 153 3 152 3 -1 345 c-1 237 -5 364 -14 405 -16 79 -64 176 -109 220 -44 45 -159 102 -230 115 -52 10 -145 12 -166 5z"/><path d="M1829 5467 c-141 -53 -229 -178 -229 -327 0 -100 29 -171 99 -241 168 -168 450 -119 552 96 25 51 29 73 29 141 0 48 -7 100 -16 128 -21 60 -97 143 -166 181 -45 25 -66 30 -143 32 -58 2 -103 -2 -126 -10z"/><path d="M6320 4930 l0 -540 155 0 155 0 0 540 0 540 -155 0 -155 0 0 -540z"/></g></svg>
+  </div>
+
+  <h1>Que tus clientes<br><span class="highlight">piensen en vos</span><br>cuando te necesiten</h1>
+  <p>OnMind envía mensajes por WhatsApp por vos, con tu número real, en el momento justo.</p>
+  <a href="/login" class="hero-cta">Empezar ahora <span class="arrow">&rarr;</span></a>
+
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10m0 0l-3-3m3 3l3-3"/></svg>
+  </div>
+</section>
+
+<!-- Problema -->
+<section class="problema">
+  <div class="problema-inner">
+    <div class="problema-text">
+      <h2>El problema no es<br>tu servicio.<br><span class="dim">Es que tus clientes<br>se olvidan de vos.</span></h2>
+    </div>
+    <div class="chat-sim">
+      <div class="chat-time">Lunes 9:00</div>
+      <div class="chat-bubble sent">Hola María! Cómo estás? Te escribo porque vi una propiedad que te puede interesar...</div>
+      <div class="chat-bubble received">Ah genial Martín, justo estaba buscando!</div>
+      <div class="chat-gap"><span>3 MESES DESPUÉS</span></div>
+      <div class="chat-time">Jueves 14:22</div>
+      <div class="chat-bubble failed">Borrador: Hola María, quería saber si seguís... <span style="opacity:.5">— No enviado</span></div>
+      <div class="chat-bubble received" style="margin-top:20px">Hola! Quería contarte que al final compré con otra inmobiliaria. Gracias igual!</div>
+    </div>
+  </div>
+</section>
+
+<!-- Solución -->
+<section class="solucion">
+  <div class="solucion-inner">
+    <h2>OnMind mantiene<br>el vínculo por vos</h2>
+    <p class="solucion-desc">Conectás tu WhatsApp, cargás tus contactos, definís qué mensajes enviar. OnMind se encarga del resto.</p>
+    <div class="solucion-pills">
+      <div class="solucion-pill">
+        <div class="pill-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <span>Tu número real, no un bot desconocido</span>
+      </div>
+      <div class="solucion-pill">
+        <div class="pill-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <span>El mensaje justo, en el momento justo</span>
+      </div>
+      <div class="solucion-pill">
+        <div class="pill-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="7" r="3"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M19 8v6m-3-3h6"/></svg></div>
+        <span>Una persona donde antes necesitabas un equipo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features bento -->
+<section id="features" class="features">
+  <div class="features-header">
+    <h2>Lo que podés hacer</h2>
+  </div>
+  <div class="bento">
+    <div class="bento-card">
+      <div class="bento-glow"></div>
+      <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M5.5 5.5L3 3"/><path d="M18.5 5.5L21 3"/></svg></div>
+      <h3>Plan de seguimiento</h3>
+      <p>OnMind distribuye los contactos a lo largo del año para que siempre estés presente sin saturar a nadie.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="7" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/></svg></div>
+      <h3>Contactos organizados</h3>
+      <p>Categorizá por nivel de relación, etiquetas y tipo. Sabé exactamente a quién escribirle y cuándo.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="4" x2="9" y2="10"/><line x1="15" y1="4" x2="15" y2="10"/></svg></div>
+      <h3>Mensajes programados</h3>
+      <p>Configurá mensajes automáticos para cumpleaños, fechas especiales, o simplemente para no perder contacto.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-5 4v-4a2 2 0 0 1-1-1.7V8a2 2 0 0 1 2-2z"/></svg></div>
+      <h3>Todo el historial</h3>
+      <p>Conversaciones de WhatsApp centralizadas. Sabé qué se dijo, cuándo y por qué.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div>
+      <h3>Plantillas personales</h3>
+      <p>Creá mensajes con el nombre del cliente, su empresa o cualquier dato. Cada mensaje se siente personal porque lo es.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 20h16"/><rect x="4" y="14" width="3" height="6" rx="0.5"/><rect x="10.5" y="9" width="3" height="11" rx="0.5"/><rect x="17" y="4" width="3" height="16" rx="0.5"/></svg></div>
+      <h3>Métricas claras</h3>
+      <p>Cuántos mensajes se enviaron, entregaron y leyeron. Sin misterios.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section id="como-funciona" class="como">
+  <div class="como-inner">
+    <h2>Arrancás en minutos</h2>
+    <div class="como-steps">
+      <div class="como-step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Conectá tu WhatsApp</h3>
+          <p>Escaneás un código QR con tu celular y listo. Tu número, tu WhatsApp, tus clientes.</p>
+        </div>
+      </div>
+      <div class="como-step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Cargá tus contactos</h3>
+          <p>Importá tu base de clientes y organizalos por categoría. OnMind sugiere una frecuencia de contacto para cada nivel.</p>
+        </div>
+      </div>
+      <div class="como-step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Configurá y olvidate</h3>
+          <p>Elegí qué mensajes enviar, cuándo y a quién. OnMind los programa y los envía. Vos solo revisás las respuestas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Historia -->
+<section id="historia" class="historia">
+  <div class="historia-inner">
+    <div class="historia-quote">
+      Pasamos de dos personas full-time enviando mensajes a <span class="dim">una sola persona revisando unos minutos al día. Cero olvidos. Más tiempo para lo que importa.</span>
+    </div>
+    <div class="historia-context">
+      <div class="historia-avatar">M</div>
+      <div class="historia-meta">
+        <span class="name">Martín</span>
+        <span class="role">Agente inmobiliario, Uruguay</span>
+      </div>
+    </div>
+    <div class="historia-detail">
+      <p>Martín tenía un sistema de comunicación con clientes que le daba resultados extraordinarios: planillas compartidas, recordatorios manuales, dos personas dedicadas. Funcionaba, pero era insostenible.</p>
+      <p>Lo que antes era un método que pocos podían replicar, ahora es una herramienta que cualquier negocio puede usar desde el día uno.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Para quién -->
+<section class="para-quien">
+  <div class="para-quien-inner">
+    <h2>Hecho para negocios<br>que viven de sus clientes</h2>
+    <div class="perfiles-row">
+      <div class="perfil-card">
+        <h3>Inmobiliarias</h3>
+        <p>Que tu cliente te llame a vos cuando aparezca una propiedad, no al competidor.</p>
+      </div>
+      <div class="perfil-card">
+        <h3>Profesionales independientes</h3>
+        <p>Abogados, contadores, asesores — mantené el vínculo sin dedicarle horas.</p>
+      </div>
+      <div class="perfil-card">
+        <h3>Negocios con cartera</h3>
+        <p>Si tu negocio depende de que los clientes vuelvan, OnMind te ayuda a que no se olviden de vos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Final -->
+<section class="cta-final">
+  <div class="cta-glow"></div>
+  <div class="circles-motif" style="width:300px;height:300px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="circles-motif" style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="circles-motif" style="width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.5"></div>
+
+  <h2>Dejá de perder clientes<br>por falta de contacto</h2>
+  <p>Conectá tu WhatsApp y empezá a estar presente en la mente de tus clientes.</p>
+  <a href="/login" class="hero-cta">Solicita una demo <span class="arrow">&rarr;</span></a>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <span>&copy; 2026 OnMind</span>
+  <nav>
+    <a href="#features">Funciones</a>
+    <a href="#como-funciona">Proceso</a>
+    <a href="/login">Iniciar sesion</a>
+  </nav>
+</footer>
+
+</body>
+</html>

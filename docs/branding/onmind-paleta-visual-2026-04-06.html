@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>OnMind — Paleta de Colores</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { font-size: 24pt; color: #0A0A0A; margin-bottom: 5px; }
+        h2 { font-size: 14pt; color: #007056; margin-top: 30px; margin-bottom: 10px; border-bottom: 1px solid #E5E5E5; padding-bottom: 5px; }
+        .subtitle { color: #737373; font-style: italic; margin-bottom: 5px; }
+        .meta { color: #737373; font-size: 10pt; margin-bottom: 20px; }
+        .color-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+        }
+        .color-swatch {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            border: 1px solid #E5E5E5;
+        }
+        .color-info { flex: 1; }
+        .color-name { font-weight: bold; font-size: 11pt; color: #0A0A0A; }
+        .color-hex { font-family: monospace; font-size: 10pt; color: #737373; }
+        .color-use { font-size: 10pt; color: #737373; margin-top: 2px; }
+        .section-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .color-card {
+            display: flex;
+            align-items: center;
+            width: 48%;
+            margin-bottom: 8px;
+        }
+        .color-card .color-swatch {
+            width: 45px;
+            height: 45px;
+        }
+        .note {
+            background: #F4F4F4;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 10pt;
+            color: #737373;
+            margin-top: 25px;
+        }
+        hr { border: none; border-top: 1px solid #E5E5E5; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>OnMind — Paleta de Colores</h1>
+    <p class="subtitle">Colores oficiales de la marca</p>
+    <p class="meta"><strong>Autor:</strong> Raphael & Claude AI<br><strong>Fecha:</strong> 2026-04-06</p>
+    <hr>
+
+    <h2>Color Primario</h2>
+    <p style="font-size:10pt; color:#737373; margin-bottom:15px;">El teal de OnMind. Transmite confianza, profesionalismo y cercanía.</p>
+
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #007056;"></div>
+        <div class="color-info">
+            <div class="color-name">Primary</div>
+            <div class="color-hex">#007056</div>
+            <div class="color-use">Botones, íconos principales, sidebar, links</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #00876D;"></div>
+        <div class="color-info">
+            <div class="color-name">Primary Hover</div>
+            <div class="color-hex">#00876D</div>
+            <div class="color-use">Hover de elementos primarios, foco</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #00AB89;"></div>
+        <div class="color-info">
+            <div class="color-name">Primary Light</div>
+            <div class="color-hex">#00AB89</div>
+            <div class="color-use">Uso en fondos oscuros (dark mode)</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #004A37;"></div>
+        <div class="color-info">
+            <div class="color-name">Primary Dark</div>
+            <div class="color-hex">#004A37</div>
+            <div class="color-use">Texto sobre fondos claros de acento</div>
+        </div>
+    </div>
+
+    <h2>Color de Acento</h2>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #E1F3ED;"></div>
+        <div class="color-info">
+            <div class="color-name">Accent Background</div>
+            <div class="color-hex">#E1F3ED</div>
+            <div class="color-use">Fondos destacados, cards, badges</div>
+        </div>
+    </div>
+
+    <h2>Neutros</h2>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #0A0A0A;"></div>
+        <div class="color-info">
+            <div class="color-name">Foreground</div>
+            <div class="color-hex">#0A0A0A</div>
+            <div class="color-use">Texto principal</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #737373;"></div>
+        <div class="color-info">
+            <div class="color-name">Muted</div>
+            <div class="color-hex">#737373</div>
+            <div class="color-use">Texto secundario, descripciones</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #E5E5E5;"></div>
+        <div class="color-info">
+            <div class="color-name">Border</div>
+            <div class="color-hex">#E5E5E5</div>
+            <div class="color-use">Bordes, separadores</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #F4F4F4;"></div>
+        <div class="color-info">
+            <div class="color-name">Surface</div>
+            <div class="color-hex">#F4F4F4</div>
+            <div class="color-use">Fondos secundarios</div>
+        </div>
+    </div>
+
+    <h2>Colores de Estado</h2>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #E7000A;"></div>
+        <div class="color-info">
+            <div class="color-name">Error / Destructivo</div>
+            <div class="color-hex">#E7000A</div>
+            <div class="color-use">Errores, acciones destructivas, alertas críticas</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #007056;"></div>
+        <div class="color-info">
+            <div class="color-name">Éxito</div>
+            <div class="color-hex">#007056</div>
+            <div class="color-use">Confirmaciones (usa el primary)</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #F59E0B;"></div>
+        <div class="color-info">
+            <div class="color-name">Alerta</div>
+            <div class="color-hex">#F59E0B</div>
+            <div class="color-use">Advertencias, atención requerida</div>
+        </div>
+    </div>
+    <div class="color-row">
+        <div class="color-swatch" style="background-color: #00876D;"></div>
+        <div class="color-info">
+            <div class="color-name">Info</div>
+            <div class="color-hex">#00876D</div>
+            <div class="color-use">Información, tips</div>
+        </div>
+    </div>
+
+    <div class="note">
+        <strong>Nota:</strong> Esta paleta está derivada de los colores actuales de la app OnMind. Es consistente entre producto y marca. Para marketing usar Primary (#007056) como dominante y Accent (#E1F3ED) para fondos.
+    </div>
+</body>
+</html>
