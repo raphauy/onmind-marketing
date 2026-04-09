@@ -23,11 +23,11 @@ export default function Home() {
   return (
     <div className="overflow-x-hidden bg-l-bg text-l-text">
       {/* Floating Nav */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-l-card/85 backdrop-blur-xl border border-l-border rounded-full px-5 py-1.5">
-        <a href="#features" className="text-[13px] text-l-muted px-3.5 py-1.5 rounded-full hover:text-l-text hover:bg-teal-10 transition-all">Funciones</a>
-        <a href="#como-funciona" className="text-[13px] text-l-muted px-3.5 py-1.5 rounded-full hover:text-l-text hover:bg-teal-10 transition-all">Proceso</a>
-        <a href="#historia" className="text-[13px] text-l-muted px-3.5 py-1.5 rounded-full hover:text-l-text hover:bg-teal-10 transition-all">Historia</a>
-        <span className="bg-primary/50 text-l-text/60 font-semibold text-[13px] px-5 py-2 rounded-full ml-1 cursor-default">Ingresar</span>
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 md:gap-2 bg-l-card/85 backdrop-blur-xl border border-l-border rounded-full px-3 md:px-5 py-1.5 max-w-[calc(100%-2rem)]">
+        <a href="#features" className="text-[11px] md:text-[13px] text-l-muted px-2 md:px-3.5 py-1.5 rounded-full hover:text-l-text hover:bg-teal-10 transition-all whitespace-nowrap">Funciones</a>
+        <a href="#como-funciona" className="text-[11px] md:text-[13px] text-l-muted px-2 md:px-3.5 py-1.5 rounded-full hover:text-l-text hover:bg-teal-10 transition-all whitespace-nowrap">Proceso</a>
+        <a href="#historia" className="text-[11px] md:text-[13px] text-l-muted px-2 md:px-3.5 py-1.5 rounded-full hover:text-l-text hover:bg-teal-10 transition-all whitespace-nowrap">Historia</a>
+        <span className="bg-primary/50 text-l-text/60 font-semibold text-[11px] md:text-[13px] px-3 md:px-5 py-2 rounded-full ml-0.5 md:ml-1 cursor-default whitespace-nowrap">Ingresar</span>
       </nav>
 
       {/* Hero */}
@@ -55,7 +55,7 @@ export default function Home() {
           Solicitar demo <ArrowRight className="w-4 h-4" />
         </a>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 text-l-muted text-[13px] flex flex-col items-center gap-2 animate-bounce">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 text-l-muted text-[13px] hidden md:flex flex-col items-center gap-2 animate-bounce">
           <span>Scroll</span>
           <ArrowDown className="w-4 h-4" />
         </div>
