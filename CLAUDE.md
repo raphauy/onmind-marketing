@@ -1,5 +1,7 @@
 # OnMind Marketing
 
+**Comunicarse siempre en español con el usuario.**
+
 Proyecto de marketing para **OnMind CRM** — SaaS de gestión de comunicaciones WhatsApp para negocios que quieren mantener el vínculo con sus clientes. Primer rubro de referencia: inmobiliario.
 
 ## Contexto rápido

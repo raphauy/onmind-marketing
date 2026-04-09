@@ -7,7 +7,7 @@ export function OnMindLogo({
 }) {
   return (
     <svg
-      viewBox="70 400 880 240"
+      viewBox="90 418 844 204"
       fill={color}
       xmlns="http://www.w3.org/2000/svg"
       className={className}

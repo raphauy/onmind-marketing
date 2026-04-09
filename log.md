@@ -36,7 +36,32 @@
 - Instalados 12 skills de marketing en `.claude/skills/` (a nivel proyecto):
   - De coreyhaines31/marketingskills: copywriting, copy-editing, content-strategy, social-content, page-cro, launch-strategy
   - De stevenflanagan1/social-ai-team: brand-onboarding, caption-writer, content-calendar, social-creative-designer, social-media-manager, social-performance-review
-- **Próximo paso:** usar los skills para arrancar con el contenido de la landing (Línea B del plan).
+- Auditoría de la landing actual de OnMind (page.tsx del repo principal): copy genérico, sin diferencial, sin historia, badge "en desarrollo".
+- Definido contenido nuevo de la landing (`landing/contenido-landing.json`): hero emocional, sección problema, solución, features, cómo funciona, historia de Martín, para quién, CTA.
+- Decisión: campañas no se destacan en la landing (riesgo de bloqueos Meta). Foco en mensajes programados y plan de seguimiento.
+- Creadas 4 versiones HTML de la landing: minimal, bold, editorial, creative (dark con círculos concéntricos, chat simulado, bento grid).
+- Todas con Geist Sans, paleta de marca, logo SVG con viewBox corregido, sin emojis (íconos SVG custom).
+- Decisión: "Solicita una demo" en vez de "Probá OnMind gratis". "Ingresar" deshabilitado por ahora.
+- **Transformación a proyecto Next.js + Tailwind + shadcn:**
+  - Se reinicializó el proyecto con create-next-app (pnpm), se restauraron todos los archivos de marketing.
+  - Se instaló shadcn/ui (sidebar, card, collapsible, button), react-markdown, remark-gfm, rehype-raw, @tailwindcss/typography, lucide-react, geist.
+  - Estructura de rutas:
+    - `/` → Home simple con logo "OnMind Marketing" + botón Dashboard
+    - `/dashboard` → Panel con sidebar shadcn (Dashboard, Guía de marca, Landings)
+    - `/dashboard/marca` → Guía de marca renderizada desde markdown con imágenes
+    - `/dashboard/landings` → Grid de 4 versiones con links que abren en tab nuevo
+    - `/landings/minimal|bold|editorial|creative` → 4 landings completas en React/Tailwind
+  - Contenido compartido en `src/lib/landing-content.ts` (usado por las 4 versiones React).
+  - Favicon generado desde isotipo SVG.
+  - Dark mode eliminado del panel (solo light). Las landings dark tienen su propio bg inline.
+  - Imágenes del logo copiadas a `public/brand/` para la guía de marca.
+  - Código en inglés, UI en español.
+- **Pendiente:**
+  - Afinar alineación logo/texto en home (baseline del SVG vs texto HTML).
+  - Revisar rendering del markdown de la guía de marca (verificar imágenes y HTML embebido).
+  - Iterar diseño de la landing v4 creative.
+  - Crear issues en Linear para Fase 2.
+  - Deploy a Vercel en marketing.onmindcrm.com.
 
 ## 2026-04-07
 - Exploración de logo con Ideogram (limitado) y Gemini (buenos resultados).
