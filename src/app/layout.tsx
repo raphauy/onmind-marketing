@@ -8,7 +8,7 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.onmindcrm.com"),
+  metadataBase: new URL("https://marketing.onmindcrm.com"),
   title: {
     default: "OnMind — Que tus clientes piensen en vos",
     template: "%s | OnMind",
