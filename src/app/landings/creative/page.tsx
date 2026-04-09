@@ -240,7 +240,7 @@ export default function Home() {
       <section className="px-8 py-28">
         <div className="max-w-[1100px] mx-auto">
           <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-12 text-center">
-            Hecho para negocios<br />que viven de sus clientes
+            Hecho para negocios<br />que viven del vínculo con sus clientes
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             {[
