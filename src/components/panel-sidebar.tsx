@@ -16,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -32,7 +33,9 @@ const landingVersions = [
 
 export function PanelSidebar() {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
   const [landingsOpen, setLandingsOpen] = useState(pathname.startsWith("/dashboard/landings"));
+  const closeMobile = () => setOpenMobile(false);
 
   return (
     <Sidebar>
@@ -51,7 +54,7 @@ export function PanelSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname === "/dashboard"}
-                  render={<Link href="/dashboard" />}
+                  render={<Link href="/dashboard" onClick={closeMobile} />}
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   <span>Dashboard</span>
@@ -60,7 +63,7 @@ export function PanelSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname === "/dashboard/marca"}
-                  render={<Link href="/dashboard/marca" />}
+                  render={<Link href="/dashboard/marca" onClick={closeMobile} />}
                 >
                   <Palette className="w-4 h-4" />
                   <span>Guía de marca</span>
@@ -86,7 +89,7 @@ export function PanelSidebar() {
                       {landingVersions.map((v) => (
                         <SidebarMenuSubItem key={v.href}>
                           <SidebarMenuSubButton
-                            render={<a href={v.href} target="_blank" rel="noopener noreferrer" />}
+                            render={<a href={v.href} target="_blank" rel="noopener noreferrer" onClick={closeMobile} />}
                           >
                             {v.label}
                           </SidebarMenuSubButton>
