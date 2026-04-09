@@ -76,7 +76,7 @@ export function PanelSidebar() {
             <SidebarMenu>
               <Collapsible open={landingsOpen} onOpenChange={setLandingsOpen}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton render={<CollapsibleTrigger />}>
+                  <SidebarMenuButton render={<CollapsibleTrigger />} className="cursor-pointer">
                       <Globe className="w-4 h-4" />
                       <span>Landings</span>
                       <ChevronRight className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />

@@ -49,8 +49,8 @@ export const features = [
     desc: "Creá mensajes con el nombre del cliente, su empresa o cualquier dato relevante. Cada mensaje se siente personal porque lo es.",
   },
   {
-    title: "Métricas claras",
-    desc: "Cuántos mensajes se enviaron, cuántos se entregaron, cuántos se leyeron. Sin misterios.",
+    title: "Modo vacaciones",
+    desc: "Activás el modo vacaciones y OnMind pausa todo. Cuando volvés, retoma los envíos como si nada.",
   },
 ];
 

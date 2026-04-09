@@ -6,7 +6,7 @@ import {
   CalendarDays,
   MessageSquare,
   FileText,
-  BarChart3,
+  Palmtree,
   Shield,
   Timer,
   UserPlus,
@@ -174,7 +174,7 @@ export default function Home() {
               { icon: CalendarDays, title: "Mensajes programados", desc: "Configurá mensajes automáticos para cumpleaños, fechas especiales, o simplemente para no perder contacto." },
               { icon: MessageSquare, title: "Todo el historial", desc: "Conversaciones de WhatsApp centralizadas. Sabé qué se dijo, cuándo y por qué." },
               { icon: FileText, title: "Plantillas personales", desc: "Creá mensajes con el nombre del cliente, su empresa o cualquier dato. Cada mensaje se siente personal porque lo es." },
-              { icon: BarChart3, title: "Métricas claras", desc: "Cuántos mensajes se enviaron, entregaron y leyeron. Sin misterios." },
+              { icon: Palmtree, title: "Modo vacaciones", desc: "Activás el modo vacaciones y OnMind pausa todo. Cuando volvés, retoma los envíos como si nada." },
             ].map((f) => (
               <div key={f.title} className="relative overflow-hidden bg-l-card border border-l-border rounded-2xl p-9 hover:border-primary-light/30 transition-colors">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-[radial-gradient(circle,var(--teal-10)_0%,transparent_70%)] pointer-events-none" />

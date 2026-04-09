@@ -1,10 +1,10 @@
 import { OnMindLogo } from "@/components/logo";
 import * as c from "@/lib/landing-content";
 import {
-  Users, CalendarDays, MessageSquare, Zap, FileText, BarChart3,
+  Users, CalendarDays, MessageSquare, Zap, FileText, Palmtree,
 } from "lucide-react";
 
-const featureIcons = [Users, CalendarDays, MessageSquare, Zap, FileText, BarChart3];
+const featureIcons = [Users, CalendarDays, MessageSquare, Zap, FileText, Palmtree];
 
 export default function BoldLanding() {
   return (
