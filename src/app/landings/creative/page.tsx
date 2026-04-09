@@ -1,4 +1,5 @@
 import { OnMindLogo } from "@/components/logo";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Clock,
@@ -63,13 +64,13 @@ export default function Home() {
       {/* Problema */}
       <section className="px-8 py-28">
         <div className="max-w-[1100px] mx-auto grid md:grid-cols-2 gap-20 items-center">
-          <div>
+          <ScrollReveal>
             <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] leading-[1.15] mb-6">
               El problema no es<br />tu servicio.<br />
               <span className="text-l-faint">Es que tus clientes<br />se olvidan de vos.</span>
             </h2>
-          </div>
-          <div className="bg-l-card border border-l-border rounded-2xl p-8 relative">
+          </ScrollReveal>
+          <ScrollReveal delay={0.15}><div className="bg-l-card border border-l-border rounded-2xl p-8 relative">
             <span className="absolute -top-3 left-6 bg-l-bg px-3 py-1 rounded-full text-[11px] text-l-muted border border-l-border uppercase tracking-wider font-semibold">WhatsApp</span>
             <div className="text-center text-[11px] text-l-faint mb-4">15 de enero</div>
             <div className="bg-primary rounded-2xl rounded-br-sm p-3 text-sm text-white ml-auto max-w-[85%] mb-2.5">
@@ -91,14 +92,14 @@ export default function Home() {
             <div className="bg-l-subtle rounded-2xl rounded-bl-sm p-3 text-sm max-w-[85%]">
               Hola Martín! Al final cerré con otra inmobiliaria el mes pasado. Gracias igual! 😊
             </div>
-          </div>
+          </div></ScrollReveal>
         </div>
       </section>
 
       {/* Contraste — Con OnMind */}
       <section className="px-8 py-28">
         <div className="max-w-[1100px] mx-auto grid md:grid-cols-2 gap-20 items-center">
-          <div>
+          <ScrollReveal>
             <p className="text-sm font-semibold text-primary-light uppercase tracking-wider mb-4">Con OnMind</p>
             <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] leading-[1.15] mb-6">
               El mensaje llega<br />en el momento justo.<br />
@@ -107,8 +108,8 @@ export default function Home() {
             <p className="text-[15px] text-l-muted leading-relaxed">
               OnMind programa el mensaje por vos. El cliente lo recibe, siente que te acordaste, y responde al toque. Muchos contestan <em>&ldquo;justo estaba por escribirte&rdquo;</em> — no es casualidad, es timing.
             </p>
-          </div>
-          <div className="bg-l-card border border-l-border rounded-2xl p-8 relative">
+          </ScrollReveal>
+          <ScrollReveal delay={0.15}><div className="bg-l-card border border-l-border rounded-2xl p-8 relative">
             <span className="absolute -top-3 left-6 bg-l-bg px-3 py-1 rounded-full text-[11px] text-l-muted border border-l-border uppercase tracking-wider font-semibold">WhatsApp</span>
             <div className="text-center text-[11px] text-l-faint mb-4">14 de marzo</div>
             <div className="bg-primary rounded-2xl rounded-br-sm p-3 text-sm text-white ml-auto max-w-[85%] mb-1">
@@ -133,31 +134,35 @@ export default function Home() {
               Justo andaba por escribirte! Al final decidimos que vamos a poner todo a la venta 🙌
             </div>
             <div className="text-left text-[10px] text-l-faint">10:11</div>
-          </div>
+          </div></ScrollReveal>
         </div>
       </section>
 
       {/* Solución */}
       <section className="px-8 py-28">
         <div className="max-w-[900px] mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-[-0.03em] leading-[1.1] mb-6">
-            OnMind mantiene<br />el vínculo por vos
-          </h2>
-          <p className="text-lg text-l-muted max-w-[560px] mx-auto mb-14">
-            Conectás tu WhatsApp, cargás tus contactos, definís qué mensajes enviar. OnMind se encarga del resto.
-          </p>
+          <ScrollReveal>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-[-0.03em] leading-[1.1] mb-6">
+              OnMind mantiene<br />el vínculo por vos
+            </h2>
+            <p className="text-lg text-l-muted max-w-[560px] mx-auto mb-14">
+              Conectás tu WhatsApp, cargás tus contactos, definís qué mensajes enviar. OnMind se encarga del resto.
+            </p>
+          </ScrollReveal>
           <div className="flex gap-4 justify-center flex-wrap">
             {[
               { icon: Shield, text: "Tu número real, no un bot desconocido" },
               { icon: Timer, text: "El mensaje justo, en el momento justo" },
               { icon: UserPlus, text: "Una persona donde antes necesitabas un equipo" },
-            ].map((item) => (
-              <div key={item.text} className="flex items-center gap-3 bg-l-card border border-l-border rounded-2xl px-6 py-4 text-left flex-1 min-w-[280px] max-w-[340px] hover:border-primary-light transition-colors">
-                <div className="shrink-0 w-10 h-10 rounded-[10px] bg-teal-10 text-primary-light flex items-center justify-center">
-                  <item.icon className="w-5 h-5" />
+            ].map((item, i) => (
+              <ScrollReveal key={item.text} delay={i * 0.1}>
+                <div className="flex items-center gap-3 bg-l-card border border-l-border rounded-2xl px-6 py-4 text-left min-w-[280px] max-w-[340px] hover:border-primary-light transition-colors">
+                  <div className="shrink-0 w-10 h-10 rounded-[10px] bg-teal-10 text-primary-light flex items-center justify-center">
+                    <item.icon className="w-5 h-5" />
+                  </div>
+                  <span className="text-[15px] font-medium">{item.text}</span>
                 </div>
-                <span className="text-[15px] font-medium">{item.text}</span>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -166,7 +171,9 @@ export default function Home() {
       {/* Features */}
       <section id="features" className="px-8 py-28">
         <div className="max-w-[1100px] mx-auto">
-          <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-14 text-center">Lo que podés hacer</h2>
+          <ScrollReveal>
+            <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-14 text-center">Lo que podés hacer</h2>
+          </ScrollReveal>
           <div className="grid md:grid-cols-3 gap-4">
             {[
               { icon: Clock, title: "Plan de seguimiento", desc: "OnMind distribuye los contactos a lo largo del año para que siempre estés presente sin saturar a nadie." },
@@ -175,15 +182,17 @@ export default function Home() {
               { icon: MessageSquare, title: "Todo el historial", desc: "Conversaciones de WhatsApp centralizadas. Sabé qué se dijo, cuándo y por qué." },
               { icon: FileText, title: "Plantillas personales", desc: "Creá mensajes con el nombre del cliente, su empresa o cualquier dato. Cada mensaje se siente personal porque lo es." },
               { icon: Palmtree, title: "Modo vacaciones", desc: "Activás el modo vacaciones y OnMind pausa todo. Cuando volvés, retoma los envíos como si nada." },
-            ].map((f) => (
-              <div key={f.title} className="relative overflow-hidden bg-l-card border border-l-border rounded-2xl p-9 hover:border-primary-light/30 transition-colors">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[radial-gradient(circle,var(--teal-10)_0%,transparent_70%)] pointer-events-none" />
-                <div className="w-11 h-11 rounded-xl bg-teal-10 text-primary-light flex items-center justify-center mb-5">
-                  <f.icon className="w-[22px] h-[22px]" />
+            ].map((f, i) => (
+              <ScrollReveal key={f.title} delay={i * 0.08}>
+                <div className="relative overflow-hidden bg-l-card border border-l-border rounded-2xl p-9 hover:border-primary-light/30 transition-colors h-full">
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-[radial-gradient(circle,var(--teal-10)_0%,transparent_70%)] pointer-events-none" />
+                  <div className="w-11 h-11 rounded-xl bg-teal-10 text-primary-light flex items-center justify-center mb-5">
+                    <f.icon className="w-[22px] h-[22px]" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">{f.title}</h3>
+                  <p className="text-sm text-l-muted leading-relaxed">{f.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold mb-2">{f.title}</h3>
-                <p className="text-sm text-l-muted leading-relaxed">{f.desc}</p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -192,20 +201,24 @@ export default function Home() {
       {/* Cómo funciona */}
       <section id="como-funciona" className="px-8 py-28">
         <div className="max-w-[900px] mx-auto">
-          <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-16 text-center">Arrancás en minutos</h2>
+          <ScrollReveal>
+            <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-16 text-center">Arrancás en minutos</h2>
+          </ScrollReveal>
           <div className="flex flex-col">
             {[
               { num: "1", title: "Conectá tu WhatsApp", desc: "Escaneás un código QR con tu celular y listo. Tu número, tu WhatsApp, tus clientes." },
               { num: "2", title: "Cargá tus contactos", desc: "Importá tu base de clientes y organizalos por categoría. OnMind sugiere una frecuencia de contacto para cada nivel." },
               { num: "3", title: "Configurá y olvidate", desc: "Elegí qué mensajes enviar, cuándo y a quién. OnMind los programa y los envía. Vos solo revisás las respuestas." },
-            ].map((step) => (
-              <div key={step.num} className="grid grid-cols-[80px_1fr] gap-8 py-8 border-t border-l-border last:border-b">
-                <div className="text-6xl font-extrabold leading-none bg-gradient-to-b from-primary-light to-primary-light/20 bg-clip-text text-transparent">{step.num}</div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1.5">{step.title}</h3>
-                  <p className="text-[15px] text-l-muted">{step.desc}</p>
+            ].map((step, i) => (
+              <ScrollReveal key={step.num} delay={i * 0.12}>
+                <div className="grid grid-cols-[80px_1fr] gap-8 py-8 border-t border-l-border last:border-b">
+                  <div className="text-6xl font-extrabold leading-none bg-gradient-to-b from-primary-light to-primary-light/20 bg-clip-text text-transparent">{step.num}</div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-1.5">{step.title}</h3>
+                    <p className="text-[15px] text-l-muted">{step.desc}</p>
+                  </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -213,7 +226,7 @@ export default function Home() {
 
       {/* Historia */}
       <section id="historia" className="px-8 py-28">
-        <div className="max-w-[800px] mx-auto">
+        <ScrollReveal className="max-w-[800px] mx-auto">
           <p className="text-[28px] font-semibold leading-[1.5] mb-8 tracking-[-0.01em]">
             Pasamos de dos personas full-time enviando mensajes a{" "}
             <span className="text-l-muted font-normal">una sola persona revisando unos minutos al día. Cero olvidos. Más tiempo para lo que importa.</span>
@@ -233,25 +246,29 @@ export default function Home() {
               Lo que antes era un método que pocos podían replicar, ahora es una herramienta que cualquier negocio puede usar desde el día uno.
             </p>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Para quién */}
       <section className="px-8 py-28">
         <div className="max-w-[1100px] mx-auto">
-          <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-12 text-center">
-            Hecho para negocios<br />que viven del vínculo con sus clientes
-          </h2>
+          <ScrollReveal>
+            <h2 className="text-4xl md:text-[44px] font-extrabold tracking-[-0.03em] mb-12 text-center">
+              Hecho para negocios<br />que viven del vínculo con sus clientes
+            </h2>
+          </ScrollReveal>
           <div className="grid md:grid-cols-3 gap-4">
             {[
               { title: "Inmobiliarias", desc: "Que tu cliente te llame a vos cuando aparezca una propiedad, no al competidor." },
               { title: "Profesionales independientes", desc: "Abogados, contadores, asesores — mantené el vínculo sin dedicarle horas." },
               { title: "Negocios con cartera", desc: "Si tu negocio depende de que los clientes vuelvan, OnMind te ayuda a que no se olviden de vos." },
-            ].map((p) => (
-              <div key={p.title} className="p-9 bg-l-card border border-l-border rounded-2xl hover:border-primary-light hover:-translate-y-1 transition-all">
-                <h3 className="text-lg font-bold text-primary-light mb-2">{p.title}</h3>
-                <p className="text-sm text-l-muted leading-relaxed">{p.desc}</p>
-              </div>
+            ].map((p, i) => (
+              <ScrollReveal key={p.title} delay={i * 0.1}>
+                <div className="p-9 bg-l-card border border-l-border rounded-2xl hover:border-primary-light hover:-translate-y-1 transition-all h-full">
+                  <h3 className="text-lg font-bold text-primary-light mb-2">{p.title}</h3>
+                  <p className="text-sm text-l-muted leading-relaxed">{p.desc}</p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -264,15 +281,17 @@ export default function Home() {
         <CirclesMotif className="w-[500px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         <CirclesMotif className="w-[700px] h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50" />
 
-        <h2 className="relative z-10 text-4xl md:text-[52px] font-extrabold tracking-[-0.03em] leading-[1.1] mb-5">
-          Dejá de perder clientes<br />por falta de contacto
-        </h2>
-        <p className="relative z-10 text-lg text-l-muted mb-10">
-          Conectá tu WhatsApp y empezá a estar presente en la mente de tus clientes.
-        </p>
-        <a href="/login" className="relative z-10 inline-flex items-center gap-2.5 bg-primary text-white px-9 py-4 rounded-full text-[17px] font-semibold hover:bg-primary-light hover:shadow-[0_0_40px_rgba(0,171,137,.3)] hover:-translate-y-0.5 transition-all">
-          Solicita una demo <ArrowRight className="w-4 h-4" />
-        </a>
+        <ScrollReveal>
+          <h2 className="relative z-10 text-4xl md:text-[52px] font-extrabold tracking-[-0.03em] leading-[1.1] mb-5">
+            No pierdas clientes<br />por falta de contacto
+          </h2>
+          <p className="relative z-10 text-lg text-l-muted mb-10">
+            Conectá tu WhatsApp y empezá a estar presente en la mente de tus clientes.
+          </p>
+          <a href="/login" className="relative z-10 inline-flex items-center gap-2.5 bg-primary text-white px-9 py-4 rounded-full text-[17px] font-semibold hover:bg-primary-light hover:shadow-[0_0_40px_rgba(0,171,137,.3)] hover:-translate-y-0.5 transition-all">
+            Solicita una demo <ArrowRight className="w-4 h-4" />
+          </a>
+        </ScrollReveal>
       </section>
 
       {/* Footer */}

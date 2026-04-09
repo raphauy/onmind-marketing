@@ -103,7 +103,7 @@ export const paraQuien = {
 };
 
 export const ctaFinal = {
-  title: "Dejá de perder clientes por falta de contacto",
+  title: "No pierdas clientes por falta de contacto",
   descripcion:
     "Conectá tu WhatsApp y empezá a estar presente en la mente de tus clientes.",
   cta: "Solicita una demo",
