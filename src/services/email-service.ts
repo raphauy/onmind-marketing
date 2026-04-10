@@ -19,16 +19,25 @@ export async function sendOtpEmail(input: SendOtpEmailInput): Promise<void> {
   }
 
   if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not set, skipping email send')
-    return
+    console.error('[sendOtpEmail] RESEND_API_KEY is not set')
+    throw new Error('RESEND_API_KEY is not configured')
   }
 
   const fromEmail = process.env.EMAIL_FROM || 'noreply@onmindcrm.com'
 
-  await resend.emails.send({
+  console.log(`[sendOtpEmail] sending to=${to} from=${fromEmail}`)
+
+  const { data, error } = await resend.emails.send({
     from: fromEmail,
     to,
     subject: 'Tu código de acceso a OnMind Marketing',
     react: OtpEmail({ otp }),
   })
+
+  if (error) {
+    console.error('[sendOtpEmail] Resend returned error:', error)
+    throw new Error(`Resend error: ${error.name} - ${error.message}`)
+  }
+
+  console.log(`[sendOtpEmail] sent id=${data?.id}`)
 }
