@@ -57,11 +57,13 @@
   - Imágenes del logo copiadas a `public/brand/` para la guía de marca.
   - Código en inglés, UI en español.
 - **Pendiente:**
-  - Afinar alineación logo/texto en home (baseline del SVG vs texto HTML).
-  - Revisar rendering del markdown de la guía de marca (verificar imágenes y HTML embebido).
-  - Iterar diseño de la landing v4 creative.
   - Crear issues en Linear para Fase 2.
   - Deploy a Vercel en marketing.onmindcrm.com.
+
+## 2026-04-10
+- **Línea B (Landing) cerrada.** La nueva landing está en producción en onmindcrm.com (implementada en el repo principal /home/raphael/desarrollo/onmind).
+- Fase 2 estado: A ✅ Tooling, B ✅ Landing, C ⚪ Instagram (pendiente).
+- **Próximo paso:** revisar plan de Línea C (Instagram) antes de ejecutar.
 
 ## 2026-04-07
 - Exploración de logo con Ideogram (limitado) y Gemini (buenos resultados).

@@ -23,7 +23,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { LayoutDashboard, Palette, Globe, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Palette, Globe, ChevronRight, Compass } from "lucide-react";
 import { useState } from "react";
 
 const landingVersions = [
@@ -31,10 +31,15 @@ const landingVersions = [
   { label: "V2 — Creative", href: "/landings/creative" },
 ];
 
+const estrategiaItems = [
+  { label: "Instagram", href: "/dashboard/estrategia/instagram" },
+];
+
 export function PanelSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   const [landingsOpen, setLandingsOpen] = useState(pathname.startsWith("/dashboard/landings"));
+  const [estrategiaOpen, setEstrategiaOpen] = useState(pathname.startsWith("/dashboard/estrategia"));
   const closeMobile = () => setOpenMobile(false);
 
   return (
@@ -69,6 +74,37 @@ export function PanelSidebar() {
                   <span>Guía de marca</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Estrategia</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <Collapsible open={estrategiaOpen} onOpenChange={setEstrategiaOpen}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<CollapsibleTrigger />} className="cursor-pointer">
+                    <Compass className="w-4 h-4" />
+                    <span>Planes</span>
+                    <ChevronRight className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {estrategiaItems.map((item) => (
+                        <SidebarMenuSubItem key={item.href}>
+                          <SidebarMenuSubButton
+                            isActive={pathname === item.href}
+                            render={<Link href={item.href} onClick={closeMobile} />}
+                          >
+                            {item.label}
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
