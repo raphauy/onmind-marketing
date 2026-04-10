@@ -113,7 +113,7 @@ Las stories siguen el mismo mix pero más sueltas: preguntas, encuestas, repost 
 
 Se definen en el paso **C2** (configuración del perfil), basándose en esta estrategia. Puntos no negociables para C2:
 
-- **Handle preferido:** `@onmind`. Si no está disponible, alternativas sin "crm" (ej: `@onmind.app`, `@onmind.uy`, `@holaonmind`). Evitar `@onmindcrm`.
+- **Handle preferido:** `@onmind`. Si no está disponible, analizaremos alternativas con Martín.
 - **Foto de perfil:** isotipo de OnMind (círculos concéntricos) sobre fondo teal o blanco.
 - **Bio:** debe reflejar la promesa del perfil ("qué vas a encontrar" + "para quién") sin usar la palabra CRM.
 - **Link:** `onmindcrm.com`.
