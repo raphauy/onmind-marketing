@@ -1,51 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { readdirSync } from "fs";
-import { join } from "path";
 import { notFound } from "next/navigation";
-
-function getPostFile(slug: string) {
-  const postsDir = join(process.cwd(), "public/instagram/posts");
-  try {
-    const files = readdirSync(postsDir).filter((f) => f.endsWith(".png"));
-    const match = files.find((f) => f.replace(".png", "") === slug);
-    if (!match) return null;
-    return {
-      src: `/instagram/posts/${match}`,
-      slug,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function parsePostName(slug: string) {
-  const parts = slug.split("-");
-  const number = parts[0];
-  const type = parts[1];
-  const rawDesc = parts.slice(2).join(" ");
-  const typeLabels: Record<string, string> = {
-    educacion: "Educación",
-    dolor: "Dolor del rubro",
-    producto: "Producto",
-  };
-  // Slugs don't support ñ/accents — map them back to proper Spanish
-  const descFixes: Record<string, string> = {
-    "cumpleanos": "Cumpleaños",
-    "escribile primero": "Escribile primero",
-    "conecta whatsapp": "Conectá tu WhatsApp",
-    "5 fechas": "5 fechas clave",
-    "cerro con otro": "Cerró con otro",
-    "seguimiento": "Seguimiento",
-    "vencimiento": "Vencimiento",
-    "vinculo": "Vínculo",
-  };
-  return {
-    number,
-    type: typeLabels[type] || type,
-    description: descFixes[rawDesc] || rawDesc,
-  };
-}
+import { getPostBySlug, instagramPosts, frameworkDescriptions, objectiveDescriptions } from "@/lib/instagram-posts";
 
 export default async function PostDetailPage({
   params,
@@ -53,10 +9,8 @@ export default async function PostDetailPage({
   params: Promise<{ post: string }>;
 }) {
   const { post: slug } = await params;
-  const post = getPostFile(slug);
+  const post = getPostBySlug(slug);
   if (!post) notFound();
-
-  const meta = parsePostName(slug);
 
   return (
     <div className="-m-6 py-6 bg-gray-50">
@@ -65,7 +19,7 @@ export default async function PostDetailPage({
         <div className="bg-white border-b border-gray-100 px-3 py-2.5 flex items-center gap-3">
           <Link
             href="/dashboard/instagram"
-            className="p-1 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 -ml-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5" />
@@ -77,13 +31,12 @@ export default async function PostDetailPage({
 
         {/* Post author row */}
         <div className="flex items-center gap-3 px-3 py-2.5">
-          <div className="w-9 h-9 rounded-full border border-gray-200 overflow-hidden bg-white flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full border border-gray-200 overflow-hidden bg-white relative">
             <Image
               src="/brand/isotipo-OnMind-fondo-blanco.png"
               alt="OnMind"
-              width={36}
-              height={36}
-              className="object-cover"
+              fill
+              className="object-cover scale-125"
             />
           </div>
           <div className="flex flex-col">
@@ -101,8 +54,8 @@ export default async function PostDetailPage({
         {/* Post image */}
         <div className="relative w-full aspect-square bg-gray-50">
           <Image
-            src={post.src}
-            alt={slug}
+            src={post.image}
+            alt={post.topic}
             fill
             className="object-contain"
             sizes="430px"
@@ -129,21 +82,54 @@ export default async function PostDetailPage({
           </svg>
         </div>
 
-        {/* Caption area */}
-        <div className="px-3 pb-4">
-          <p className="text-sm">
+        {/* Caption */}
+        <div className="px-3 pb-3">
+          <div className="text-sm">
             <span className="font-semibold">onmindapp</span>{" "}
-            <span className="text-gray-500 italic text-xs">(caption pendiente)</span>
+            <span className="whitespace-pre-line">{post.caption}</span>
+          </div>
+          {/* Hashtags */}
+          <p className="text-sm text-[#00376b] mt-2">
+            {post.hashtags.join(" ")}
           </p>
-          {/* Post metadata */}
-          <div className="mt-3 flex items-center gap-2">
-            <span className="text-[10px] font-medium text-white bg-gray-800 rounded px-1.5 py-0.5">
-              {meta.type}
-            </span>
-            <span className="text-xs text-gray-400 capitalize">{meta.description}</span>
+        </div>
+
+      </div>
+
+      {/* Info del post — fuera de la caja del celular */}
+      <div className="mx-auto max-w-[430px] mt-6">
+        <div className="border border-gray-200 rounded-lg bg-white p-5">
+          <h3 className="text-sm font-semibold text-gray-800 mb-3">Detalles del post</h3>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="bg-gray-50 rounded-md px-3 py-2">
+              <span className="text-[11px] text-gray-400 block">Pilar</span>
+              <span className="font-medium text-gray-800">{post.typeLabel}</span>
+            </div>
+            <div className="bg-gray-50 rounded-md px-3 py-2">
+              <span className="text-[11px] text-gray-400 block">Tema</span>
+              <span className="font-medium text-gray-800">{post.topic}</span>
+            </div>
+            <div className="bg-gray-50 rounded-md px-3 py-2">
+              <span className="text-[11px] text-gray-400 block">Framework</span>
+              <span className="font-medium text-gray-800">{post.framework}</span>
+              {frameworkDescriptions[post.framework] && (
+                <span className="text-[11px] text-gray-500 block mt-0.5">{frameworkDescriptions[post.framework]}</span>
+              )}
+            </div>
+            <div className="bg-gray-50 rounded-md px-3 py-2">
+              <span className="text-[11px] text-gray-400 block">Objetivo</span>
+              <span className="font-medium text-gray-800">{post.objective}</span>
+              {objectiveDescriptions[post.objective] && (
+                <span className="text-[11px] text-gray-500 block mt-0.5">{objectiveDescriptions[post.objective]}</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+export function generateStaticParams() {
+  return instagramPosts.map((p) => ({ post: p.slug }));
 }

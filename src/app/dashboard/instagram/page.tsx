@@ -1,26 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { readdirSync } from "fs";
-import { join } from "path";
-
-function getPostImages() {
-  const postsDir = join(process.cwd(), "public/instagram/posts");
-  try {
-    const files = readdirSync(postsDir)
-      .filter((f) => f.endsWith(".png"))
-      .sort();
-    return files.map((file) => ({
-      src: `/instagram/posts/${file}`,
-      slug: file.replace(".png", ""),
-    }));
-  } catch {
-    return [];
-  }
-}
+import { instagramPosts } from "@/lib/instagram-posts";
 
 export default function InstagramPage() {
-  const posts = getPostImages();
-  const gridPosts = [...posts].reverse();
+  const gridPosts = [...instagramPosts].reverse();
 
   return (
     <div className="-m-6 py-6 bg-gray-50">
@@ -55,7 +38,6 @@ export default function InstagramPage() {
         {/* Profile section */}
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-6">
-            {/* Avatar — large, tight to border like real IG */}
             <div className="shrink-0">
               <div className="w-[86px] h-[86px] rounded-full border-[1.5px] border-gray-300 overflow-hidden bg-white relative">
                 <Image
@@ -66,10 +48,9 @@ export default function InstagramPage() {
                 />
               </div>
             </div>
-            {/* Stats */}
             <div className="flex flex-1 justify-around text-center">
               <div>
-                <span className="font-semibold text-base block">{posts.length}</span>
+                <span className="font-semibold text-base block">{instagramPosts.length}</span>
                 <span className="text-xs text-gray-500">publicaciones</span>
               </div>
               <div>
@@ -83,7 +64,6 @@ export default function InstagramPage() {
             </div>
           </div>
 
-          {/* Name + Bio */}
           <div className="mt-3">
             <span className="font-semibold text-sm">OnMind</span>
             <p className="text-sm text-gray-800 mt-0.5 leading-snug">
@@ -93,7 +73,6 @@ export default function InstagramPage() {
             </p>
           </div>
 
-          {/* Buttons */}
           <div className="flex gap-2 mt-3">
             <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg py-1.5 cursor-default">
               Editar perfil
@@ -123,31 +102,23 @@ export default function InstagramPage() {
         </div>
 
         {/* Grid */}
-        {gridPosts.length > 0 ? (
-          <div className="grid grid-cols-3 gap-px bg-gray-100">
-            {gridPosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/dashboard/instagram/${post.slug}`}
-                className="relative aspect-square bg-white block hover:opacity-90 transition-opacity"
-              >
-                <Image
-                  src={post.src}
-                  alt={post.slug}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 430px) 33vw, 143px"
-                />
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <p className="mt-4 font-semibold text-lg text-gray-800">
-              Aún no hay publicaciones
-            </p>
-          </div>
-        )}
+        <div className="grid grid-cols-3 gap-px bg-gray-100">
+          {gridPosts.map((post) => (
+            <Link
+              key={post.slug}
+              href={`/dashboard/instagram/${post.slug}`}
+              className="relative aspect-square bg-white block hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              <Image
+                src={post.image}
+                alt={post.topic}
+                fill
+                className="object-cover"
+                sizes="(max-width: 430px) 33vw, 143px"
+              />
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
