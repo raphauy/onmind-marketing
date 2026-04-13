@@ -1,0 +1,154 @@
+import Image from "next/image";
+import Link from "next/link";
+import { readdirSync } from "fs";
+import { join } from "path";
+
+function getPostImages() {
+  const postsDir = join(process.cwd(), "public/instagram/posts");
+  try {
+    const files = readdirSync(postsDir)
+      .filter((f) => f.endsWith(".png"))
+      .sort();
+    return files.map((file) => ({
+      src: `/instagram/posts/${file}`,
+      slug: file.replace(".png", ""),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export default function InstagramPage() {
+  const posts = getPostImages();
+  const gridPosts = [...posts].reverse();
+
+  return (
+    <div className="-m-6 py-6 bg-gray-50">
+      <div className="mx-auto max-w-[430px] border border-gray-200 rounded-lg bg-white overflow-hidden">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="font-semibold text-sm">onmindapp</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+          <div className="flex items-center gap-5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Profile section */}
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex items-center gap-6">
+            {/* Avatar — large, tight to border like real IG */}
+            <div className="shrink-0">
+              <div className="w-[86px] h-[86px] rounded-full border-[1.5px] border-gray-300 overflow-hidden bg-white relative">
+                <Image
+                  src="/brand/isotipo-OnMind-fondo-blanco.png"
+                  alt="OnMind"
+                  fill
+                  className="object-cover scale-125"
+                />
+              </div>
+            </div>
+            {/* Stats */}
+            <div className="flex flex-1 justify-around text-center">
+              <div>
+                <span className="font-semibold text-base block">{posts.length}</span>
+                <span className="text-xs text-gray-500">publicaciones</span>
+              </div>
+              <div>
+                <span className="font-semibold text-base block">—</span>
+                <span className="text-xs text-gray-500">seguidores</span>
+              </div>
+              <div>
+                <span className="font-semibold text-base block">—</span>
+                <span className="text-xs text-gray-500">seguidos</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Name + Bio */}
+          <div className="mt-3">
+            <span className="font-semibold text-sm">OnMind</span>
+            <p className="text-sm text-gray-800 mt-0.5 leading-snug">
+              Que ningún cliente se te escape.
+              <br />
+              Mensajes programados por WhatsApp para mantener el vínculo vivo.
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-2 mt-3">
+            <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg py-1.5 cursor-default">
+              Editar perfil
+            </button>
+            <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg py-1.5 cursor-default">
+              Compartir perfil
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-gray-200 mt-2">
+          <button className="flex-1 flex justify-center py-2.5 border-b-[1.5px] border-black">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+          </button>
+          <button className="flex-1 flex justify-center py-2.5 text-gray-400">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="2" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Grid */}
+        {gridPosts.length > 0 ? (
+          <div className="grid grid-cols-3 gap-px bg-gray-100">
+            {gridPosts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/dashboard/instagram/${post.slug}`}
+                className="relative aspect-square bg-white block hover:opacity-90 transition-opacity"
+              >
+                <Image
+                  src={post.src}
+                  alt={post.slug}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 430px) 33vw, 143px"
+                />
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <p className="mt-4 font-semibold text-lg text-gray-800">
+              Aún no hay publicaciones
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

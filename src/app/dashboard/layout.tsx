@@ -9,7 +9,7 @@ export default function PanelLayout({
   return (
     <SidebarProvider>
       <PanelSidebar />
-      <main className="flex-1 min-h-screen">
+      <main className="flex-1">
         <div className="flex items-center gap-2 border-b px-4 py-2">
           <SidebarTrigger />
         </div>

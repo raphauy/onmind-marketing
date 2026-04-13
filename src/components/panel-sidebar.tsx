@@ -23,7 +23,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { LayoutDashboard, Palette, Globe, ChevronRight, Compass } from "lucide-react";
+import { LayoutDashboard, Palette, Globe, ChevronRight, Compass, Grid3X3 } from "lucide-react";
 import { useState } from "react";
 
 const landingVersions = [
@@ -105,6 +105,23 @@ export function PanelSidebar() {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Instagram</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/instagram"}
+                  render={<Link href="/dashboard/instagram" onClick={closeMobile} />}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                  <span>Grid de perfil</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

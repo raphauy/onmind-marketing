@@ -62,8 +62,42 @@
 
 ## 2026-04-10
 - **Línea B (Landing) cerrada.** La nueva landing está en producción en onmindcrm.com (implementada en el repo principal /home/raphael/desarrollo/onmind).
-- Fase 2 estado: A ✅ Tooling, B ✅ Landing, C ⚪ Instagram (pendiente).
-- **Próximo paso:** revisar plan de Línea C (Instagram) antes de ejecutar.
+- Fase 2 estado: A ✅ Tooling, B ✅ Landing, C 🟡 Instagram (en C1).
+- **Línea C — C1 Estrategia de Instagram completada.** Doc en `docs/planes/instagram/onmind-instagram-estrategia-2026-04-10.md`.
+  - Audiencia primaria: Uruguay y Argentina (inmobiliarias y agentes).
+  - Handle preferido: `@onmind` (sin "crm"). Si no está, se analiza con Martín.
+  - 4 pilares con peso: educación WhatsApp comercial (40%), dolor del rubro (30%), producto en acción (20%), detrás de escena/historia (10%).
+  - Frecuencia: 3 posts/semana + stories casi diarias. Formatos: reels, carruseles, stories. Sin persona en cámara por ahora.
+  - Flujo de aprobación: generación → Raphael filtra → Martín valida → publica. Descartado va a banco evergreen.
+  - Sección explícita "Qué resuelve OnMind (y qué no)" como regla de oro para contenido.
+- **Clarificación clave de posicionamiento:** OnMind NO resuelve "responder rápido a leads nuevos" (sigue siendo manual). Sí resuelve mantener el vínculo vivo, mimos, recordatorios del negocio (vencimientos de alquiler, cumpleaños, planes de seguimiento). Guardado como memoria persistente.
+- **App OnMind Marketing:**
+  - Nueva sección "Estrategia" en el sidebar del panel (colapsable, preparada para sumar más planes).
+  - Nueva ruta `/dashboard/estrategia/instagram` que renderiza el doc con el `MarkdownRenderer`.
+  - `MarkdownRenderer` mejorado: `remark-breaks` para respetar saltos de línea simples, bloques `pre` con fondo claro y borde (fix de contraste).
+- **Próximos pasos (Línea C):**
+  - C2: Configurar perfil cuando Raphael cree la cuenta (handle, bio, foto, link, highlights).
+  - C3: Batch de lanzamiento (9 piezas grid + reels + stories).
+  - C4: Plan editorial a 2 semanas.
+
+## 2026-04-13
+- **C2: Perfil de Instagram creado.** Handle: `@OnMindApp`. Foto de perfil: isotipo. Bio definida.
+- **Pipeline de generación de imágenes para Instagram:**
+  - Investigación de herramientas: Canva MCP (descartado por costo Enterprise), Figma MCP (no aplica), APIs de IA generativa (Ideogram, Flux, GPT-Image), composición programática (Satori, Puppeteer).
+  - Decisión: **Satori** (de Vercel) como motor principal. JSX → SVG → PNG con control total de branding. Gratis, local, ya en el stack.
+  - Script `scripts/generate-post.mjs`: 3 templates (educación, dolor, producto) con Geist Sans, paleta de marca, isotipo transparente/blanco.
+  - Assets generados: isotipo transparente y versión blanca para fondos oscuros (`assets/logo/`).
+- **C3: Batch de lanzamiento — 9 piezas generadas.**
+  - 4 educación (fondo blanco), 3 dolor (fondo teal), 2 producto (fondo gris).
+  - Distribuidas en diagonal de color para el grid visual (teal en diagonal: top-right, mid-center, bottom-left).
+  - Imágenes en `output/pendientes/` y `public/instagram/posts/`.
+- **Regla de posicionamiento reforzada:** no usar dominio `onmindcrm.com` en piezas visuales (contiene "crm"). Usar `@OnMindApp`.
+- **Simulador de Instagram en la app:**
+  - Nueva sección "Instagram" en sidebar con entrada "Grid de perfil".
+  - Ruta `/dashboard/instagram`: simulador de perfil IG con avatar, bio, stats y grid 3x3 clickeable.
+  - Ruta `/dashboard/instagram/[post]`: vista detalle de post estilo Instagram con imagen completa, botones y metadata.
+  - Layout tipo caja de celular (border, rounded, fondo gris).
+- **Pendiente:** captions para cada post, revisión con Martín, publicación.
 
 ## 2026-04-07
 - Exploración de logo con Ideogram (limitado) y Gemini (buenos resultados).
