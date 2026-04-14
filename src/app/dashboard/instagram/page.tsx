@@ -1,22 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { instagramPosts } from "@/lib/instagram-posts";
-import { getPublishedPosts } from "@/services/instagram-service";
+import { getPublishedPosts, getProfile } from "@/services/instagram-service";
 
 export default async function InstagramPage() {
-  const published = await getPublishedPosts();
+  const [published, profile] = await Promise.all([
+    getPublishedPosts(),
+    getProfile(),
+  ]);
   const publishedSlugs = new Set(published.map((p) => p.slug));
-  const publishedCount = publishedSlugs.size;
 
   const gridPosts = [...instagramPosts].reverse();
 
   return (
-    <div className="-m-6 py-6 bg-gray-50">
-      <div className="mx-auto max-w-[520px] border border-gray-200 rounded-lg bg-white overflow-hidden">
+    <div className="-m-6 py-6 px-6 bg-gray-50 min-h-full">
+      <div className="mx-auto max-w-[700px] border border-gray-200 rounded-lg bg-white overflow-hidden">
         {/* Header */}
         <div className="bg-white border-b border-gray-100 px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-1">
-            <span className="font-semibold text-sm">onmindapp</span>
+            <span className="font-semibold text-sm">{profile.username}</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5">
               <polyline points="6 9 12 15 18 9" />
             </svg>
@@ -46,35 +48,34 @@ export default async function InstagramPage() {
             <div className="shrink-0">
               <div className="w-[86px] h-[86px] rounded-full border-[1.5px] border-gray-300 overflow-hidden bg-white relative">
                 <Image
-                  src="/brand/isotipo-OnMind-fondo-blanco.png"
-                  alt="OnMind"
+                  src={profile.profilePictureUrl}
+                  alt={profile.name}
                   fill
-                  className="object-cover scale-125"
+                  className="object-cover"
+                  sizes="86px"
                 />
               </div>
             </div>
             <div className="flex flex-1 justify-around text-center">
               <div>
-                <span className="font-semibold text-base block">{publishedCount}</span>
+                <span className="font-semibold text-base block">{profile.mediaCount}</span>
                 <span className="text-xs text-gray-500">publicaciones</span>
               </div>
               <div>
-                <span className="font-semibold text-base block">—</span>
+                <span className="font-semibold text-base block">{profile.followers}</span>
                 <span className="text-xs text-gray-500">seguidores</span>
               </div>
               <div>
-                <span className="font-semibold text-base block">—</span>
+                <span className="font-semibold text-base block">{profile.follows}</span>
                 <span className="text-xs text-gray-500">seguidos</span>
               </div>
             </div>
           </div>
 
           <div className="mt-3">
-            <span className="font-semibold text-sm">OnMind</span>
-            <p className="text-sm text-gray-800 mt-0.5 leading-snug">
-              Que ningún cliente se te escape.
-              <br />
-              Mensajes programados por WhatsApp para mantener el vínculo vivo.
+            <span className="font-semibold text-sm">{profile.name}</span>
+            <p className="text-sm text-gray-800 mt-0.5 leading-snug whitespace-pre-line">
+              {profile.biography}
             </p>
           </div>
 
@@ -124,7 +125,7 @@ export default async function InstagramPage() {
                   sizes="(max-width: 430px) 33vw, 143px"
                 />
                 {isPublished && (
-                  <div className="absolute bottom-1.5 right-1.5 bg-green-500 rounded-full p-0.5">
+                  <div className="absolute top-1.5 right-1.5 bg-green-500 rounded-full p-0.5">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>

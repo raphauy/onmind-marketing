@@ -26,6 +26,42 @@ export async function getPublishStatus(slug: string): Promise<InstagramPublish |
   });
 }
 
+export type InstagramProfile = {
+  username: string;
+  name: string;
+  biography: string;
+  profilePictureUrl: string;
+  website: string | null;
+  followers: number;
+  follows: number;
+  mediaCount: number;
+};
+
+export async function getProfile(): Promise<InstagramProfile> {
+  const { accessToken, userId } = getConfig();
+
+  const res = await fetch(
+    `${GRAPH_API_BASE}/${userId}?fields=username,name,biography,profile_picture_url,followers_count,follows_count,media_count,website&access_token=${accessToken}`
+  );
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error("[Instagram] Error obteniendo perfil:", JSON.stringify(data.error));
+    throw new Error(data.error?.message || "Error al obtener perfil de Instagram");
+  }
+
+  return {
+    username: data.username,
+    name: data.name,
+    biography: data.biography,
+    profilePictureUrl: data.profile_picture_url,
+    website: data.website || null,
+    followers: data.followers_count,
+    follows: data.follows_count,
+    mediaCount: data.media_count,
+  };
+}
+
 // --- Instagram Graph API ---
 
 async function createMediaContainer(imageUrl: string, caption: string): Promise<string> {
