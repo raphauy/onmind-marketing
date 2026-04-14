@@ -114,7 +114,7 @@ export default async function InstagramPage() {
               <Link
                 key={post.slug}
                 href={`/dashboard/instagram/${post.slug}`}
-                className="relative aspect-square bg-white block hover:opacity-90 transition-opacity cursor-pointer"
+                className="relative bg-white block hover:opacity-90 transition-opacity cursor-pointer" style={{ aspectRatio: "4/5" }}
               >
                 <Image
                   src={post.image}
