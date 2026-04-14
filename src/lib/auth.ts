@@ -5,7 +5,7 @@ import { verifyOtpToken } from '@/services/auth-service'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
-  useSecureCookies: process.env.NODE_ENV === 'production',
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith('https://') ?? process.env.NODE_ENV === 'production',
   session: { strategy: 'jwt' },
 
   pages: {

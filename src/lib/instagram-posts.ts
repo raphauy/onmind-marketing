@@ -1,6 +1,7 @@
 export type InstagramPost = {
   slug: string;
   image: string;
+  blobUrl: string;
   type: "educacion" | "dolor" | "producto";
   typeLabel: string;
   topic: string;
@@ -14,6 +15,7 @@ export const instagramPosts: InstagramPost[] = [
   {
     slug: "01-educacion-escribile-primero",
     image: "/instagram/posts/01-educacion-escribile-primero.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/01-educacion-escribile-primero.png",
     type: "educacion",
     typeLabel: "Educación",
     topic: "Escribile primero",
@@ -36,6 +38,7 @@ Escribile vos primero. Siempre.`,
   {
     slug: "02-producto-conecta-whatsapp",
     image: "/instagram/posts/02-producto-conecta-whatsapp.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/02-producto-conecta-whatsapp.png",
     type: "producto",
     typeLabel: "Producto",
     topic: "Conectá tu WhatsApp",
@@ -55,6 +58,7 @@ Sin apps nuevas que aprender. Sin meses de implementación.
   {
     slug: "03-dolor-cumpleanos",
     image: "/instagram/posts/03-dolor-cumpleanos.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/03-dolor-cumpleanos.png",
     type: "dolor",
     typeLabel: "Dolor del rubro",
     topic: "Cumpleaños",
@@ -74,6 +78,7 @@ Son esos detalles los que mantienen vivo el vínculo.
   {
     slug: "04-educacion-5-fechas",
     image: "/instagram/posts/04-educacion-5-fechas.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/04-educacion-5-fechas.png",
     type: "educacion",
     typeLabel: "Educación",
     topic: "5 fechas clave",
@@ -95,6 +100,7 @@ Guardá este post para no olvidarte.`,
   {
     slug: "05-dolor-cerro-con-otro",
     image: "/instagram/posts/05-dolor-cerro-con-otro.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/05-dolor-cerro-con-otro.png",
     type: "dolor",
     typeLabel: "Dolor del rubro",
     topic: "Cerró con otro",
@@ -114,6 +120,7 @@ No hacía falta mucho. Un mensaje cada tanto, un saludo en su cumpleaños, un re
   {
     slug: "06-educacion-seguimiento",
     image: "/instagram/posts/06-educacion-seguimiento.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/06-educacion-seguimiento.png",
     type: "educacion",
     typeLabel: "Educación",
     topic: "Seguimiento",
@@ -135,6 +142,7 @@ El primero es spam. El segundo es vínculo.
   {
     slug: "07-dolor-vencimiento",
     image: "/instagram/posts/07-dolor-vencimiento.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/07-dolor-vencimiento.png",
     type: "dolor",
     typeLabel: "Dolor del rubro",
     topic: "Vencimiento",
@@ -154,6 +162,7 @@ La solución es simple: que algo te avise antes. Siempre antes.`,
   {
     slug: "08-producto-cumpleanos",
     image: "/instagram/posts/08-producto-cumpleanos.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/08-producto-cumpleanos.png",
     type: "producto",
     typeLabel: "Producto",
     topic: "Cumpleaños automático",
@@ -175,6 +184,7 @@ Vos solo cargás los datos una vez.
   {
     slug: "09-educacion-vinculo",
     image: "/instagram/posts/09-educacion-vinculo.png",
+    blobUrl: "https://xiaqcgfxwuzlizyt.public.blob.vercel-storage.com/instagram/09-educacion-vinculo.png",
     type: "educacion",
     typeLabel: "Educación",
     topic: "Vínculo",
@@ -206,6 +216,11 @@ export const frameworkDescriptions: Record<string, string> = {
 export const objectiveDescriptions: Record<string, string> = {
   "Engagement": "Busca interacción: comentarios, guardados, shares.",
   "Awareness": "Busca que conozcan OnMind. Muestra el producto.",
+};
+
+export type InstagramPostWithStatus = InstagramPost & {
+  publishedAt?: Date;
+  igMediaId?: string;
 };
 
 export function getPostBySlug(slug: string): InstagramPost | undefined {

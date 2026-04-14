@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, instagramPosts, frameworkDescriptions, objectiveDescriptions } from "@/lib/instagram-posts";
+import { getPublishStatus } from "@/services/instagram-service";
+import { InstagramPublishButton } from "@/components/instagram-publish-button";
 
 export default async function PostDetailPage({
   params,
@@ -12,9 +14,11 @@ export default async function PostDetailPage({
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
+  const publishStatus = await getPublishStatus(slug);
+
   return (
     <div className="-m-6 py-6 bg-gray-50">
-      <div className="mx-auto max-w-[430px] border border-gray-200 rounded-lg bg-white overflow-hidden">
+      <div className="mx-auto max-w-[520px] border border-gray-200 rounded-lg bg-white overflow-hidden">
         {/* Header */}
         <div className="bg-white border-b border-gray-100 px-3 py-2.5 flex items-center gap-3">
           <Link
@@ -52,7 +56,7 @@ export default async function PostDetailPage({
         </div>
 
         {/* Post image */}
-        <div className="relative w-full aspect-square bg-gray-50">
+        <div className="relative w-full bg-gray-50" style={{ aspectRatio: "4/5" }}>
           <Image
             src={post.image}
             alt={post.topic}
@@ -96,8 +100,17 @@ export default async function PostDetailPage({
 
       </div>
 
-      {/* Info del post — fuera de la caja del celular */}
-      <div className="mx-auto max-w-[430px] mt-6">
+      {/* Publicar / Estado — fuera de la caja del celular */}
+      <div className="mx-auto max-w-[520px] mt-6 mb-6">
+        <InstagramPublishButton
+          slug={slug}
+          isPublished={!!publishStatus}
+          publishedAt={publishStatus?.publishedAt.toISOString()}
+        />
+      </div>
+
+      {/* Info del post */}
+      <div className="mx-auto max-w-[520px]">
         <div className="border border-gray-200 rounded-lg bg-white p-5">
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Detalles del post</h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -128,8 +141,4 @@ export default async function PostDetailPage({
       </div>
     </div>
   );
-}
-
-export function generateStaticParams() {
-  return instagramPosts.map((p) => ({ post: p.slug }));
 }

@@ -60,7 +60,7 @@ function templateEducacion({ titulo, subtexto, pieFrase }) {
         display: "flex",
         flexDirection: "column",
         width: 1080,
-        height: 1080,
+        height: 1350,
         backgroundColor: brand.white,
         padding: 80,
         fontFamily: "Geist",
@@ -192,7 +192,7 @@ function templateDolor({ titulo, subtexto }) {
         display: "flex",
         flexDirection: "column",
         width: 1080,
-        height: 1080,
+        height: 1350,
         backgroundColor: brand.primary,
         padding: 80,
         fontFamily: "Geist",
@@ -302,7 +302,7 @@ function templateProducto({ titulo, subtexto, feature }) {
         display: "flex",
         flexDirection: "column",
         width: 1080,
-        height: 1080,
+        height: 1350,
         backgroundColor: brand.surface,
         padding: 80,
         fontFamily: "Geist",
@@ -459,7 +459,7 @@ async function renderPost(template, data, filename) {
 
   const svg = await satori(element, {
     width: 1080,
-    height: 1080,
+    height: 1350,
     fonts,
   });
 
@@ -502,6 +502,57 @@ if (args[0] === "--test") {
   }, "test-producto");
 
   console.log("\n3 posts de prueba generados en output/pendientes/");
+} else if (args[0] === "--all") {
+  // Genera los 9 posts del batch de lanzamiento
+  const batch = [
+    { template: "educacion", filename: "01-educacion-escribile-primero", data: {
+      titulo: "No esperes a que tu cliente te busque. Escribile vos primero.",
+      subtexto: "Un mensaje a tiempo vale más que diez cuando ya se fue con otro.",
+      pieFrase: "@OnMindApp",
+    }},
+    { template: "producto", filename: "02-producto-conecta-whatsapp", data: {
+      titulo: "Conectá tu WhatsApp y empezá a programar mensajes hoy.",
+      subtexto: "Sin instalaciones complicadas. Escaneás el QR, importás tus contactos y listo.",
+      feature: "Así de simple",
+    }},
+    { template: "dolor", filename: "03-dolor-cumpleanos", data: {
+      titulo: "Tengo 300 clientes y no me acuerdo del cumpleaños de ninguno.",
+      subtexto: "Y cuando te acordás, ya pasó. El cliente no dice nada, pero lo nota.",
+    }},
+    { template: "educacion", filename: "04-educacion-5-fechas", data: {
+      titulo: "5 fechas que tu inmobiliaria no puede dejar pasar.",
+      subtexto: "Vencimientos de alquiler, renovaciones, cumpleaños, aniversarios de operación y fechas especiales del rubro.",
+      pieFrase: "@OnMindApp",
+    }},
+    { template: "dolor", filename: "05-dolor-cerro-con-otro", data: {
+      titulo: 'El cliente cerró con otra inmobiliaria. "No sabía que seguías trabajando", me dijo.',
+      subtexto: "Si no le escribís, para tu cliente no existís. Así de simple.",
+    }},
+    { template: "educacion", filename: "06-educacion-seguimiento", data: {
+      titulo: "El seguimiento no es insistir. Es estar presente.",
+      subtexto: 'Un mensaje oportuno dice "me importás". Un mensaje fuera de tiempo dice "te quiero vender algo".',
+      pieFrase: "@OnMindApp",
+    }},
+    { template: "dolor", filename: "07-dolor-vencimiento", data: {
+      titulo: "Se me venció el alquiler de un cliente y me enteré por él.",
+      subtexto: "Cuando te acordás tarde, el cliente ya lo resolvió con otro. OnMind te avisa antes.",
+    }},
+    { template: "producto", filename: "08-producto-cumpleanos", data: {
+      titulo: "Cargás la fecha de cumpleaños y OnMind se encarga del resto.",
+      subtexto: "Cuando importás o editás un contacto con fecha de cumpleaños, el mensaje se programa solo. Sin tocar nada más.",
+      feature: "Cumpleaños",
+    }},
+    { template: "educacion", filename: "09-educacion-vinculo", data: {
+      titulo: "Tu cliente no se fue por el precio. Se fue porque se olvidó de vos.",
+      subtexto: "El vínculo se mantiene con presencia, no con descuentos.",
+      pieFrase: "@OnMindApp",
+    }},
+  ];
+
+  for (const { template, filename, data } of batch) {
+    await renderPost(template, data, filename);
+  }
+  console.log(`\n${batch.length} posts generados en output/pendientes/`);
 } else if (args.length >= 2) {
   // Uso: node generate-post.mjs <template> <filename> < datos.json
   const [template, filename] = args;

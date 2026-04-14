@@ -28,5 +28,10 @@ Proyecto de marketing para **OnMind CRM** — SaaS de gestión de comunicaciones
   - `docs/operacion/` — guías de proceso y coordinación
 - Memoria persistente en `~/.claude/projects/-home-raphael-desarrollo-onmind-marketing/memory/`
 
+## Convenciones de desarrollo
+- `docs/operacion/convenciones-desarrollo.md` — arquitectura por capas, naming, patrones
+- Replica las convenciones del repo principal de OnMind para coherencia entre proyectos
+- **Regla clave:** Services → Prisma, Actions → Services, API Routes solo para externos
+
 ## Docs del producto (en el repo de OnMind)
 - `/home/raphael/desarrollo/onmind/docs/onmind-prd.md` — PRD

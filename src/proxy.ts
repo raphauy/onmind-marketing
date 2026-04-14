@@ -15,8 +15,8 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const isProduction = process.env.NODE_ENV === 'production'
-  const cookieName = isProduction
+  const useSecureCookies = process.env.NEXTAUTH_URL?.startsWith('https://') ?? process.env.NODE_ENV === 'production'
+  const cookieName = useSecureCookies
     ? '__Secure-authjs.session-token'
     : 'authjs.session-token'
 

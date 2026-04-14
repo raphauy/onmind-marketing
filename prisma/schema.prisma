@@ -30,3 +30,11 @@ model OtpToken {
   @@index([token])
   @@index([expiresAt])
 }
+
+model InstagramPublish {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  igMediaId   String
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}

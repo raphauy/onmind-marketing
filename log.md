@@ -97,7 +97,19 @@
   - Ruta `/dashboard/instagram`: simulador de perfil IG con avatar, bio, stats y grid 3x3 clickeable.
   - Ruta `/dashboard/instagram/[post]`: vista detalle de post estilo Instagram con imagen completa, botones y metadata.
   - Layout tipo caja de celular (border, rounded, fondo gris).
-- **Pendiente:** captions para cada post, revisión con Martín, publicación.
+- **Captions escritos para los 9 posts** usando skills caption-writer + copy-editing.
+  - Frameworks variados: Problem→Agitate→Solve, Hook→Story→Lesson, Contrarian take, List, Before→After→Bridge.
+  - Hooks optimizados para los primeros 125 chars (visible antes del "more" en IG).
+  - 5 hashtags por post (límite actual de Instagram). Base: #inmobiliaria #gestiondeclientes #onmind.
+  - CTAs variados: guardá, comentá, escribinos por DM.
+  - Archivo de referencia: `output/captions-batch-lanzamiento.md`.
+- **Datos centralizados en `src/lib/instagram-posts.ts`** — cada post con imagen, tipo, tema, framework, objetivo, caption y hashtags.
+- **Vista detalle de post mejorada:** caption completo con hashtags, card de metadata (pilar, tema, framework, objetivo) con descripciones explicativas de cada framework.
+- **Revisión de copys de las 9 imágenes:** todos pasan — tono correcto, vocabulario alineado con guía de marca.
+- **Próximo paso:** revisión con Martín de los 9 posts + captions, luego publicar y salir con @OnMindApp en Instagram.
+
+## 2026-04-14
+- **Martín aprobó los 9 posts del batch de lanzamiento** (imágenes + captions). Listos para publicar en @OnMindApp.
 
 ## 2026-04-07
 - Exploración de logo con Ideogram (limitado) y Gemini (buenos resultados).
