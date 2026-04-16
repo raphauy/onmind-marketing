@@ -5,8 +5,8 @@ import { getProfile } from "@/services/instagram-service";
 import { Badge } from "@/components/ui/badge";
 
 const STATUS_BADGE: Record<string, { label: string; color: string }> = {
-  APPROVED: { label: "Lista", color: "bg-blue-50 text-blue-600 border-blue-200" },
-  SCHEDULED: { label: "Programada", color: "bg-purple-50 text-purple-600 border-purple-200" },
+  APPROVED: { label: "Aprobada", color: "bg-white text-blue-600 border-white shadow-sm" },
+  SCHEDULED: { label: "Programada", color: "bg-white text-purple-600 border-white shadow-sm" },
   PUBLISHED: { label: "", color: "" }, // Verde checkmark, no badge
 };
 

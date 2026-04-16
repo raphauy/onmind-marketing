@@ -161,7 +161,7 @@ export async function setActiveGeneration(pieceId: string, generationId: string)
 }
 
 export async function getPublishedAndScheduledPieces() {
-  return prisma.piece.findMany({
+  const pieces = await prisma.piece.findMany({
     where: {
       OR: [
         { status: "PUBLISHED" },
@@ -169,6 +169,7 @@ export async function getPublishedAndScheduledPieces() {
         { status: "APPROVED" },
       ],
       imageUrl: { not: null },
+      deletedAt: null,
     },
     include: {
       template: { select: { name: true, slug: true } },
@@ -177,6 +178,15 @@ export async function getPublishedAndScheduledPieces() {
         take: 1,
       },
     },
-    orderBy: { createdAt: "desc" },
+  })
+
+  // Sin publicación → arriba. Con publicación → por fecha de publicación desc (más reciente primero)
+  return pieces.sort((a, b) => {
+    const aPubDate = a.publications[0]?.publishedAt?.getTime()
+    const bPubDate = b.publications[0]?.publishedAt?.getTime()
+    if (!aPubDate && !bPubDate) return 0
+    if (!aPubDate) return -1
+    if (!bPubDate) return 1
+    return bPubDate - aPubDate
   })
 }
