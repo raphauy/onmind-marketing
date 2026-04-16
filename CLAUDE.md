@@ -33,5 +33,11 @@ Proyecto de marketing para **OnMind CRM** — SaaS de gestión de comunicaciones
 - Replica las convenciones del repo principal de OnMind para coherencia entre proyectos
 - **Regla clave:** Services → Prisma, Actions → Services, API Routes solo para externos
 
+## UI / Componentes
+- **Usar siempre shadcn/ui** para todos los componentes de interfaz. No inventar componentes custom cuando shadcn tiene uno disponible (Badge, Button, Input, Select, Dialog, etc.).
+- Si no existe el componente, instalarlo con `npx shadcn@latest add <componente>`.
+- Personalizar desde afuera con `className`, no modificar los estilos internos del componente shadcn salvo decisiones de diseño del proyecto (ej: border por defecto en Badge).
+- Este proyecto usa **Radix** (style `new-york`). Los componentes usan `asChild` para composición.
+
 ## Docs del producto (en el repo de OnMind)
 - `/home/raphael/desarrollo/onmind/docs/onmind-prd.md` — PRD

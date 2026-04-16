@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Piece" ADD COLUMN     "costUsd" DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "Template" ADD COLUMN     "costPerImage" DOUBLE PRECISION NOT NULL DEFAULT 0;

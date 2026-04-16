@@ -14,7 +14,8 @@ model User {
   isActive  Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  otpTokens OtpToken[]
+  otpTokens     OtpToken[]
+  deletedPieces Piece[]
 }
 
 model OtpToken {
@@ -37,4 +38,145 @@ model InstagramPublish {
   igMediaId   String
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
+}
+
+// ── Motor de Contenido ─────────────────────────────────────────
+
+// Template: receta fija para generar una imagen.
+// Define el prompt con placeholders, el modelo de IA, y qué campos necesita el creativo.
+model Template {
+  id          String   @id @default(cuid())
+  slug        String   @unique          // "headline", "features-pointout", "us-vs-them"
+  name        String                    // "Headline + celular con WhatsApp"
+  description String?                   // Descripción para el creativo
+
+  // Definición de campos que el creativo debe llenar.
+  // Array de objetos: [{key, label, type, required, placeholder}]
+  // type: "text" | "textarea" | "list" | "stat-list" | "conversation"
+  // Ejemplo: [{key: "headline", label: "Título principal", type: "text", required: true}]
+  fields      Json
+
+  // Prompt template con placeholders {{key}} que se reemplazan con los valores del creativo.
+  // Incluye Brand DNA, dirección fotográfica, reglas — todo fijo.
+  promptTemplate String
+
+  // Modelo de IA a usar para este template
+  model       String   @default("google/gemini-3.1-flash-image-preview")
+
+  // Costo estimado en USD por imagen generada con este template/modelo
+  costPerImage Float   @default(0)
+
+  // Configuración visual
+  darkOverlay Boolean  @default(false)   // Si el logo debe ir en blanco (fondo oscuro)
+  aspectRatio String   @default("4:5")   // "4:5", "1:1", "9:16"
+
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pieces      Piece[]
+}
+
+// Piece: una pieza creativa — los datos que el creativo define + la imagen generada.
+model Piece {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+
+  templateId  String
+  template    Template    @relation(fields: [templateId], references: [id])
+
+  // Clasificación
+  pillar      String?     // "educacion", "dolor", "producto", "detras_de_escena"
+  topic       String?     // Tema libre: "Cumpleaños olvidados"
+
+  // Datos creativos — los valores que llena el creativo según template.fields
+  // Objeto con los keys definidos en el template: {headline: "...", subhead: "...", ...}
+  fieldValues Json
+
+  // Caption para Instagram (texto del post, se escribe aparte de la imagen)
+  caption     String?
+  hashtags    String[]    @default([])
+
+  // Estado
+  status      PieceStatus @default(DRAFT)
+
+  // Imagen activa (apunta a la generación seleccionada)
+  imageUrl    String?     // URL de Vercel Blob de la generación activa
+  costUsd     Float       @default(0) // Costo total acumulado de todas las generaciones
+
+  // Soft delete
+  deletedAt   DateTime?
+  deletedById String?
+  deletedBy   User?     @relation(fields: [deletedById], references: [id])
+
+  // Historial de generaciones
+  generations Generation[]
+
+  // Publicación
+  publications Publication[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([pillar])
+  @@index([templateId])
+}
+
+// Generation: registro de cada intento de generación de imagen.
+// Nunca se borran — son el historial completo de inversión y versiones.
+model Generation {
+  id          String   @id @default(cuid())
+  pieceId     String
+  piece       Piece    @relation(fields: [pieceId], references: [id], onDelete: Cascade)
+
+  imageUrl    String   // URL de Vercel Blob
+  prompt      String   // Prompt enviado al modelo
+  model       String   // Modelo usado (ej: google/gemini-3.1-flash-image-preview)
+  costUsd     Float    // Costo de esta generación
+  durationMs  Int      // Duración en ms
+
+  isActive    Boolean  @default(true) // Si es la generación activa (la que se muestra)
+
+  createdAt   DateTime @default(now())
+
+  @@index([pieceId])
+}
+
+model Publication {
+  id          String   @id @default(cuid())
+  pieceId     String
+  piece       Piece    @relation(fields: [pieceId], references: [id], onDelete: Cascade)
+
+  platform    String   // "instagram", "linkedin"
+  platformId  String?  // igMediaId, etc.
+  scheduledAt DateTime?
+  publishedAt DateTime?
+
+  status      PublicationStatus @default(PENDING)
+  attempts    Int               @default(0)
+  lastError   String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([pieceId])
+}
+
+enum PieceStatus {
+  DRAFT             // Creativo llenó los datos, sin imagen aún
+  GENERATING        // Generando imagen
+  GENERATED         // Imagen lista, pendiente de revisión
+  APPROVED          // Revisada y aprobada
+  SCHEDULED         // Tiene publicación programada
+  PUBLISHED         // Publicada
+  FAILED            // Generación falló
+}
+
+enum PublicationStatus {
+  PENDING
+  PUBLISHING
+  PUBLISHED
+  FAILED
 }

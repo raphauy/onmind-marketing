@@ -82,8 +82,10 @@ export function InstagramPublishButton({ slug, isPublished, publishedAt }: Publi
             </div>
           )}
           <DialogFooter className="grid grid-cols-2 gap-2">
-            <DialogClose render={<Button variant="outline" className="w-full" />}>
-              Cancelar
+            <DialogClose asChild>
+              <Button variant="outline" className="w-full">
+                Cancelar
+              </Button>
             </DialogClose>
             <Button
               onClick={handlePublish}

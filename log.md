@@ -110,6 +110,69 @@
 
 ## 2026-04-14
 - **Martín aprobó los 9 posts del batch de lanzamiento** (imágenes + captions). Listos para publicar en @OnMindApp.
+- **Documentación:** visión de herramienta de Instagram (`docs/planes/onmind-herramienta-instagram-2026-04-14.md`), convenciones de desarrollo (`docs/operacion/convenciones-desarrollo.md`) replicando patrones de OnMind (services → Prisma, actions → services, API routes solo externos). Referencia agregada en CLAUDE.md.
+- **Setup Meta/Instagram API:**
+  - Facebook Page "OnMind" creada y vinculada a @onmindapp (Instagram Business).
+  - Meta App "OnMind Marketing" creada con Instagram Login API (no legacy Facebook Login).
+  - Permisos: `instagram_business_basic`, `instagram_business_content_publish`, `instagram_manage_comments`, `instagram_business_manage_messages`.
+  - Token obtenido y configurado en `.env.local` (`INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_USER_ID`).
+- **Cloudflare tunnel** `dev.onmindcrm.com` → localhost:3000 configurado para dev mode con dominio público. Regla WAF para bots de Meta (no sirvió — Cloudflare bloquea a nivel más bajo).
+- **Fix auth HTTPS:** `useSecureCookies` y cookie name en proxy ajustados para funcionar con HTTPS del tunnel.
+- **Prototipo de publicación en Instagram desde el dashboard:**
+  - Modelo `InstagramPublish` en Prisma (slug, igMediaId, publishedAt). Migración `add_instagram_publish`.
+  - Service `instagram-service.ts`: getPublishedPosts, getPublishStatus, createMediaContainer, waitForMediaReady, publishMediaContainer, publishPost, getProfile.
+  - Server action `publishPostAction` en `dashboard/instagram/actions.ts`.
+  - Client component `InstagramPublishButton` con Dialog de confirmación (shadcn Dialog con base-ui).
+  - Grid muestra badges verdes (arriba derecha) en posts publicados.
+  - Detalle muestra botón "Publicar en Instagram" o fecha de publicación.
+- **Fix Button hydration:** reemplazado `ButtonPrimitive` de base-ui por `<button>` nativo (como OnMind con Radix) para eliminar hydration mismatch en SSR.
+- **Imágenes regeneradas en 1080x1350 (4:5):** formato correcto para feed de Instagram. Script `generate-post.mjs` actualizado con modo `--all` para los 9 posts.
+- **Vercel Blob para imágenes:** `@vercel/blob` instalado, `upload-service.ts` creado, script `upload-to-blob.mjs` para subir imágenes. Las 9 imágenes subidas al Blob. `blobUrl` agregado al tipo `InstagramPost` — la UI usa imágenes locales, Instagram usa las del Blob.
+- **Perfil de Instagram con datos reales:** la API devuelve username, nombre, bio, avatar, seguidores, seguidos, publicaciones. La UI del grid muestra datos en vivo.
+- **Los 9 posts publicados en @OnMindApp** desde producción (Vercel). Grid aspect ratio 4:5, contenedor max-w-[700px].
+- **Próximos pasos:** scheduling, insights/engagement, reels/carruseles, renovación automática de tokens.
+
+## 2026-04-16
+- **Motor de contenido — modelo de datos implementado.** Migración `add_content_engine`:
+  - `Template`: receta fija con `fields` (JSON que define qué campos necesita el creativo), `promptTemplate` (prompt con `{{placeholders}}`), `model` (modelo de IA), `costPerImage` (USD por imagen), `darkOverlay`, `aspectRatio`.
+  - `Piece`: pieza creativa con `fieldValues` (JSON con los valores del creativo), `status` (DRAFT→GENERATING→GENERATED→APPROVED→SCHEDULED→PUBLISHED→FAILED), `imageUrl`, `costUsd`, tracking de generación.
+  - `Publication`: scheduling y publicación multi-plataforma.
+- **Separación de responsabilidades:**
+  - Creativo (Claude Code / UI) → genera contenido, elige template, llena campos → Piece en DB (DRAFT)
+  - Generador (script/botón/cron) → lee Piece + Template, arma prompt, llama OpenRouter, agrega logo → Piece (GENERATED)
+  - El template define todo lo visual (prompt, modelo, dirección fotográfica). El creativo solo llena el contenido.
+- **4 templates cargados en DB** con costos reales de OpenRouter:
+  - `headline`: NB Pro, $0.14/imagen — título + celular WhatsApp
+  - `features-pointout`: NB2, $0.07/imagen — celular + 4 callouts
+  - `us-vs-them`: NB2, $0.07/imagen — comparación split manual vs OnMind
+  - `stat-surround`: NB2, $0.07/imagen — celular + 4 stats radiales
+- **Migración `add_cost_tracking`:** campo `costPerImage` en Template, `costUsd` en Piece.
+- **Scripts del pipeline:**
+  - `scripts/lib/db.mjs` — conexión compartida a DB para scripts (Neon + ws)
+  - `scripts/seed-templates.mjs` — carga/actualiza templates en DB
+  - `scripts/create-piece.mjs` — crea Piece en DB (creativo). Soporta `--values` JSON o placeholders por defecto.
+  - `scripts/generate-piece.mjs` — genera imagen de una Piece: lee DB → arma prompt → OpenRouter → logo overlay → guarda imagen → actualiza DB.
+  - `scripts/add-logo-overlay.mjs` — post-producción: agrega isotipo + "OnMind" + "@OnMindApp" al margen inferior.
+- **Pipeline probado end-to-end:** create-piece (DRAFT) → generate-piece (GENERATED) con logo, 16s, $0.07.
+- **Próximos pasos:** UI para crear/ver pieces, más templates, integrar Blob upload, scheduling.
+
+## 2026-04-15
+- **Documento Motor de Contenido** (`docs/planes/onmind-motor-contenido-2026-04-15.md`): especificación funcional completa del sistema de generación, repositorio y scheduling de contenido. 8 tipos de contenido, estados formales (DRAFT→APPROVED→SCHEDULED→PUBLISHED), modelo de datos Prisma, pipeline de generación con agentes/skills, cron de Vercel cada 15 min, 5 pantallas de UI.
+- Decisiones clave: estados formales en DB, cron de Vercel (no API nativa de IG), Raphael decide solo (sin validación por pieza de Martín), OpenRouter como gateway para modelos de imagen.
+- **Investigación de infografías con IA** (`docs/investigacion/investigacion-infografias-ia-2026-04-15.md`): estado del arte, comparativa de modelos, técnicas de prompting, mejores prácticas para Instagram B2B.
+- **Modelos de imagen en OpenRouter** (5 confirmados via API): Nano Banana ($0.30/M), Nano Banana 2 ($0.50/M), Nano Banana Pro ($2.00/M), GPT-5 Image Mini ($2.50/M), GPT-5 Image ($10.00/M).
+- **Script comparativo** (`scripts/compare-infografia.mjs`): envía el mismo prompt a múltiples modelos y guarda resultados para comparar.
+- Primera comparativa de 5 modelos: Nano Banana Pro y GPT-5 Image los mejores en calidad, pero caros. Nano Banana 2 buen balance costo/calidad.
+- Iteraciones de prompt: bento grid (colorinche, descartado), minimal puro (demasiado básico), balance con iconos teal (correcto pero no destacable).
+- **Descubrimiento: técnica AdCrate.** Proceso de 3 pasos: Brand DNA research en Claude → templates ultra-detallados con dirección fotográfica → modelo de imagen genera. Documentado en `docs/investigacion/adcrate-templates-referencia-2026-04-15.md` (40 templates de referencia).
+- **Clave del salto de calidad:** especificidad fotográfica (lentes, f-stop), layout con porcentajes, texto verbatim entre comillas, anti-instrucciones explícitas, imágenes de referencia.
+- **4 templates AdCrate adaptados para OnMind** (`scripts/test-adcrate-templates.mjs`), usando celular con WhatsApp como "producto":
+  1. Headline: "Tu cliente se olvidó de vos" + celular con WhatsApp
+  2. Features Point-Out: celular centro + 4 callouts con líneas
+  3. Us vs Them: "Gestión manual vs Con OnMind" split
+  4. Stat Surround: celular + 4 stats radiales con flechas
+- Generados con **Nano Banana 2** ($0.50/M, 15-20s por imagen). Resultados excelentes — calidad profesional, español correcto, celulares fotorrealistas.
+- **Próximos pasos:** refinar templates, crear Brand DNA modifier formal, agregar post-procesamiento (logo overlay con Satori), integrar al pipeline del motor de contenido.
 
 ## 2026-04-07
 - Exploración de logo con Ideogram (limitado) y Gemini (buenos resultados).
