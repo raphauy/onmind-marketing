@@ -114,7 +114,7 @@ export default async function PiezasPage({
                 className="border rounded-lg overflow-hidden hover:border-primary/30 transition-colors cursor-pointer"
               >
                 {/* Thumbnail */}
-                <div className="aspect-[4/5] bg-muted relative">
+                <div className="aspect-[4/5] bg-muted relative border-b">
                   {piece.imageUrl ? (
                     <img
                       src={piece.imageUrl}
