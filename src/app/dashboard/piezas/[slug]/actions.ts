@@ -11,6 +11,7 @@ import {
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { generatePieceImage } from "@/services/generation-service"
+import { publishPiece } from "@/services/instagram-service"
 import { revalidatePath } from "next/cache"
 
 type ActionResult<T = void> =
@@ -51,6 +52,29 @@ export async function approvePieceAction(
 
     revalidatePath(`/dashboard/piezas/${slug}`)
     revalidatePath("/dashboard/piezas")
+    revalidatePath("/dashboard/instagram")
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+
+  redirect("/dashboard/instagram")
+}
+
+export async function publishPieceAction(
+  slug: string
+): Promise<ActionResult> {
+  try {
+    const piece = await getPieceBySlug(slug)
+    if (!piece) return { success: false, error: "Pieza no encontrada" }
+    if (piece.status !== "APPROVED") {
+      return { success: false, error: `No se puede publicar en status ${piece.status}` }
+    }
+
+    await publishPiece(piece.id)
+
+    revalidatePath(`/dashboard/piezas/${slug}`)
+    revalidatePath("/dashboard/piezas")
+    revalidatePath("/dashboard/instagram")
     return { success: true, data: undefined }
   } catch (error) {
     return { success: false, error: (error as Error).message }

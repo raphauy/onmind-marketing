@@ -1,16 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
-import { instagramPosts } from "@/lib/instagram-posts";
-import { getPublishedPosts, getProfile } from "@/services/instagram-service";
+import { getPublishedAndScheduledPieces } from "@/services/piece-service";
+import { getProfile } from "@/services/instagram-service";
+import { Badge } from "@/components/ui/badge";
+
+const STATUS_BADGE: Record<string, { label: string; color: string }> = {
+  APPROVED: { label: "Lista", color: "bg-blue-50 text-blue-600 border-blue-200" },
+  SCHEDULED: { label: "Programada", color: "bg-purple-50 text-purple-600 border-purple-200" },
+  PUBLISHED: { label: "", color: "" }, // Verde checkmark, no badge
+};
 
 export default async function InstagramPage() {
-  const [published, profile] = await Promise.all([
-    getPublishedPosts(),
+  const [pieces, profile] = await Promise.all([
+    getPublishedAndScheduledPieces(),
     getProfile(),
   ]);
-  const publishedSlugs = new Set(published.map((p) => p.slug));
-
-  const gridPosts = [...instagramPosts].reverse();
 
   return (
     <div className="-m-6 py-6 px-6 bg-gray-50 min-h-full">
@@ -109,27 +113,37 @@ export default async function InstagramPage() {
 
         {/* Grid */}
         <div className="grid grid-cols-3 gap-px bg-gray-100">
-          {gridPosts.map((post) => {
-            const isPublished = publishedSlugs.has(post.slug);
+          {pieces.map((piece) => {
+            const isPublished = piece.status === "PUBLISHED";
+            const badge = STATUS_BADGE[piece.status];
             return (
               <Link
-                key={post.slug}
-                href={`/dashboard/instagram/${post.slug}`}
-                className="relative bg-white block hover:opacity-90 transition-opacity cursor-pointer" style={{ aspectRatio: "4/5" }}
+                key={piece.slug}
+                href={`/dashboard/piezas/${piece.slug}`}
+                className="relative bg-white block hover:opacity-90 transition-opacity cursor-pointer"
+                style={{ aspectRatio: "4/5" }}
               >
-                <Image
-                  src={post.image}
-                  alt={post.topic}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 430px) 33vw, 143px"
-                />
+                {piece.imageUrl && (
+                  <img
+                    src={piece.imageUrl}
+                    alt={piece.topic || piece.slug}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
                 {isPublished && (
                   <div className="absolute top-1.5 right-1.5 bg-green-500 rounded-full p-0.5">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </div>
+                )}
+                {!isPublished && badge && badge.label && (
+                  <Badge
+                    variant="outline"
+                    className={`absolute top-1.5 right-1.5 text-[10px] ${badge.color}`}
+                  >
+                    {badge.label}
+                  </Badge>
                 )}
               </Link>
             );

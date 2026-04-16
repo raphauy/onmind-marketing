@@ -85,7 +85,7 @@ export function PanelSidebar() {
                   isActive={pathname.startsWith("/dashboard/piezas") && pathname !== "/dashboard/piezas/nueva"}
                   asChild
                 >
-                  <Link href="/dashboard/piezas" onClick={closeMobile}>
+                  <Link href="/dashboard/piezas?status=GENERATED" onClick={closeMobile}>
                     <Images className="w-4 h-4" />
                     <span>Piezas</span>
                   </Link>

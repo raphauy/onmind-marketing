@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import type { InstagramPublish } from "@prisma/client";
 
 const GRAPH_API_BASE = "https://graph.instagram.com/v22.0";
 
@@ -12,19 +11,7 @@ function getConfig() {
   return { accessToken, userId };
 }
 
-// --- DB ---
-
-export async function getPublishedPosts(): Promise<InstagramPublish[]> {
-  return prisma.instagramPublish.findMany({
-    orderBy: { publishedAt: "desc" },
-  });
-}
-
-export async function getPublishStatus(slug: string): Promise<InstagramPublish | null> {
-  return prisma.instagramPublish.findUnique({
-    where: { slug },
-  });
-}
+// --- Profile ---
 
 export type InstagramProfile = {
   username: string;
@@ -67,8 +54,6 @@ export async function getProfile(): Promise<InstagramProfile> {
 async function createMediaContainer(imageUrl: string, caption: string): Promise<string> {
   const { accessToken, userId } = getConfig();
 
-  console.log("[Instagram] Creando container:", { imageUrl, captionLength: caption.length });
-
   const res = await fetch(`${GRAPH_API_BASE}/${userId}/media`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -81,18 +66,14 @@ async function createMediaContainer(imageUrl: string, caption: string): Promise<
 
   const data = await res.json();
   if (!res.ok) {
-    console.error("[Instagram] Error creando container:", JSON.stringify(data.error));
     throw new Error(data.error?.message || "Error al crear el container de media en Instagram");
   }
 
-  console.log("[Instagram] Container creado:", data.id);
   return data.id;
 }
 
 async function publishMediaContainer(creationId: string): Promise<string> {
   const { accessToken, userId } = getConfig();
-
-  console.log("[Instagram] Publicando container:", creationId);
 
   const res = await fetch(`${GRAPH_API_BASE}/${userId}/media_publish`, {
     method: "POST",
@@ -105,11 +86,9 @@ async function publishMediaContainer(creationId: string): Promise<string> {
 
   const data = await res.json();
   if (!res.ok) {
-    console.error("[Instagram] Error publicando:", JSON.stringify(data.error));
     throw new Error(data.error?.message || "Error al publicar en Instagram");
   }
 
-  console.log("[Instagram] Publicado con media ID:", data.id);
   return data.id;
 }
 
@@ -122,11 +101,8 @@ async function waitForMediaReady(containerId: string, maxAttempts = 10): Promise
     );
     const data = await res.json();
 
-    console.log(`[Instagram] Status check ${i + 1}/${maxAttempts}:`, data.status_code);
-
     if (data.status_code === "FINISHED") return;
     if (data.status_code === "ERROR") {
-      console.error("[Instagram] Container rechazado:", JSON.stringify(data));
       throw new Error("Instagram rechazó la imagen");
     }
 
@@ -136,22 +112,49 @@ async function waitForMediaReady(containerId: string, maxAttempts = 10): Promise
   throw new Error("Timeout esperando que Instagram procese la imagen");
 }
 
-// --- Orquestación ---
+// --- Publicar una Piece ---
 
-export async function publishPost(slug: string, imageUrl: string, caption: string): Promise<InstagramPublish> {
-  const existing = await getPublishStatus(slug);
-  if (existing) {
-    throw new Error("Este post ya fue publicado");
+export async function publishPiece(pieceId: string) {
+  const piece = await prisma.piece.findUniqueOrThrow({
+    where: { id: pieceId },
+    include: { publications: { where: { platform: "instagram" } } },
+  });
+
+  if (!piece.imageUrl) {
+    throw new Error("La pieza no tiene imagen generada");
   }
 
-  const creationId = await createMediaContainer(imageUrl, caption);
+  if (piece.publications.some((p) => p.status === "PUBLISHED")) {
+    throw new Error("Esta pieza ya fue publicada en Instagram");
+  }
+
+  // Armar caption con hashtags
+  const fullCaption = [
+    piece.caption || piece.topic || "",
+    piece.hashtags.length > 0 ? "\n\n" + piece.hashtags.join(" ") : "",
+  ].join("");
+
+  // Publicar en Instagram
+  const creationId = await createMediaContainer(piece.imageUrl, fullCaption);
   await waitForMediaReady(creationId);
   const igMediaId = await publishMediaContainer(creationId);
 
-  return prisma.instagramPublish.create({
+  // Crear Publication
+  const publication = await prisma.publication.create({
     data: {
-      slug,
-      igMediaId,
+      pieceId: piece.id,
+      platform: "instagram",
+      platformId: igMediaId,
+      publishedAt: new Date(),
+      status: "PUBLISHED",
     },
   });
+
+  // Actualizar status de la Piece
+  await prisma.piece.update({
+    where: { id: piece.id },
+    data: { status: "PUBLISHED" },
+  });
+
+  return publication;
 }

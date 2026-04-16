@@ -27,9 +27,12 @@ export default async function PiezasPage({
 }) {
   const params = await searchParams
   const showDeleted = params.deleted === "1"
+  const effectiveStatus = params.status === "ALL"
+    ? undefined
+    : params.status || undefined
   const [pieces, stats] = await Promise.all([
     getPieces({
-      status: params.status as any,
+      status: effectiveStatus as any,
       pillar: params.pillar,
       deleted: showDeleted,
     }),
@@ -57,11 +60,11 @@ export default async function PiezasPage({
       {/* Filtros por status */}
       <div className="flex gap-2 mb-6 flex-wrap">
         <Badge
-          variant={!params.status && !showDeleted ? "default" : "secondary"}
+          variant={params.status === "ALL" || !params.status ? "default" : "secondary"}
           asChild
           className="cursor-pointer h-7 px-3"
         >
-          <Link href="/dashboard/piezas">Activas ({stats.total})</Link>
+          <Link href="/dashboard/piezas?status=ALL">Todas ({stats.total})</Link>
         </Badge>
         {Object.entries(STATUS_LABELS).map(([key, { label }]) => {
           const count = stats.byStatus[key] || 0

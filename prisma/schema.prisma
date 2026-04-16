@@ -32,6 +32,8 @@ model OtpToken {
   @@index([expiresAt])
 }
 
+// InstagramPublish — DEPRECATED, migrado a Publication
+// Mantener temporalmente por si hace falta rollback
 model InstagramPublish {
   id          String   @id @default(cuid())
   slug        String   @unique

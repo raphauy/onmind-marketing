@@ -110,6 +110,10 @@ export default async function PieceDetailPage({
               slug={piece.slug}
               status={piece.status}
               isDeleted={piece.deletedAt !== null}
+              publishedAt={
+                piece.publications.find((p) => p.status === "PUBLISHED")
+                  ?.publishedAt?.toISOString()
+              }
             />
           </div>
         </div>
