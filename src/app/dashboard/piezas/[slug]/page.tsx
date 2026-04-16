@@ -7,6 +7,7 @@ import { Image as ImageIcon } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { ImageGallery } from "@/components/image-gallery"
+import { BackButton } from "@/components/back-button"
 import { GenerationHistory } from "@/components/generation-history"
 import type { TemplateField } from "@/services/template-service"
 
@@ -50,12 +51,7 @@ export default async function PieceDetailPage({
 
   return (
     <div className="max-w-4xl">
-      <Link
-        href="/dashboard/piezas"
-        className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block cursor-pointer"
-      >
-        ← Volver a piezas
-      </Link>
+      <BackButton />
 
       <div className="flex items-center gap-3 mb-6">
         <h1 className="text-2xl font-bold">
