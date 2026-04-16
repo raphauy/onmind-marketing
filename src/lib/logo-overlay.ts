@@ -4,28 +4,25 @@ import sharp from "sharp"
 import { readFileSync } from "fs"
 import { join } from "path"
 
-const FONTS_DIR = join(
-  process.cwd(),
-  "node_modules/geist/dist/fonts/geist-sans"
-)
+const ROOT = join(process.cwd(), "public")
 
 const fonts = [
   {
     name: "Geist",
-    data: readFileSync(join(FONTS_DIR, "Geist-Medium.ttf")),
+    data: readFileSync(join(ROOT, "fonts/Geist-Medium.ttf")),
     weight: 500 as const,
     style: "normal" as const,
   },
   {
     name: "Geist",
-    data: readFileSync(join(FONTS_DIR, "Geist-SemiBold.ttf")),
+    data: readFileSync(join(ROOT, "fonts/Geist-SemiBold.ttf")),
     weight: 600 as const,
     style: "normal" as const,
   },
 ]
 
-const isotipoBase64 = `data:image/png;base64,${readFileSync(join(process.cwd(), "assets/logo/isotipo-OnMind-transparente.png")).toString("base64")}`
-const isotipoBlanco = `data:image/png;base64,${readFileSync(join(process.cwd(), "assets/logo/isotipo-OnMind-blanco.png")).toString("base64")}`
+const isotipoBase64 = `data:image/png;base64,${readFileSync(join(ROOT, "brand/isotipo-OnMind-transparente.png")).toString("base64")}`
+const isotipoBlanco = `data:image/png;base64,${readFileSync(join(ROOT, "brand/isotipo-OnMind-blanco.png")).toString("base64")}`
 
 // Tamaños finales por aspect ratio (ancho fijo 1080)
 const SIZES: Record<string, { width: number; height: number }> = {
