@@ -96,9 +96,9 @@ export function ImageGallery({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="w-full text-left cursor-pointer">
+        <div className="w-full text-left cursor-pointer">
           {trigger}
-        </button>
+        </div>
       </DialogTrigger>
       <DialogContent showCloseButton={false} className="sm:max-w-[90vw] max-w-[95vw] p-0 border-none shadow-none bg-transparent gap-0">
         <DialogTitle className="sr-only">

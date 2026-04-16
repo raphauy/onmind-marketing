@@ -4,8 +4,8 @@ import { PieceActions } from "@/components/piece-actions"
 import { Image as ImageIcon } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { ImagePreview } from "@/components/image-preview"
 import { ImageGallery } from "@/components/image-gallery"
+import { GenerationHistory } from "@/components/generation-history"
 import type { TemplateField } from "@/services/template-service"
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -44,6 +44,7 @@ export default async function PieceDetailPage({
     src: gen.imageUrl,
     alt: `Generación #${piece.generations.length - i}`,
   }))
+  const activeIndex = piece.generations.findIndex((g) => g.isActive)
 
   return (
     <div className="max-w-4xl">
@@ -84,7 +85,7 @@ export default async function PieceDetailPage({
             {piece.imageUrl ? (
               <ImageGallery
                 images={galleryImages}
-                startIndex={0}
+                startIndex={activeIndex >= 0 ? activeIndex : 0}
                 trigger={
                   <img
                     src={piece.imageUrl}
@@ -187,59 +188,11 @@ export default async function PieceDetailPage({
 
           {/* Historial de generaciones */}
           {piece.generations.length > 0 && (
-            <div className="border-t pt-4">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Generaciones ({piece.generations.length}) · Total: ${piece.costUsd.toFixed(2)}
-              </p>
-              <div className="space-y-2">
-                {piece.generations.map((gen, i) => (
-                  <ImageGallery
-                    key={gen.id}
-                    images={galleryImages}
-                    startIndex={i}
-                    trigger={
-                      <div
-                        className={`border rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors ${
-                          gen.isActive ? "border-primary/30 bg-primary/5" : ""
-                        }`}
-                      >
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-10">
-                            <img
-                              src={gen.imageUrl}
-                              alt={`Generación #${piece.generations.length - i}`}
-                              className="w-full rounded border object-cover aspect-[4/5]"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium">
-                                  #{piece.generations.length - i}
-                                </span>
-                                {gen.isActive && (
-                                  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                                    Activa
-                                  </Badge>
-                                )}
-                              </div>
-                              <span className="text-xs font-mono text-muted-foreground">
-                                ${gen.costUsd.toFixed(2)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                              <span>{gen.model.split("/").pop()}</span>
-                              <span>{(gen.durationMs / 1000).toFixed(1)}s</span>
-                              <span>{gen.createdAt.toLocaleDateString("es-UY")}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  />
-                ))}
-              </div>
-            </div>
+            <GenerationHistory
+              slug={piece.slug}
+              generations={piece.generations}
+              totalCost={piece.costUsd}
+            />
           )}
         </div>
       </div>

@@ -139,6 +139,27 @@ export async function restorePiece(id: string) {
   })
 }
 
+export async function setActiveGeneration(pieceId: string, generationId: string) {
+  const generation = await prisma.generation.findUniqueOrThrow({
+    where: { id: generationId, pieceId },
+  })
+
+  await prisma.generation.updateMany({
+    where: { pieceId, isActive: true },
+    data: { isActive: false },
+  })
+
+  await prisma.generation.update({
+    where: { id: generationId },
+    data: { isActive: true },
+  })
+
+  await prisma.piece.update({
+    where: { id: pieceId },
+    data: { imageUrl: generation.imageUrl },
+  })
+}
+
 export async function getPublishedAndScheduledPieces() {
   return prisma.piece.findMany({
     where: {

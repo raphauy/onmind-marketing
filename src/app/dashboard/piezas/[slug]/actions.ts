@@ -6,6 +6,7 @@ import {
   updatePiece,
   softDeletePiece,
   restorePiece,
+  setActiveGeneration,
 } from "@/services/piece-service"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
@@ -86,6 +87,24 @@ export async function updatePieceAction(
       caption,
       hashtags,
     })
+
+    revalidatePath(`/dashboard/piezas/${slug}`)
+    revalidatePath("/dashboard/piezas")
+    return { success: true, data: undefined }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function setActiveGenerationAction(
+  slug: string,
+  generationId: string
+): Promise<ActionResult> {
+  try {
+    const piece = await getPieceBySlug(slug)
+    if (!piece) return { success: false, error: "Pieza no encontrada" }
+
+    await setActiveGeneration(piece.id, generationId)
 
     revalidatePath(`/dashboard/piezas/${slug}`)
     revalidatePath("/dashboard/piezas")
