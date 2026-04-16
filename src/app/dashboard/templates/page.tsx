@@ -1,5 +1,6 @@
 import { getTemplates } from "@/services/template-service"
 import type { TemplateField } from "@/services/template-service"
+import { Badge } from "@/components/ui/badge"
 import { LayoutTemplate } from "lucide-react"
 
 export default async function TemplatesPage() {
@@ -20,53 +21,70 @@ export default async function TemplatesPage() {
       <div className="space-y-4">
         {templates.map((template) => {
           const fields = template.fields as TemplateField[]
+          const lastImage = template.pieces[0]?.imageUrl
           return (
             <div
               key={template.id}
-              className={`border rounded-lg p-5 ${
+              className={`border rounded-lg overflow-hidden ${
                 template.isActive
                   ? "bg-white"
                   : "bg-muted/50 opacity-60"
               }`}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <LayoutTemplate className="w-5 h-5 text-primary" />
+              <div className="flex">
+                {/* Imagen o icono */}
+                {lastImage ? (
+                  <div className="flex-shrink-0 w-28">
+                    <img
+                      src={lastImage}
+                      alt={template.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div>
-                    <h2 className="font-semibold">{template.name}</h2>
-                    <p className="text-sm text-muted-foreground">
-                      {template.description}
-                    </p>
+                ) : (
+                  <div className="flex-shrink-0 w-28 bg-muted/30 flex items-center justify-center">
+                    <LayoutTemplate className="w-8 h-8 text-muted-foreground/30" />
                   </div>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="font-mono text-muted-foreground">
-                    ${template.costPerImage.toFixed(2)}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      template.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {template.isActive ? "Activo" : "Inactivo"}
-                  </span>
+                )}
+
+                {/* Contenido */}
+                <div className="flex-1 p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="font-semibold">{template.name}</h2>
+                      <p className="text-sm text-muted-foreground">
+                        {template.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm flex-shrink-0 ml-4">
+                      <span className="font-mono text-muted-foreground">
+                        ${template.costPerImage.toFixed(2)}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={
+                          template.isActive
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-gray-50 text-gray-500"
+                        }
+                      >
+                        {template.isActive ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>Modelo: {template.model.split("/").pop()}</span>
+                    <span>Ratio: {template.aspectRatio}</span>
+                    <span>
+                      {template._count.pieces}{" "}
+                      {template._count.pieces === 1 ? "pieza" : "piezas"}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-                <span>Modelo: {template.model.split("/").pop()}</span>
-                <span>Ratio: {template.aspectRatio}</span>
-                <span>
-                  {template._count.pieces}{" "}
-                  {template._count.pieces === 1 ? "pieza" : "piezas"}
-                </span>
-              </div>
-
-              <div className="mt-4">
+              <div className="px-5 pb-5">
                 <p className="text-xs font-medium text-muted-foreground mb-2">
                   Campos ({fields.length})
                 </p>

@@ -11,7 +11,15 @@ export type TemplateField = {
 export async function getTemplates() {
   return prisma.template.findMany({
     orderBy: { createdAt: "asc" },
-    include: { _count: { select: { pieces: true } } },
+    include: {
+      _count: { select: { pieces: true } },
+      pieces: {
+        where: { imageUrl: { not: null }, deletedAt: null },
+        select: { imageUrl: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+    },
   })
 }
 
