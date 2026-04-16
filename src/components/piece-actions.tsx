@@ -8,6 +8,17 @@ import {
   deletePieceAction,
   restorePieceAction,
 } from "@/app/dashboard/piezas/[slug]/actions"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Loader2, Sparkles, Check, RotateCcw, Trash2, ArchiveRestore } from "lucide-react"
 
 export function PieceActions({
@@ -108,7 +119,7 @@ export function PieceActions({
           <button
             onClick={handleGenerate}
             disabled={busy}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
           >
             {generating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -153,21 +164,41 @@ export function PieceActions({
             Restaurar pieza
           </button>
         ) : (
-          <button
-            onClick={async () => {
-              setDeleting(true)
-              await deletePieceAction(slug)
-            }}
-            disabled={busy}
-            className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-500 hover:text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 cursor-pointer"
-          >
-            {deleting ? (
-              <Loader2 className="w-4 h-4 animate-spin text-red-500" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-            Eliminar pieza
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={busy}
+                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-500 hover:text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar pieza
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Eliminar pieza</AlertDialogTitle>
+                <AlertDialogDescription>
+                  La pieza será marcada como eliminada. Podés restaurarla más tarde desde el filtro de eliminadas.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async () => {
+                    setDeleting(true)
+                    await deletePieceAction(slug)
+                  }}
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                >
+                  {deleting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Eliminar"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
       </div>
     </div>

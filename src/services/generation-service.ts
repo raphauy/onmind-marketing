@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { put } from "@vercel/blob"
+import { addLogoOverlay } from "@/lib/logo-overlay"
 import type { Template } from "@prisma/client"
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -122,11 +123,18 @@ export async function generatePieceImage(
       throw new Error("No se obtuvo imagen del modelo")
     }
 
+    // Add logo overlay + resize al aspect ratio del template
+    const finalImage = await addLogoOverlay(
+      imageBuffer,
+      template.darkOverlay,
+      template.aspectRatio
+    )
+
     // Upload to Vercel Blob (con timestamp para no pisar versiones anteriores)
     const version = Date.now().toString(36)
     const { url: imageUrl } = await put(
       `piezas/${piece.slug}-${version}.png`,
-      imageBuffer,
+      finalImage,
       { access: "public", contentType: "image/png", addRandomSuffix: false }
     )
 
