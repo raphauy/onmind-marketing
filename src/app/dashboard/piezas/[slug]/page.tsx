@@ -1,3 +1,5 @@
+export const maxDuration = 120
+
 import { getPieceBySlug } from "@/services/piece-service"
 import { notFound } from "next/navigation"
 import { PieceActions } from "@/components/piece-actions"
