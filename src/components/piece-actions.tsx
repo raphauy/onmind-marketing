@@ -163,33 +163,56 @@ export function PieceActions({
       )}
 
       {status === "APPROVED" && (
-        <button
-          onClick={async () => {
-            setPublishing(true)
-            setError(null)
-            const result = await publishPieceAction(slug)
-            setPublishing(false)
-            if (result.success) {
-              router.refresh()
-            } else {
-              setError(result.error)
-            }
-          }}
-          disabled={busy}
-          className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
-        >
-          {publishing ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Publicando en Instagram...
-            </>
-          ) : (
-            <>
-              <Send className="w-4 h-4" />
-              Publicar en Instagram
-            </>
-          )}
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              disabled={busy}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+            >
+              {publishing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Publicando en Instagram...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Publicar en Instagram
+                </>
+              )}
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Publicar en Instagram?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta pieza se publicará ahora en la cuenta @OnMindApp de Instagram. Esta acción no se puede deshacer desde acá.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  setPublishing(true)
+                  setError(null)
+                  const result = await publishPieceAction(slug)
+                  setPublishing(false)
+                  if (result.success) {
+                    router.refresh()
+                  } else {
+                    setError(result.error)
+                  }
+                }}
+              >
+                {publishing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Sí, publicar"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
 
       {status === "PUBLISHED" && (
