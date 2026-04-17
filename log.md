@@ -132,7 +132,7 @@
 - **Los 9 posts publicados en @OnMindApp** desde producción (Vercel). Grid aspect ratio 4:5, contenedor max-w-[700px].
 - **Próximos pasos:** scheduling, insights/engagement, reels/carruseles, renovación automática de tokens.
 
-## 2026-04-16
+## 2026-04-16 — 2026-04-17
 - **Motor de contenido — modelo de datos implementado.** Migración `add_content_engine`:
   - `Template`: receta fija con `fields` (JSON que define qué campos necesita el creativo), `promptTemplate` (prompt con `{{placeholders}}`), `model` (modelo de IA), `costPerImage` (USD por imagen), `darkOverlay`, `aspectRatio`.
   - `Piece`: pieza creativa con `fieldValues` (JSON con los valores del creativo), `status` (DRAFT→GENERATING→GENERATED→APPROVED→SCHEDULED→PUBLISHED→FAILED), `imageUrl`, `costUsd`, tracking de generación.
@@ -154,7 +154,25 @@
   - `scripts/generate-piece.mjs` — genera imagen de una Piece: lee DB → arma prompt → OpenRouter → logo overlay → guarda imagen → actualiza DB.
   - `scripts/add-logo-overlay.mjs` — post-producción: agrega isotipo + "OnMind" + "@OnMindApp" al margen inferior.
 - **Pipeline probado end-to-end:** create-piece (DRAFT) → generate-piece (GENERATED) con logo, 16s, $0.07.
-- **Próximos pasos:** UI para crear/ver pieces, más templates, integrar Blob upload, scheduling.
+- **UI del motor de contenido — implementación completa:**
+  - Sidebar actualizado: Piezas, Nueva pieza, Templates, Feed, Estrategia, Marca.
+  - `/dashboard/templates`: lista de templates con imagen de última generación, campos, modelo, costo, count de piezas.
+  - `/dashboard/piezas`: grid filtrable por status (default: GENERATED), stats de gasto, soft delete con filtro "Eliminadas".
+  - `/dashboard/piezas/nueva`: formulario dinámico por template (Select, Input, Textarea, Tooltip — todo shadcn).
+  - `/dashboard/piezas/[slug]`: detalle con preview, ImageGallery (carousel con flechas + teclado), historial de generaciones con "Usar esta", metadata, acciones por status.
+  - Acciones: Generar imagen (→ OpenRouter + logo overlay + Blob), Regenerar, Aprobar (AlertDialog → redirect al feed), Publicar en Instagram (AlertDialog de confirmación), Eliminar (soft delete con AlertDialog + quién eliminó).
+  - BackButton con router.back() para navegación contextual.
+- **Logo overlay como pill flotante:** isotipo + "OnMind" + "@OnMindApp" en pill semitransparente con sombra, compuesto sobre la imagen. Resize automático al aspect ratio del template (1080x1350 para 4:5). Fonts y logos en `public/` para Vercel serverless.
+- **Historial de generaciones:** modelo `Generation` en DB. Cada generación se guarda (imageUrl, prompt, model, costUsd, durationMs). `costUsd` en Piece se acumula. Se puede seleccionar cualquier generación como activa.
+- **Migración de shadcn base-ui → Radix** (new-york style). Todos los componentes reinstalados. `render={}` → `asChild`. Resolvió problemas de hidratación y UX. Documentado en CLAUDE.md.
+- **Migración de 9 posts legacy** a Pieces + Publications. Scripts `migrate-legacy-posts.mjs` y `migrate-legacy-captions.mjs`. Template "legacy-batch-lanzamiento" (inactivo). Captions y hashtags migrados.
+- **Feed de Instagram refactorizado:** lee de `getPublishedAndScheduledPieces()` (APPROVED, SCHEDULED, PUBLISHED). Badges: "Aprobada" (blanco sólido), check verde (PUBLISHED). Ordenado: sin publicación arriba, publicadas por fecha de IG desc. Links a `/dashboard/piezas/[slug]`. Eliminados: `instagram-publish-button.tsx`, `instagram/[post]/`, `instagram/actions.ts`.
+- **Publicar desde detalle de pieza:** botón "Publicar en Instagram" (status APPROVED) con AlertDialog. Usa `publishPiece()` que llama a Instagram Graph API, crea Publication, actualiza status a PUBLISHED.
+- **Skill `/crear-pieza`:** flujo conversacional en Claude Code para crear piezas. Lee templates de la DB, propone contenido on-brand, guarda como DRAFT. Incluye brand-guide.md con tono, vocabulario, pilares.
+- **`maxDuration = 120`** en page.tsx para Vercel serverless (generación + overlay + Blob).
+- **`serverExternalPackages`** para resvg/sharp/satori en Turbopack.
+- **Investigación de menciones en Instagram API:** 3 mecanismos (@mention en caption, user_tags, collaborators). Recomendación: usar `collaborators` para que posts aparezcan en feed de co-fundadores.
+- **Próximos pasos:** implementar collaborators en publicación, scheduling con cron, más templates, calendario visual.
 
 ## 2026-04-15
 - **Documento Motor de Contenido** (`docs/planes/onmind-motor-contenido-2026-04-15.md`): especificación funcional completa del sistema de generación, repositorio y scheduling de contenido. 8 tipos de contenido, estados formales (DRAFT→APPROVED→SCHEDULED→PUBLISHED), modelo de datos Prisma, pipeline de generación con agentes/skills, cron de Vercel cada 15 min, 5 pantallas de UI.
