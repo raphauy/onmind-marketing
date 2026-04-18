@@ -110,6 +110,16 @@ export default async function PieceDetailPage({
                 piece.publications.find((p) => p.status === "PUBLISHED")
                   ?.publishedAt?.toISOString()
               }
+              scheduledAt={
+                piece.publications.find(
+                  (p) => p.platform === "instagram" && p.status === "PENDING"
+                )?.scheduledAt?.toISOString()
+              }
+              lastError={
+                piece.publications.find(
+                  (p) => p.platform === "instagram" && p.status === "PENDING"
+                )?.lastError || undefined
+              }
             />
           </div>
         </div>

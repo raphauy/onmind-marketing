@@ -9,6 +9,7 @@ import {
   publishPieceAction,
   deletePieceAction,
   restorePieceAction,
+  unschedulePieceAction,
 } from "@/app/dashboard/piezas/[slug]/actions"
 import {
   AlertDialog,
@@ -21,18 +22,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Loader2, Sparkles, Check, RotateCcw, Trash2, ArchiveRestore, Send, Undo2 } from "lucide-react"
+import { Loader2, Sparkles, Check, RotateCcw, Trash2, ArchiveRestore, Send, Undo2, CalendarClock, X } from "lucide-react"
+import { ScheduleDialog } from "@/components/schedule-dialog"
+import { formatInUY } from "@/lib/dates"
 
 export function PieceActions({
   slug,
   status,
   isDeleted,
   publishedAt,
+  scheduledAt,
+  lastError,
 }: {
   slug: string
   status: string
   isDeleted: boolean
   publishedAt?: string
+  scheduledAt?: string
+  lastError?: string
 }) {
   const router = useRouter()
   const [generating, setGenerating] = useState(false)
@@ -40,9 +47,11 @@ export function PieceActions({
   const [deleting, setDeleting] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [unapproving, setUnapproving] = useState(false)
+  const [unscheduling, setUnscheduling] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const busy = generating || approving || deleting || publishing || unapproving
+  const busy = generating || approving || deleting || publishing || unapproving || unscheduling
+  const scheduledDate = scheduledAt ? new Date(scheduledAt) : undefined
 
   async function handleGenerate() {
     setGenerating(true)
@@ -166,11 +175,25 @@ export function PieceActions({
 
       {status === "APPROVED" && (
         <div className="flex flex-col gap-2">
+          <ScheduleDialog
+            slug={slug}
+            mode="schedule"
+            trigger={
+              <button
+                disabled={busy}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+              >
+                <CalendarClock className="w-4 h-4" />
+                Programar publicación
+              </button>
+            }
+          />
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button
                 disabled={busy}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
               >
                 {publishing ? (
                   <>
@@ -180,7 +203,7 @@ export function PieceActions({
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Publicar en Instagram
+                    Publicar ahora
                   </>
                 )}
               </button>
@@ -262,6 +285,85 @@ export function PieceActions({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
+      )}
+
+      {status === "SCHEDULED" && scheduledDate && (
+        <div className="space-y-2">
+          <div className="w-full px-3 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-sm">
+            <div className="flex items-center gap-1.5 font-medium">
+              <CalendarClock className="w-4 h-4" />
+              Programada
+            </div>
+            <div className="text-xs mt-0.5 pl-5">
+              {formatInUY(scheduledDate)} <span className="opacity-70">(hora Uruguay)</span>
+            </div>
+            {lastError && (
+              <div className="text-xs mt-1.5 pl-5 text-amber-700">
+                Intento previo falló: {lastError}. Se reintentará en la próxima corrida del cron.
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <ScheduleDialog
+              slug={slug}
+              mode="reschedule"
+              currentScheduledAt={scheduledDate}
+              trigger={
+                <button
+                  disabled={busy}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
+                >
+                  <CalendarClock className="w-4 h-4" />
+                  Reprogramar
+                </button>
+              }
+            />
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  disabled={busy}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 disabled:opacity-50 cursor-pointer"
+                >
+                  {unscheduling ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <X className="w-4 h-4" />
+                  )}
+                  Cancelar
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Cancelar programación?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    La pieza vuelve a estado Aprobada. Podés volver a programar o publicar ahora.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Volver</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      setUnscheduling(true)
+                      setError(null)
+                      const result = await unschedulePieceAction(slug)
+                      setUnscheduling(false)
+                      if (result.success) {
+                        router.refresh()
+                      } else {
+                        setError(result.error)
+                      }
+                    }}
+                    className="bg-destructive text-white hover:bg-destructive/90"
+                  >
+                    Sí, cancelar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       )}
 

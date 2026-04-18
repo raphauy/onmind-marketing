@@ -112,6 +112,33 @@ async function waitForMediaReady(containerId: string, maxAttempts = 10): Promise
   throw new Error("Timeout esperando que Instagram procese la imagen");
 }
 
+// --- Helpers reutilizables ---
+
+export function buildFullCaption(piece: {
+  caption: string | null
+  topic: string | null
+  hashtags: string[]
+}): string {
+  return [
+    piece.caption || piece.topic || "",
+    piece.hashtags.length > 0 ? "\n\n" + piece.hashtags.join(" ") : "",
+  ].join("");
+}
+
+/**
+ * Publica una imagen en Instagram vía Graph API.
+ * Encapsula el flujo createContainer → wait → publish.
+ * Usado tanto por publicación inmediata como por el cron de scheduled.
+ */
+export async function publishToInstagram(
+  imageUrl: string,
+  caption: string
+): Promise<string> {
+  const creationId = await createMediaContainer(imageUrl, caption);
+  await waitForMediaReady(creationId);
+  return await publishMediaContainer(creationId);
+}
+
 // --- Publicar una Piece ---
 
 export async function publishPiece(pieceId: string) {
@@ -128,18 +155,9 @@ export async function publishPiece(pieceId: string) {
     throw new Error("Esta pieza ya fue publicada en Instagram");
   }
 
-  // Armar caption con hashtags
-  const fullCaption = [
-    piece.caption || piece.topic || "",
-    piece.hashtags.length > 0 ? "\n\n" + piece.hashtags.join(" ") : "",
-  ].join("");
+  const fullCaption = buildFullCaption(piece);
+  const igMediaId = await publishToInstagram(piece.imageUrl, fullCaption);
 
-  // Publicar en Instagram
-  const creationId = await createMediaContainer(piece.imageUrl, fullCaption);
-  await waitForMediaReady(creationId);
-  const igMediaId = await publishMediaContainer(creationId);
-
-  // Crear Publication
   const publication = await prisma.publication.create({
     data: {
       pieceId: piece.id,
@@ -150,7 +168,6 @@ export async function publishPiece(pieceId: string) {
     },
   });
 
-  // Actualizar status de la Piece
   await prisma.piece.update({
     where: { id: piece.id },
     data: { status: "PUBLISHED" },

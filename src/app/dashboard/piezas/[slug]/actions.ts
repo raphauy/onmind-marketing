@@ -12,6 +12,11 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { generatePieceImage } from "@/services/generation-service"
 import { publishPiece } from "@/services/instagram-service"
+import {
+  schedulePiece,
+  reschedulePiece,
+  unschedulePiece,
+} from "@/services/scheduling-service"
 import { revalidatePath } from "next/cache"
 
 type ActionResult<T = void> =
@@ -92,6 +97,72 @@ export async function publishPieceAction(
     }
 
     await publishPiece(piece.id)
+
+    revalidatePath(`/dashboard/piezas/${slug}`)
+    revalidatePath("/dashboard/piezas")
+    revalidatePath("/dashboard/instagram")
+    return { success: true, data: undefined }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function schedulePieceAction(
+  slug: string,
+  scheduledAtIso: string
+): Promise<ActionResult> {
+  try {
+    const piece = await getPieceBySlug(slug)
+    if (!piece) return { success: false, error: "Pieza no encontrada" }
+
+    const scheduledAt = new Date(scheduledAtIso)
+    if (isNaN(scheduledAt.getTime())) {
+      return { success: false, error: "Fecha inválida" }
+    }
+
+    await schedulePiece(piece.id, scheduledAt)
+
+    revalidatePath(`/dashboard/piezas/${slug}`)
+    revalidatePath("/dashboard/piezas")
+    revalidatePath("/dashboard/instagram")
+    return { success: true, data: undefined }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function reschedulePieceAction(
+  slug: string,
+  scheduledAtIso: string
+): Promise<ActionResult> {
+  try {
+    const piece = await getPieceBySlug(slug)
+    if (!piece) return { success: false, error: "Pieza no encontrada" }
+
+    const scheduledAt = new Date(scheduledAtIso)
+    if (isNaN(scheduledAt.getTime())) {
+      return { success: false, error: "Fecha inválida" }
+    }
+
+    await reschedulePiece(piece.id, scheduledAt)
+
+    revalidatePath(`/dashboard/piezas/${slug}`)
+    revalidatePath("/dashboard/piezas")
+    revalidatePath("/dashboard/instagram")
+    return { success: true, data: undefined }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function unschedulePieceAction(
+  slug: string
+): Promise<ActionResult> {
+  try {
+    const piece = await getPieceBySlug(slug)
+    if (!piece) return { success: false, error: "Pieza no encontrada" }
+
+    await unschedulePiece(piece.id)
 
     revalidatePath(`/dashboard/piezas/${slug}`)
     revalidatePath("/dashboard/piezas")
