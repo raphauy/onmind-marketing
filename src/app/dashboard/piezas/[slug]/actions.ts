@@ -60,6 +60,27 @@ export async function approvePieceAction(
   redirect("/dashboard/instagram")
 }
 
+export async function unapprovePieceAction(
+  slug: string
+): Promise<ActionResult> {
+  try {
+    const piece = await getPieceBySlug(slug)
+    if (!piece) return { success: false, error: "Pieza no encontrada" }
+    if (piece.status !== "APPROVED") {
+      return { success: false, error: `No se puede quitar del feed en status ${piece.status}` }
+    }
+
+    await updatePieceStatus(piece.id, "GENERATED")
+
+    revalidatePath(`/dashboard/piezas/${slug}`)
+    revalidatePath("/dashboard/piezas")
+    revalidatePath("/dashboard/instagram")
+    return { success: true, data: undefined }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
 export async function publishPieceAction(
   slug: string
 ): Promise<ActionResult> {

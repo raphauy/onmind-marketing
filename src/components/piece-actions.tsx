@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   generatePieceAction,
   approvePieceAction,
+  unapprovePieceAction,
   publishPieceAction,
   deletePieceAction,
   restorePieceAction,
@@ -20,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Loader2, Sparkles, Check, RotateCcw, Trash2, ArchiveRestore, Send } from "lucide-react"
+import { Loader2, Sparkles, Check, RotateCcw, Trash2, ArchiveRestore, Send, Undo2 } from "lucide-react"
 
 export function PieceActions({
   slug,
@@ -38,9 +39,10 @@ export function PieceActions({
   const [approving, setApproving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [unapproving, setUnapproving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const busy = generating || approving || deleting || publishing
+  const busy = generating || approving || deleting || publishing || unapproving
 
   async function handleGenerate() {
     setGenerating(true)
@@ -163,56 +165,104 @@ export function PieceActions({
       )}
 
       {status === "APPROVED" && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <button
-              disabled={busy}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
-            >
-              {publishing ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Publicando en Instagram...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Publicar en Instagram
-                </>
-              )}
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>¿Publicar en Instagram?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta pieza se publicará ahora en la cuenta @OnMindApp de Instagram. Esta acción no se puede deshacer desde acá.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={async () => {
-                  setPublishing(true)
-                  setError(null)
-                  const result = await publishPieceAction(slug)
-                  setPublishing(false)
-                  if (result.success) {
-                    router.refresh()
-                  } else {
-                    setError(result.error)
-                  }
-                }}
+        <div className="flex flex-col gap-2">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={busy}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
               >
                 {publishing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Publicando en Instagram...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Publicar en Instagram
+                  </>
+                )}
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Publicar en Instagram?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta pieza se publicará ahora en la cuenta @OnMindApp de Instagram. Esta acción no se puede deshacer desde acá.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async () => {
+                    setPublishing(true)
+                    setError(null)
+                    const result = await publishPieceAction(slug)
+                    setPublishing(false)
+                    if (result.success) {
+                      router.refresh()
+                    } else {
+                      setError(result.error)
+                    }
+                  }}
+                >
+                  {publishing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Sí, publicar"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={busy}
+                className="w-full flex items-center justify-center gap-2 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
+              >
+                {unapproving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  "Sí, publicar"
+                  <Undo2 className="w-4 h-4" />
                 )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                Quitar del feed
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Quitar del feed</AlertDialogTitle>
+                <AlertDialogDescription>
+                  La pieza volverá al repositorio en estado &ldquo;Imagen lista&rdquo; y vas a poder aprobarla de nuevo.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async () => {
+                    setUnapproving(true)
+                    setError(null)
+                    const result = await unapprovePieceAction(slug)
+                    setUnapproving(false)
+                    if (result.success) {
+                      router.refresh()
+                    } else {
+                      setError(result.error)
+                    }
+                  }}
+                >
+                  {unapproving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Quitar del feed"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       )}
 
       {status === "PUBLISHED" && (
