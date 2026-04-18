@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const publicRoutes = ['/', '/login', '/api/auth']
+  const publicRoutes = ['/', '/login', '/api/auth', '/api/cron']
   const isPublicRoute = publicRoutes.some(
     (route) => pathname === route || (route !== '/' && pathname.startsWith(`${route}/`))
   )
