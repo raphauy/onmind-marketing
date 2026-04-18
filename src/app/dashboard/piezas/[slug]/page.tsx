@@ -1,4 +1,4 @@
-export const maxDuration = 120
+export const maxDuration = 800
 
 import { getPieceBySlug } from "@/services/piece-service"
 import { notFound } from "next/navigation"
