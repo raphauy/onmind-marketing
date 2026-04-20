@@ -3,6 +3,8 @@ import type { TemplateField } from "@/services/template-service"
 import { Badge } from "@/components/ui/badge"
 import { LayoutTemplate } from "lucide-react"
 
+export const dynamic = "force-dynamic"
+
 export default async function TemplatesPage() {
   const templates = await getTemplates()
 
