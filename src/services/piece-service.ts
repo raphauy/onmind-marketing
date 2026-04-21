@@ -180,13 +180,29 @@ export async function getPublishedAndScheduledPieces() {
     },
   })
 
-  // Sin publicación → arriba. Con publicación → por fecha de publicación desc (más reciente primero)
+  // Orden del feed (arriba → abajo), simulando cómo quedará cuando todo se publique:
+  //   1. APPROVED — sin fecha, por createdAt desc (más nuevas arriba)
+  //   2. SCHEDULED — por scheduledAt desc (las más lejanas arriba, las próximas
+  //      pegadas a las PUBLISHED para que el feed se lea como continuidad)
+  //   3. PUBLISHED — por publishedAt desc (últimas publicadas arriba)
+  const rank = (status: string) =>
+    status === "APPROVED" ? 0 : status === "SCHEDULED" ? 1 : 2
+
   return pieces.sort((a, b) => {
-    const aPubDate = a.publications[0]?.publishedAt?.getTime()
-    const bPubDate = b.publications[0]?.publishedAt?.getTime()
-    if (!aPubDate && !bPubDate) return 0
-    if (!aPubDate) return -1
-    if (!bPubDate) return 1
-    return bPubDate - aPubDate
+    const rA = rank(a.status)
+    const rB = rank(b.status)
+    if (rA !== rB) return rA - rB
+
+    if (a.status === "APPROVED") {
+      return b.createdAt.getTime() - a.createdAt.getTime()
+    }
+    if (a.status === "SCHEDULED") {
+      const aSched = a.publications[0]?.scheduledAt?.getTime() ?? 0
+      const bSched = b.publications[0]?.scheduledAt?.getTime() ?? 0
+      return bSched - aSched
+    }
+    const aPub = a.publications[0]?.publishedAt?.getTime() ?? 0
+    const bPub = b.publications[0]?.publishedAt?.getTime() ?? 0
+    return bPub - aPub
   })
 }
