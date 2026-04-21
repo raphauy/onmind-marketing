@@ -1,4 +1,5 @@
 import { renderCartaFundador } from "./carta-fundador"
+import { renderTestimonioDestacado } from "./testimonio-destacado"
 
 // Registry de renderers programáticos (Satori).
 // Key = Template.slug. Value = función que toma los fieldValues y devuelve un PNG Buffer
@@ -8,6 +9,7 @@ export const satoriRenderers: Record<
   (fieldValues: Record<string, string>) => Promise<Buffer>
 > = {
   "carta-fundador": renderCartaFundador,
+  "testimonio-destacado": renderTestimonioDestacado,
 }
 
 export function getSatoriRenderer(slug: string) {

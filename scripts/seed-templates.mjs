@@ -504,6 +504,36 @@ ${CRITICAL_RULES}
 - Headline must appear EXACTLY ONCE at the top.`,
   },
   {
+    slug: "testimonio-destacado",
+    name: "Testimonio con frases destacadas",
+    description:
+      "Pieza editorial tipo reseña: quote completo del agente con frases clave resaltadas en highlighter teal + avatar con inicial + nombre. Render programático (Satori), cero costo, texto verbatim garantizado. Ideal para social proof.",
+    renderer: "SATORI",
+    model: null,
+    costPerImage: 0,
+    darkOverlay: false,
+    aspectRatio: "1:1",
+    fields: [
+      {
+        key: "quote",
+        label:
+          "Testimonio completo (envolvé las frases a destacar entre ==...==)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Me ayudó a ordenar mi base de clientes y ==que no se me escape nada== en mucho menos tiempo del que me llevaba antes.",
+      },
+      {
+        key: "name",
+        label: "Nombre del agente",
+        type: "text",
+        required: true,
+        placeholder: "Estefanía",
+      },
+    ],
+    promptTemplate: null,
+  },
+  {
     slug: "carta-fundador",
     name: "Carta del fundador / Manifiesto",
     description:
