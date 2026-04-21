@@ -170,11 +170,11 @@ function pillarToTemplates(pillar: string): string[] {
     case "educacion":
       return ["headline", "stat-surround", "whatsapp-conversation"];
     case "dolor":
-      return ["headline", "us-vs-them"];
+      return ["carta-fundador", "headline", "us-vs-them"];
     case "producto":
       return ["features-pointout", "us-vs-them", "whatsapp-conversation"];
     case "detras_de_escena":
-      return ["headline", "whatsapp-conversation"];
+      return ["carta-fundador", "headline", "whatsapp-conversation"];
     default:
       return ["headline"];
   }

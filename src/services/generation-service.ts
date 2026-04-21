@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { put } from "@vercel/blob"
 import { addLogoOverlay } from "@/lib/logo-overlay"
+import { getSatoriRenderer } from "@/lib/renderers"
 import type { Template } from "@prisma/client"
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -9,6 +10,12 @@ function buildPrompt(
   template: Template,
   fieldValues: Record<string, string>
 ): string {
+  if (!template.promptTemplate) {
+    throw new Error(
+      `Template "${template.slug}" tiene renderer=LLM pero promptTemplate es null`
+    )
+  }
+
   let prompt = template.promptTemplate
   for (const [key, value] of Object.entries(fieldValues)) {
     prompt = prompt.replaceAll(`{{${key}}}`, value)
@@ -111,16 +118,34 @@ export async function generatePieceImage(
     const { template } = piece
     const fieldValues = piece.fieldValues as Record<string, string>
 
-    // Build prompt
-    const prompt = buildPrompt(template, fieldValues)
+    let imageBuffer: Buffer | null = null
+    let prompt = ""
+    let modelUsed = ""
+    let durationMs = 0
 
-    // Call OpenRouter
-    const { data, durationMs } = await callOpenRouter(prompt, template.model)
-
-    // Extract image
-    const imageBuffer = extractImageBuffer(data)
-    if (!imageBuffer) {
-      throw new Error("No se obtuvo imagen del modelo")
+    if (template.renderer === "SATORI") {
+      // Render programático: JSX -> SVG -> PNG. Sin LLM, sin costo, determinista.
+      const renderer = getSatoriRenderer(template.slug)
+      const startTime = Date.now()
+      imageBuffer = await renderer(fieldValues)
+      durationMs = Date.now() - startTime
+      prompt = `[satori:${template.slug}] ${JSON.stringify(fieldValues)}`
+      modelUsed = `satori:${template.slug}`
+    } else {
+      // Render LLM: prompt + modelo vía OpenRouter.
+      if (!template.model) {
+        throw new Error(
+          `Template "${template.slug}" tiene renderer=LLM pero model es null`
+        )
+      }
+      prompt = buildPrompt(template, fieldValues)
+      modelUsed = template.model
+      const result = await callOpenRouter(prompt, template.model)
+      durationMs = result.durationMs
+      imageBuffer = extractImageBuffer(result.data)
+      if (!imageBuffer) {
+        throw new Error("No se obtuvo imagen del modelo")
+      }
     }
 
     // Add logo overlay + resize al aspect ratio del template
@@ -144,14 +169,18 @@ export async function generatePieceImage(
       data: { isActive: false },
     })
 
+    // SATORI es siempre gratuito — no depender del seed.
+    const costUsd =
+      template.renderer === "SATORI" ? 0 : template.costPerImage
+
     // Crear registro de generación
     await prisma.generation.create({
       data: {
         pieceId,
         imageUrl,
         prompt,
-        model: template.model,
-        costUsd: template.costPerImage,
+        model: modelUsed,
+        costUsd,
         durationMs,
         isActive: true,
       },
@@ -163,7 +192,7 @@ export async function generatePieceImage(
       data: {
         status: "GENERATED",
         imageUrl,
-        costUsd: { increment: template.costPerImage },
+        costUsd: { increment: costUsd },
       },
     })
 

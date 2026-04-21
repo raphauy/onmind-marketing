@@ -503,6 +503,43 @@ ${CRITICAL_RULES}
 - Do NOT include real brand names, phone numbers, or personal identifiers beyond those provided.
 - Headline must appear EXACTLY ONCE at the top.`,
   },
+  {
+    slug: "carta-fundador",
+    name: "Carta del fundador / Manifiesto",
+    description:
+      "Pieza editorial tipo carta — solo texto, sin celular. Opening potente + cuerpo corto en voz de fundador + firma. Render programático (Satori), cero costo. Ideal para detrás de escena y declaraciones fuertes de dolor.",
+    renderer: "SATORI",
+    model: null,
+    costPerImage: 0,
+    darkOverlay: false,
+    aspectRatio: "4:5",
+    fields: [
+      {
+        key: "opening",
+        label: "Frase de apertura (hook)",
+        type: "text",
+        required: true,
+        placeholder:
+          "Los clientes no se van porque encontraron algo mejor.",
+      },
+      {
+        key: "body",
+        label: "Cuerpo de la carta (50–80 palabras, 2–3 párrafos cortos)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Se van porque te olvidaste de ellos. Pasaron meses. No les escribiste en su cumpleaños. No les preguntaste cómo andaba la casa. Cuando te necesitaron, ya estaban con otro.\n\nOnMind nació para que eso no te vuelva a pasar.",
+      },
+      {
+        key: "signature",
+        label: "Firma",
+        type: "text",
+        required: true,
+        placeholder: "— Martín, fundador de OnMind",
+      },
+    ],
+    promptTemplate: null,
+  },
 ];
 
 async function main() {

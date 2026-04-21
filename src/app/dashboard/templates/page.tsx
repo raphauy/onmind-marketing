@@ -62,6 +62,14 @@ export default async function TemplatesPage() {
                       <span className="font-mono text-muted-foreground">
                         ${template.costPerImage.toFixed(2)}
                       </span>
+                      {template.renderer === "SATORI" && (
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200"
+                        >
+                          Programático
+                        </Badge>
+                      )}
                       <Badge
                         variant="outline"
                         className={
@@ -76,7 +84,12 @@ export default async function TemplatesPage() {
                   </div>
 
                   <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Modelo: {template.model.split("/").pop()}</span>
+                    <span>
+                      Motor:{" "}
+                      {template.renderer === "SATORI"
+                        ? "Satori (JSX → PNG)"
+                        : template.model?.split("/").pop() ?? "—"}
+                    </span>
                     <span>Ratio: {template.aspectRatio}</span>
                     <span>
                       {template._count.pieces}{" "}

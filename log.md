@@ -132,6 +132,19 @@
 - **Los 9 posts publicados en @OnMindApp** desde producción (Vercel). Grid aspect ratio 4:5, contenedor max-w-[700px].
 - **Próximos pasos:** scheduling, insights/engagement, reels/carruseles, renovación automática de tokens.
 
+## 2026-04-21
+- **Evaluación Claude Design** (Anthropic Labs, 17-abr-2026): producto para landings, pitch decks, mockups desde prompt/imagen/codebase, con export a Canva/PDF/PPTX. Incluido en Pro/Max/Team/Enterprise. Fit para OnMind: landings de campaña y pitch decks. No reemplaza el pipeline AdCrate + NB para piezas sociales.
+- **Nuevo template `carta-fundador`** (AdCrate #23 Long-Form Manifesto adaptado). Llena el pilar "Detrás de escena" (0% hoy) y agrega voz de fundador. Editorial puro (sin celular): opening bold + body + firma teal cursiva, 4:5.
+- **Arquitectura híbrida de renderers — LLM + Satori.** Templates text-heavy se renderizan programáticamente (JSX → SVG → PNG) en vez de vía LLM. Motivación: NB2/NB Pro alucinaron typos en texto largo (ej: "estabalan"), cuestan $0.07–$0.14/imagen, tardan 14–50s, sin control tipográfico. Satori: texto literal, $0, <1s, pixel-perfect.
+  - Schema: enum `TemplateRenderer { LLM, SATORI }`, campo `renderer` (default LLM), `promptTemplate` y `model` pasan a nullable.
+  - Registry en `src/lib/renderers/` — map slug → render function. Cada renderer devuelve Buffer PNG. Logo overlay sigue compartido.
+  - Primer renderer: `carta-fundador` (Geist Bold opening, MediumItalic firma). Fonts copiadas de `node_modules/geist/` a `public/fonts/`.
+  - `generatePieceImage` en `src/services/generation-service.ts` branchea por `template.renderer`. Costo forzado a 0 para SATORI (no depende del seed).
+  - UI: badge "Programático" en `/dashboard/templates`. `generation-history` formatea `satori:<slug>` como "Satori (programático)".
+- **Scripts CLI a TypeScript:** `create-piece.mjs` → `.ts`, `generate-piece.mjs` → `.ts`. `generate-piece.ts` importa `addLogoOverlay` del lib compartido. Quedó como test local (guarda PNG + marca GENERATED, sin Blob ni Generation row — el flujo canónico es el service).
+- **DB sincronizada con `prisma db push`** por drift pre-existente (Generation table, soft delete en Piece, etc. — nada agregado ahora) que impide `migrate dev`. Pendiente: migration SQL manual para `add_template_renderer`, probada en Neon branch antes de main. Rebaseline completo queda como deuda aparte.
+- **Code review aplicado:** guard de costUsd=0 para SATORI en el service, formateo de prefijo `satori:` en historial, deduplicación del logo overlay en CLI.
+
 ## 2026-04-16 — 2026-04-17
 - **Motor de contenido — modelo de datos implementado.** Migración `add_content_engine`:
   - `Template`: receta fija con `fields` (JSON que define qué campos necesita el creativo), `promptTemplate` (prompt con `{{placeholders}}`), `model` (modelo de IA), `costPerImage` (USD por imagen), `darkOverlay`, `aspectRatio`.
@@ -150,8 +163,8 @@
 - **Scripts del pipeline:**
   - `scripts/lib/db.mjs` — conexión compartida a DB para scripts (Neon + ws)
   - `scripts/seed-templates.mjs` — carga/actualiza templates en DB
-  - `scripts/create-piece.mjs` — crea Piece en DB (creativo). Soporta `--values` JSON o placeholders por defecto.
-  - `scripts/generate-piece.mjs` — genera imagen de una Piece: lee DB → arma prompt → OpenRouter → logo overlay → guarda imagen → actualiza DB.
+  - `scripts/create-piece.ts` — crea Piece en DB (creativo). Soporta `--values` JSON o placeholders por defecto.
+  - `scripts/generate-piece.ts` — genera imagen de una Piece: lee DB → Satori o OpenRouter según renderer → logo overlay → guarda imagen local → marca GENERATED. Test local, el flujo canónico (Blob + Generation) está en `src/services/generation-service.ts`.
   - `scripts/add-logo-overlay.mjs` — post-producción: agrega isotipo + "OnMind" + "@OnMindApp" al margen inferior.
 - **Pipeline probado end-to-end:** create-piece (DRAFT) → generate-piece (GENERATED) con logo, 16s, $0.07.
 - **UI del motor de contenido — implementación completa:**

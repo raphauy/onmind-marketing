@@ -58,12 +58,17 @@ model Template {
   // Ejemplo: [{key: "headline", label: "Título principal", type: "text", required: true}]
   fields      Json
 
+  // Motor de render: LLM (imagen generativa vía OpenRouter) o SATORI (render programático JSX -> PNG).
+  renderer    TemplateRenderer @default(LLM)
+
   // Prompt template con placeholders {{key}} que se reemplazan con los valores del creativo.
   // Incluye Brand DNA, dirección fotográfica, reglas — todo fijo.
-  promptTemplate String
+  // Requerido para renderer=LLM, null para renderer=SATORI.
+  promptTemplate String?
 
-  // Modelo de IA a usar para este template
-  model       String   @default("google/gemini-3.1-flash-image-preview")
+  // Modelo de IA a usar para este template.
+  // Requerido para renderer=LLM, null para renderer=SATORI.
+  model       String?
 
   // Costo estimado en USD por imagen generada con este template/modelo
   costPerImage Float   @default(0)
@@ -181,4 +186,9 @@ enum PublicationStatus {
   PUBLISHING
   PUBLISHED
   FAILED
+}
+
+enum TemplateRenderer {
+  LLM        // Imagen generada por modelo de IA vía OpenRouter (prompt + modelo)
+  SATORI     // Render programático JSX -> SVG -> PNG (sin LLM, determinista, cero costo)
 }

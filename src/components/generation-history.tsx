@@ -87,7 +87,9 @@ export function GenerationHistory({
                       </span>
                     </div>
                     <div className="my-auto text-xs text-muted-foreground">
-                      {gen.model.split("/").pop()}
+                      {gen.model.startsWith("satori:")
+                        ? "Satori (programático)"
+                        : gen.model.split("/").pop()}
                     </div>
                     <div className="flex items-center justify-between mt-auto pt-2">
                       <span className="text-xs text-muted-foreground">
