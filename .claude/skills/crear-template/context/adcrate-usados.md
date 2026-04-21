@@ -13,6 +13,7 @@ Referencia completa de los 40: [`docs/investigacion/adcrate-templates-referencia
 | 7 | Us vs Them | `us-vs-them` | LLM (NB2) | Dolor / Producto |
 | 13 | Stat Surround | `stat-surround` | LLM (NB2) | Educación |
 | 19 | Highlighted Testimonial | `testimonio-destacado` | Satori | Social proof |
+| 21 | Bold Statement | `bold-statement` | Satori | Educación / Dolor |
 | 23 | Long-Form Manifesto | `carta-fundador` | Satori | Detrás de escena / Dolor |
 
 **Template custom** (sin padre AdCrate directo): `whatsapp-conversation` — conversación de 2 rondas, muestra continuidad del vínculo en el tiempo. Cubre Producto / Educación.
@@ -20,7 +21,7 @@ Referencia completa de los 40: [`docs/investigacion/adcrate-templates-referencia
 ## Disponibles (candidatos a implementar)
 
 ### Texto / Copy prominente
-- **#21 Bold Statement** (1:1) — frase provocativa + gradiente + producto. Candidato Satori fuerte para Dolor.
+- _(#21 Bold Statement — usado)_
 - _(#23 Long-Form Manifesto — usado)_
 
 ### Ofertas y promociones

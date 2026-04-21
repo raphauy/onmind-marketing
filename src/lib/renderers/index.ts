@@ -1,3 +1,4 @@
+import { renderBoldStatement } from "./bold-statement"
 import { renderCartaFundador } from "./carta-fundador"
 import { renderTestimonioDestacado } from "./testimonio-destacado"
 
@@ -8,6 +9,7 @@ export const satoriRenderers: Record<
   string,
   (fieldValues: Record<string, string>) => Promise<Buffer>
 > = {
+  "bold-statement": renderBoldStatement,
   "carta-fundador": renderCartaFundador,
   "testimonio-destacado": renderTestimonioDestacado,
 }

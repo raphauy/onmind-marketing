@@ -570,6 +570,43 @@ ${CRITICAL_RULES}
     ],
     promptTemplate: null,
   },
+  {
+    slug: "bold-statement",
+    name: "Statement contundente / Principio",
+    description:
+      "Pieza editorial tipo afiche — eyebrow opcional + frase gigante + línea accent teal + contexto corto. Ideal para educación (principios, reglas, mitos, verdades incómodas) y dolor. Render programático (Satori), cero costo, tipografía pixel-perfect.",
+    renderer: "SATORI",
+    model: null,
+    costPerImage: 0,
+    darkOverlay: false,
+    aspectRatio: "4:5",
+    fields: [
+      {
+        key: "eyebrow",
+        label: "Etiqueta superior (opcional)",
+        type: "text",
+        required: false,
+        placeholder: "PRINCIPIO 01",
+      },
+      {
+        key: "statement",
+        label:
+          "Frase contundente (foco visual, máx ~35 chars ideal; usar \\n para forzar saltos)",
+        type: "textarea",
+        required: true,
+        placeholder: "El silencio también es un mensaje.",
+      },
+      {
+        key: "context",
+        label: "Contexto breve debajo (1-2 oraciones)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Si tus clientes no saben nada de vos hace meses, están asumiendo que ya no les interesás.",
+      },
+    ],
+    promptTemplate: null,
+  },
 ];
 
 async function main() {

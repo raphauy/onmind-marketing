@@ -168,9 +168,9 @@ function pillarToTemplates(pillar: string): string[] {
   // Recomendación de templates por pilar (derivado de list-templates descriptions)
   switch (pillar) {
     case "educacion":
-      return ["headline", "stat-surround", "whatsapp-conversation"];
+      return ["bold-statement", "headline", "stat-surround", "whatsapp-conversation"];
     case "dolor":
-      return ["carta-fundador", "headline", "us-vs-them"];
+      return ["carta-fundador", "bold-statement", "headline", "us-vs-them"];
     case "producto":
       return ["features-pointout", "us-vs-them", "whatsapp-conversation"];
     case "detras_de_escena":
