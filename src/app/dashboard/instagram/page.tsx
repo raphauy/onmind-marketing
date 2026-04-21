@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getPublishedAndScheduledPieces } from "@/services/piece-service";
 import { getProfile } from "@/services/instagram-service";
 import { Badge } from "@/components/ui/badge";
+import { formatScheduledBadge } from "@/lib/dates";
 
 const STATUS_BADGE: Record<string, { label: string; color: string }> = {
   APPROVED: { label: "Aprobada", color: "bg-white text-blue-600 border-white shadow-sm" },
@@ -116,6 +117,10 @@ export default async function InstagramPage() {
           {pieces.map((piece) => {
             const isPublished = piece.status === "PUBLISHED";
             const badge = STATUS_BADGE[piece.status];
+            const scheduledAt =
+              piece.status === "SCHEDULED"
+                ? piece.publications[0]?.scheduledAt ?? null
+                : null;
             return (
               <Link
                 key={piece.slug}
@@ -143,6 +148,14 @@ export default async function InstagramPage() {
                     className={`absolute top-1.5 right-1.5 text-[10px] ${badge.color}`}
                   >
                     {badge.label}
+                  </Badge>
+                )}
+                {scheduledAt && (
+                  <Badge
+                    variant="outline"
+                    className="absolute bottom-1.5 right-1.5 text-[10px] bg-purple-600/90 text-white border-purple-600 shadow-sm"
+                  >
+                    {formatScheduledBadge(scheduledAt)}
                   </Badge>
                 )}
               </Link>

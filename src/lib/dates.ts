@@ -40,3 +40,28 @@ export function isValidSchedule(scheduledAt: Date): boolean {
     scheduledAt.getSeconds() === 0
   )
 }
+
+/**
+ * Badge corto para mostrar cuándo está programada una pieza, en hora UY:
+ *   - "Hoy 12h" / "Mañana 18h"
+ *   - "Miércoles 12h" dentro de los próximos 6 días
+ *   - "28/4" de ahí en adelante (sin año, sin hora)
+ */
+export function formatScheduledBadge(scheduledAt: Date): string {
+  const zoned = toZonedTime(scheduledAt, UY_TZ)
+  const scheduledDayStr = format(scheduledAt, "yyyy-MM-dd", { timeZone: UY_TZ })
+  const todayStr = format(new Date(), "yyyy-MM-dd", { timeZone: UY_TZ })
+  const diffDays = Math.round(
+    (new Date(`${scheduledDayStr}T00:00:00Z`).getTime() -
+      new Date(`${todayStr}T00:00:00Z`).getTime()) /
+      86_400_000,
+  )
+  const hour = format(zoned, "H", { timeZone: UY_TZ })
+  if (diffDays <= 0) return `Hoy ${hour}h`
+  if (diffDays === 1) return `Mañana ${hour}h`
+  if (diffDays <= 6) {
+    const weekday = format(zoned, "EEEE", { timeZone: UY_TZ, locale: es })
+    return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${hour}h`
+  }
+  return format(zoned, "d/M", { timeZone: UY_TZ })
+}
