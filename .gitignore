@@ -44,3 +44,6 @@ next-env.d.ts
 dev.log
 copy-paste.txt
 /output/
+
+# python
+__pycache__/

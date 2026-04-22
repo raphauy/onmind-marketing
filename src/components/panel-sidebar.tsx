@@ -32,6 +32,8 @@ import {
   Images,
   LayoutTemplate,
   Plus,
+  FileText,
+  Video,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -170,6 +172,36 @@ export function PanelSidebar() {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Presentación</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/presentacion/brochure"}
+                  asChild
+                >
+                  <Link href="/dashboard/presentacion/brochure" onClick={closeMobile}>
+                    <FileText className="w-4 h-4" />
+                    <span>Brochure</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/presentacion/guion-demo"}
+                  asChild
+                >
+                  <Link href="/dashboard/presentacion/guion-demo" onClick={closeMobile}>
+                    <Video className="w-4 h-4" />
+                    <span>Guion demo video</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

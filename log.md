@@ -132,6 +132,19 @@
 - **Los 9 posts publicados en @OnMindApp** desde producción (Vercel). Grid aspect ratio 4:5, contenedor max-w-[700px].
 - **Próximos pasos:** scheduling, insights/engagement, reels/carruseles, renovación automática de tokens.
 
+## 2026-04-22
+- **Brochure PDF** (`docs/presentacion/onmind-brochure-2026-04-22.md` + `.pdf`). One-pager portrait de 2 páginas A4. Envío previo a demo — primer contacto con brokers interesados (arrancamos con Argentina).
+- **Exploración deep del producto OnMind** vía Explore subagents: mapa de flujos, entidades Prisma, features protagonistas vs roadmap, lógica anti-baneo. Hallazgo técnico: usa Evolution API + Baileys (no Meta Cloud API oficial), riesgo mitigado con delays 60-120s, ventanas horarias, modo vacaciones, idempotencia, variables por contacto.
+- **Decisiones de posicionamiento con Raphael** (las 4 preguntas estratégicas):
+  - Ángulo baneos: hablar del riesgo real + disciplina automática de OnMind. NO mencionar API oficial vs no oficial (la gente no lo conoce). Mensaje: "seguís con tu WhatsApp Business como siempre, OnMind se suma por encima".
+  - Audiencia: broker individual / agente (no inmobiliaria).
+  - Features protagonistas: calendario anual + plantillas con variables / fechas especiales + cierres / equipo multi-usuario (asistentes) / disciplina de envío. NO multi-número (ocultado en UI a propósito — una instancia WhatsApp por agente).
+  - Formato: one-pager portrait 1-2 páginas.
+- **Diferenciador táctico descubierto en el diálogo:** WhatsApp Web limita a 4 dispositivos. OnMind permite asistentes ilimitados respondiendo desde una única conexión. Gancho concreto y operable para brokers con equipo.
+- **Script nuevo `scripts/md_to_pdf_brochure.py`** — variante compacta del `md_to_pdf.py` con CSS denso (márgenes 1.4cm, sin paginación, blockquote con pull-quote teal, eyebrow "ONMIND" antes del H1). Se mantiene separado del script de docs largos.
+- **Copy reciclado de la landing validada** (`onmind/src/app/page.tsx`): hero "Que tus clientes piensen en vos cuando te necesiten", pull quote del diálogo "justo estaba por escribirte" como cierre de página 2.
+- **Pendiente:** revisión de Raphael al PDF → validación con Martín en Linear → Fase 3: guiones de video (serie producto + serie educativa).
+
 ## 2026-04-21
 - **Evaluación Claude Design** (Anthropic Labs, 17-abr-2026): producto para landings, pitch decks, mockups desde prompt/imagen/codebase, con export a Canva/PDF/PPTX. Incluido en Pro/Max/Team/Enterprise. Fit para OnMind: landings de campaña y pitch decks. No reemplaza el pipeline AdCrate + NB para piezas sociales.
 - **Nuevo template `carta-fundador`** (AdCrate #23 Long-Form Manifesto adaptado). Llena el pilar "Detrás de escena" (0% hoy) y agrega voz de fundador. Editorial puro (sin celular): opening bold + body + firma teal cursiva, 4:5.
