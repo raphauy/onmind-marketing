@@ -70,6 +70,12 @@ Proponé un caption para Instagram que:
 - Termine con un CTA claro (guardá, comentá, escribinos por DM)
 - Tenga exactamente **5 hashtags**, incluyendo los base: #inmobiliaria #gestiondeclientes #onmind
 
+**CTAs permitidos — no prometas entregables que no existen:**
+- ✅ "Guardá este post para..." (acción del lector, no requiere nada de nosotros)
+- ✅ "Comentá qué te parece / tu experiencia / cuál te pasó" (genera conversación)
+- ✅ "Escribinos por DM si querés saber más de OnMind" (conversación sobre el producto)
+- ❌ NUNCA escribir CTAs tipo "Comentá 'X' y te pasamos la plantilla / guía / checklist / pdf / recurso". Si proponés un deliverable, tiene que existir y estar coordinado previamente con el usuario. Ante la duda, preguntá antes de inventar.
+
 ### Paso 5: Confirmar y guardar
 
 Mostrá un resumen completo antes de guardar:
