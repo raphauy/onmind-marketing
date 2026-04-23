@@ -36,9 +36,11 @@ type Props = {
 export function ScheduleDialog({ slug, mode, currentScheduledAt, trigger }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>(currentScheduledAt)
+  const [date, setDate] = useState<Date | undefined>(
+    currentScheduledAt ?? new Date()
+  )
   const [hour, setHour] = useState<string | undefined>(
-    currentScheduledAt ? String(currentScheduledAt.getHours()) : "18"
+    currentScheduledAt ? String(currentScheduledAt.getHours()) : "12"
   )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,8 +75,8 @@ export function ScheduleDialog({ slug, mode, currentScheduledAt, trigger }: Prop
     if (next) {
       setError(null)
       if (!currentScheduledAt) {
-        setDate(undefined)
-        setHour("18")
+        setDate(new Date())
+        setHour("12")
       }
     }
   }
