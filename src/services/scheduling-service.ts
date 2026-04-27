@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { buildFullCaption, buildPublicImageUrl, publishToInstagram } from "./instagram-service"
+import { buildFullCaption, publishToInstagram } from "./instagram-service"
 import { isValidSchedule } from "@/lib/dates"
 
 const MAX_ATTEMPTS = 5
@@ -169,8 +169,7 @@ export async function publishDuePublications(): Promise<PublishRunResult> {
 
     try {
       const caption = buildFullCaption(piece)
-      const publicImageUrl = buildPublicImageUrl(piece.slug)
-      const igMediaId = await publishToInstagram(publicImageUrl, caption)
+      const igMediaId = await publishToInstagram(piece.imageUrl, caption)
 
       await prisma.publication.update({
         where: { id: pub.id },

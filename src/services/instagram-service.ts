@@ -54,40 +54,17 @@ export async function getProfile(): Promise<InstagramProfile> {
 async function createMediaContainer(imageUrl: string, caption: string): Promise<string> {
   const { accessToken, userId } = getConfig();
 
-  console.log("[IG-DEBUG] createMediaContainer — imageUrl:", imageUrl);
-  console.log("[IG-DEBUG] createMediaContainer — caption length:", caption.length);
-  console.log("[IG-DEBUG] createMediaContainer — userId:", userId);
-
-  // Probe de la imageUrl: lo mismo que va a hacer Instagram al fetchearla.
-  try {
-    const head = await fetch(imageUrl, { method: "HEAD", redirect: "follow" });
-    console.log(
-      "[IG-DEBUG] HEAD imageUrl — status:", head.status,
-      "content-type:", head.headers.get("content-type"),
-      "content-length:", head.headers.get("content-length"),
-      "final-url:", head.url,
-    );
-  } catch (e) {
-    console.log("[IG-DEBUG] HEAD imageUrl falló:", (e as Error).message);
-  }
-
-  const body = {
-    image_url: imageUrl,
-    caption,
-    media_type: "IMAGE",
-    access_token: accessToken,
-  };
-  console.log("[IG-DEBUG] POST /media body keys:", Object.keys(body));
-
   const res = await fetch(`${GRAPH_API_BASE}/${userId}/media`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      image_url: imageUrl,
+      caption,
+      access_token: accessToken,
+    }),
   });
 
   const data = await res.json();
-  console.log("[IG-DEBUG] POST /media — status:", res.status, "response:", JSON.stringify(data));
-
   if (!res.ok) {
     throw new Error(data.error?.message || "Error al crear el container de media en Instagram");
   }
@@ -148,17 +125,6 @@ export function buildFullCaption(piece: {
   ].join("");
 }
 
-// URL pública por la cual Meta baja la imagen. No usamos piece.imageUrl directo
-// (Blob de Vercel) porque el fetcher de Instagram lo rechaza con 9004/2207052.
-// El endpoint /api/piezas/[slug]/image proxea los bytes desde nuestro dominio.
-export function buildPublicImageUrl(slug: string): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL
-  if (!base) {
-    throw new Error("Falta NEXT_PUBLIC_APP_URL para publicar en Instagram")
-  }
-  return `${base.replace(/\/$/, "")}/api/piezas/${slug}/image`
-}
-
 /**
  * Publica una imagen en Instagram vía Graph API.
  * Encapsula el flujo createContainer → wait → publish.
@@ -168,14 +134,9 @@ export async function publishToInstagram(
   imageUrl: string,
   caption: string
 ): Promise<string> {
-  console.log("[IG-DEBUG] publishToInstagram — start");
   const creationId = await createMediaContainer(imageUrl, caption);
-  console.log("[IG-DEBUG] publishToInstagram — creationId:", creationId);
   await waitForMediaReady(creationId);
-  console.log("[IG-DEBUG] publishToInstagram — container ready, publishing");
-  const igMediaId = await publishMediaContainer(creationId);
-  console.log("[IG-DEBUG] publishToInstagram — published igMediaId:", igMediaId);
-  return igMediaId;
+  return await publishMediaContainer(creationId);
 }
 
 // --- Publicar una Piece ---
@@ -195,8 +156,7 @@ export async function publishPiece(pieceId: string) {
   }
 
   const fullCaption = buildFullCaption(piece);
-  const publicImageUrl = buildPublicImageUrl(piece.slug);
-  const igMediaId = await publishToInstagram(publicImageUrl, fullCaption);
+  const igMediaId = await publishToInstagram(piece.imageUrl, fullCaption);
 
   const publication = await prisma.publication.create({
     data: {
