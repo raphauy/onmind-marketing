@@ -11,7 +11,12 @@ export default async function proxy(request: NextRequest) {
     (route) => pathname === route || (route !== '/' && pathname.startsWith(`${route}/`))
   )
 
-  if (isPublicRoute) {
+  // Endpoint público que sirve la imagen de una pieza (proxy del Blob).
+  // Necesario para publicar en Instagram: Meta no puede fetchear directo del Blob.
+  const isPublicPieceImage =
+    pathname.startsWith('/api/piezas/') && pathname.endsWith('/image')
+
+  if (isPublicRoute || isPublicPieceImage) {
     return NextResponse.next()
   }
 
