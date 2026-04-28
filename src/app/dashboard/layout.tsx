@@ -1,6 +1,8 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { PanelSidebar } from "@/components/panel-sidebar";
 
+export const dynamic = "force-dynamic";
+
 export default function PanelLayout({
   children,
 }: {
