@@ -45,6 +45,15 @@ Esto es lo que más se usa día a día y lo que define el valor de OnMind.
 
 Es el corazón del producto. Cada contacto pertenece a una **categoría** que define cuántos mensajes recibe en el año y qué plantillas se usan. OnMind toma esa configuración y genera automáticamente todos los mensajes programados — distribuidos a lo largo del año, **solo en días hábiles**, evitando fines de semana y feriados.
 
+**Importante: los mensajes no se disparan solos.** Cada mañana entrás al dashboard, revisás los pendientes para hoy y hacés clic en **"Procesar mensajes para hoy (N)"**. Recién ahí OnMind empieza a enviarlos, **uno a uno, con un espaciado de entre 5 y 9 minutos** entre cada envío.
+
+Este ritmo no es un detalle técnico — es una decisión de producto:
+
+- **Cuida tu número.** WhatsApp detecta y bloquea cuentas que envían en tandas masivas. Distribuir los mensajes con un espaciado natural simula tráfico humano y minimiza el riesgo de bloqueo.
+- **Le da tiempo a tu equipo para responder.** A medida que los mensajes salen, los clientes empiezan a contestar. Repartir los envíos a lo largo del día deja aire para que vos o tu asistente respondan a las conversaciones que se abren — que es la parte que tiene valor real.
+
+La rutina diaria es simple: en la mañana revisás los pendientes (podés editar, cancelar o reprogramar antes de procesar), apretás "Procesar" y seguís con tu día. Los mensajes van saliendo solos mientras tu bandeja se va llenando con respuestas.
+
 Si en algún momento cambiás de idea — agregás una plantilla, cambiás la frecuencia de una categoría, retocás un texto — **se regeneran los mensajes pendientes** y el calendario se reconstruye con la configuración nueva. Los mensajes ya enviados no se tocan.
 
 Si te vas de vacaciones, activás el **modo vacaciones** con fecha de inicio y fin: durante ese período los envíos se pausan. Cuando vuelve, todo retoma solo.
@@ -163,7 +172,7 @@ Arrancar es **simple**, pero el resultado depende de cómo se prepare el arranqu
 
 **Paso 3 — Preparar el CSV de contactos prolijo.** Antes de importar, dedicar tiempo a ordenar los datos: teléfono, nombre, **categoría** (la columna más importante), email, fechas especiales (cumpleaños), fechas de cierre, etiquetas. Una planilla bien armada deja todo configurado de arranque. Una planilla desprolija te obliga a corregir contacto por contacto después.
 
-**Paso 4 — Importar y conectar WhatsApp.** Escaneás el QR, importás el CSV, OnMind genera todos los mensajes del año. De acá en adelante son **minutos al día**: revisás los mensajes pendientes, respondés conversaciones, atendés a tus clientes.
+**Paso 4 — Importar y conectar WhatsApp.** Escaneás el QR, importás el CSV, OnMind genera todos los mensajes del año. De acá en adelante la rutina es **minutos al día**: en la mañana revisás los mensajes programados para hoy, le das a "Procesar mensajes para hoy" y seguís con tu trabajo. A lo largo del día respondés las conversaciones que se van abriendo.
 
 > El trabajo previo es real, pero se hace una sola vez. La recompensa es un sistema que después corre solo y te mantiene presente con toda tu cartera durante todo el año.
 
