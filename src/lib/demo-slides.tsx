@@ -220,12 +220,24 @@ export const demoSlides: Slide[] = [
   {
     id: "cierre",
     eyebrow: "Próximos pasos",
-    title: <>Coordinemos el onboarding.</>,
+    title: <>Empezamos cuando quieras.</>,
     body: (
       <div className="space-y-4 text-lg text-muted-foreground">
         <p>
-          El equipo de OnMind te acompaña a definir categorías, armar las
-          plantillas iniciales y dejar tu CSV listo para importar.
+          Te creamos la cuenta y te invitamos como administrador. A partir de
+          ahí, configurás categorías y plantillas a tu ritmo y empezás a usar
+          el producto.
+        </p>
+        <p>
+          Dentro de la app hay{" "}
+          <strong className="text-foreground">documentación de usuario</strong>{" "}
+          que cubre cada sección con preguntas frecuentes y tips. Si te
+          trancás en algo, escribinos — estamos del otro lado.
+        </p>
+        <p>
+          <strong className="text-foreground">15 días de prueba sin compromiso.</strong>{" "}
+          Si en 15 días no te convence, te devolvemos el dinero — sin
+          cuestionar nada.
         </p>
         <p className="text-base">
           <strong className="text-foreground">onmindcrm.com</strong>
