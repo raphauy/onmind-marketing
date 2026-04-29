@@ -34,6 +34,7 @@ import {
   Plus,
   FileText,
   Video,
+  Package,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -198,7 +199,18 @@ export function PanelSidebar() {
                 >
                   <Link href="/dashboard/presentacion/guion-demo" onClick={closeMobile}>
                     <Video className="w-4 h-4" />
-                    <span>Guion demo video</span>
+                    <span>Guión demo video</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/presentacion/producto"}
+                  asChild
+                >
+                  <Link href="/dashboard/presentacion/producto" onClick={closeMobile}>
+                    <Package className="w-4 h-4" />
+                    <span>Producto</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
