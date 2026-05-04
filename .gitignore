@@ -46,7 +46,7 @@ copy-paste.txt
 /output/
 .remotion-snapshot-bundle/
 /public-remotion/
-/borrar_MSedes.txt
+/borrar*.txt
 
 # python
 __pycache__/
