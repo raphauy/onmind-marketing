@@ -130,6 +130,41 @@ Después de guardar, mostrá:
 - El link a la UI de producción donde se puede generar la imagen
 - Recordá que el siguiente paso es ir a la UI y darle "Generar imagen"
 
+## Ajustes después de guardar
+
+Si después del Paso 5 el usuario pide ajustes sobre una pieza ya guardada (ej: cambiar una palabra del statement, mejorar un hashtag, reescribir el caption), usá este script en lugar de crear una pieza nueva o tocar la DB a mano:
+
+```bash
+node .claude/skills/crear-pieza/scripts/update-piece.mjs <slug> '<JSON>' [--force]
+```
+
+**Qué se puede parchear** (sólo estas keys son aceptadas):
+- `fieldValues` — objeto, hace **merge** con los valores actuales (sólo se reemplazan las keys provistas; las demás quedan intactas).
+- `caption`, `hashtags`, `topic`, `pillar` — se reemplazan completos.
+
+**Reglas que aplica el script:**
+- Las keys de `fieldValues` deben existir en el template; si no, falla con la lista de keys válidas.
+- Si la pieza está en `GENERATED / APPROVED / SCHEDULED / PUBLISHED` y el patch toca `fieldValues`, el script bloquea y exige `--force`. Razón: cambiar `fieldValues` invalida el asset ya renderizado y, si la pieza ya está publicada, deja desincronizada la imagen del feed con los datos en DB.
+- Tocar sólo `caption / hashtags / topic / pillar` no requiere `--force` porque no afecta el render.
+
+**Cuándo usarlo vs cuándo no:**
+- ✅ Ajuste de copy menor sobre una pieza recién creada (status `DRAFT`) → directo, sin force.
+- ✅ Corrección de hashtags o caption sobre una pieza ya generada → directo, sin force.
+- ⚠️ Cambio en `fieldValues` de una pieza generada/aprobada/programada → confirmar con el usuario que entiende que pierde el render actual; correr con `--force` y avisar que hay que regenerar.
+- ❌ Cambio en `fieldValues` de una pieza `PUBLISHED` → preguntá primero si realmente quiere modificar algo que ya salió en el feed. Sólo tiene sentido si hay un error grave; el feed no se actualiza retroactivamente.
+
+**Ejemplo:**
+
+```bash
+# Cambiar sólo el statement (DRAFT, no necesita force)
+node .claude/skills/crear-pieza/scripts/update-piece.mjs frase-animada-morl6yx0 \
+  '{"fieldValues":{"statement":"Te recomienda\nel que mejor cuidaste\ndespués de la firma."}}'
+
+# Reemplazar hashtags (no toca render, no necesita force ni siquiera en PUBLISHED)
+node .claude/skills/crear-pieza/scripts/update-piece.mjs frase-animada-morl6yx0 \
+  '{"hashtags":["#inmobiliaria","#gestiondeclientes","#onmind","#postventa","#fidelizacion"]}'
+```
+
 ## Reglas importantes
 
 - **Comunicarse siempre en español** con el usuario

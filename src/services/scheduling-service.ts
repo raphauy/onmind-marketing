@@ -1,9 +1,19 @@
 import { prisma } from "@/lib/prisma"
-import { buildFullCaption, publishToInstagram } from "./instagram-service"
+import {
+  buildFullCaption,
+  publishReelToInstagram,
+  publishToInstagram,
+} from "./instagram-service"
 import { isValidSchedule } from "@/lib/dates"
 
 const MAX_ATTEMPTS = 5
 const CRON_BATCH_SIZE = 10
+// Time budget para una corrida del cron. La function tiene maxDuration=300s
+// (Vercel Pro). Un Reel puede tardar hasta ~180s en publicarse (procesamiento
+// de video en Graph API). Salimos del loop al rozar este budget para no caer
+// en timeout: las publications restantes quedan PENDING y se reintentan en
+// la próxima corrida (catch-up por scheduledAt <= now).
+const CRON_TIME_BUDGET_MS = 4 * 60 * 1000 // 4 min de 5
 
 export type PublishRunResult = {
   attempted: number
@@ -141,7 +151,20 @@ export async function publishDuePublications(): Promise<PublishRunResult> {
     errors: [],
   }
 
+  const startedAt = Date.now()
+
   for (const pub of due) {
+    // Early exit si rozamos el budget de la function. Las publicaciones que
+    // queden sin tocar siguen PENDING y entran al próximo cron por catch-up.
+    if (Date.now() - startedAt > CRON_TIME_BUDGET_MS) {
+      console.log(
+        `[cron] time budget alcanzado (${Math.round(
+          (Date.now() - startedAt) / 1000
+        )}s); ${result.attempted - result.published - result.failed - result.retrying} publication(es) quedan para la próxima corrida`
+      )
+      break
+    }
+
     const piece = pub.piece
 
     if (!piece.imageUrl) {
@@ -162,26 +185,6 @@ export async function publishDuePublications(): Promise<PublishRunResult> {
       continue
     }
 
-    // Piezas REMOTION: imageUrl es thumbnail JPG, videoUrl es el MP4. Aún no
-    // implementamos el flujo Graph API media_type=REELS; bloquear para no
-    // publicar el thumbnail como imagen.
-    if (piece.videoUrl) {
-      await prisma.publication.update({
-        where: { id: pub.id },
-        data: {
-          status: "FAILED",
-          attempts: { increment: 1 },
-          lastError: "Publicación de Reels todavía no soportada",
-        },
-      })
-      result.failed++
-      result.errors.push({
-        publicationId: pub.id,
-        error: "Reels no soportado",
-      })
-      continue
-    }
-
     await prisma.publication.update({
       where: { id: pub.id },
       data: { status: "PUBLISHING", attempts: { increment: 1 } },
@@ -189,7 +192,11 @@ export async function publishDuePublications(): Promise<PublishRunResult> {
 
     try {
       const caption = buildFullCaption(piece)
-      const igMediaId = await publishToInstagram(piece.imageUrl, caption)
+      const igMediaId = piece.videoUrl
+        ? await publishReelToInstagram(piece.videoUrl, caption, {
+            coverUrl: piece.imageUrl,
+          })
+        : await publishToInstagram(piece.imageUrl, caption)
 
       await prisma.publication.update({
         where: { id: pub.id },

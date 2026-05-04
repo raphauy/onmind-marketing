@@ -31,10 +31,14 @@ import { formatInUY } from "@/lib/dates"
 // largos. Mostramos un toast con label corto como título y solo la primera
 // línea como descripción; el detalle completo va a la consola del browser
 // para debugging.
-function notifyActionError(label: string, errorMessage: string) {
+function notifyActionError(
+  label: string,
+  errorMessage: string,
+  opts: { id?: string | number } = {}
+) {
   console.error(`[piece-actions] ${label}:`, errorMessage)
   const firstLine = errorMessage.split("\n")[0].slice(0, 220)
-  toast.error(label, { description: firstLine })
+  toast.error(label, { description: firstLine, id: opts.id })
 }
 
 export function PieceActions({
@@ -65,12 +69,18 @@ export function PieceActions({
 
   async function handleGenerate() {
     setGenerating(true)
+    const toastId = toast.loading("Generando la pieza…", {
+      description: "Puede tardar unos segundos.",
+    })
     const result = await generatePieceAction(slug)
     setGenerating(false)
     if (result.success) {
+      toast.success("Pieza generada", { id: toastId })
       router.refresh()
     } else {
-      notifyActionError("No se pudo generar la imagen", result.error)
+      notifyActionError("No se pudo generar la imagen", result.error, {
+        id: toastId,
+      })
     }
   }
 
@@ -223,14 +233,23 @@ export function PieceActions({
                 <AlertDialogAction
                   onClick={async () => {
                     setPublishing(true)
+                    const toastId = toast.loading(
+                      "Publicando en Instagram…",
+                      {
+                        description:
+                          "El procesamiento de Reels puede tardar hasta 3 minutos.",
+                      }
+                    )
                     const result = await publishPieceAction(slug)
                     setPublishing(false)
                     if (result.success) {
+                      toast.success("Publicado en Instagram", { id: toastId })
                       router.refresh()
                     } else {
                       notifyActionError(
                         "No se pudo publicar en Instagram",
-                        result.error
+                        result.error,
+                        { id: toastId }
                       )
                     }
                   }}

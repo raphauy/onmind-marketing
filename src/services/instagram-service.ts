@@ -51,15 +51,16 @@ export async function getProfile(): Promise<InstagramProfile> {
 
 // --- Instagram Graph API ---
 
-async function createMediaContainer(imageUrl: string, caption: string): Promise<string> {
+async function createMediaContainer(
+  body: Record<string, unknown>
+): Promise<string> {
   const { accessToken, userId } = getConfig();
 
   const res = await fetch(`${GRAPH_API_BASE}/${userId}/media`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      image_url: imageUrl,
-      caption,
+      ...body,
       access_token: accessToken,
     }),
   });
@@ -92,24 +93,77 @@ async function publishMediaContainer(creationId: string): Promise<string> {
   return data.id;
 }
 
-async function waitForMediaReady(containerId: string, maxAttempts = 10): Promise<void> {
+// Mapeo de mensajes técnicos de la Graph API a textos accionables en español.
+// Si ningún patrón matchea, se devuelve el mensaje original como fallback.
+function humanizeInstagramError(rawMessage: string, label: string): string {
+  const m = rawMessage.toLowerCase()
+
+  if (m.includes("audio") && m.includes("codec")) {
+    return `El audio del ${label} no es compatible con Instagram. Tiene que ser AAC.`
+  }
+  if (m.includes("duration") || m.includes("too long") || m.includes("too short")) {
+    return `Duración inválida — los Reels deben durar entre 3 y 90 segundos.`
+  }
+  if (m.includes("aspect ratio") || m.includes("dimensions")) {
+    return `Aspect ratio del ${label} inválido. Reels esperan 9:16 (vertical).`
+  }
+  if (m.includes("rate limit") || m.includes("too many")) {
+    return `Llegaste al límite de Instagram (100 publicaciones cada 24h).`
+  }
+  if (m.includes("not available") || m.includes("download") || m.includes("fetch")) {
+    return `Instagram no pudo descargar el ${label}. Verificá que la URL sea pública.`
+  }
+  if (m.includes("9004") || m.includes("9006") || m.includes("unknown")) {
+    return `Instagram rechazó el ${label} con un error genérico. Probá regenerar la pieza.`
+  }
+  if (m.includes("expired")) {
+    return `El container del ${label} expiró antes de publicarse. Volvé a intentar.`
+  }
+  // Fallback: dejar el mensaje original (recortado) para no perder info.
+  const trimmed = rawMessage.slice(0, 180)
+  return `Instagram rechazó el ${label}: ${trimmed}`
+}
+
+type WaitOptions = {
+  // Total de intentos antes de tirar timeout. Default conservador para imagen.
+  maxAttempts?: number
+  // Delay en ms entre intentos.
+  delayMs?: number
+  // Etiqueta usada en el mensaje de error (imagen | video).
+  mediaLabel?: string
+}
+
+async function waitForMediaReady(
+  containerId: string,
+  opts: WaitOptions = {}
+): Promise<void> {
   const { accessToken } = getConfig();
+  const maxAttempts = opts.maxAttempts ?? 10;
+  const delayMs = opts.delayMs ?? 2000;
+  const label = opts.mediaLabel ?? "imagen";
 
   for (let i = 0; i < maxAttempts; i++) {
+    // Pedimos también `status` (descripción detallada) además de `status_code`
+    // para poder propagar el motivo real cuando Instagram rechaza.
     const res = await fetch(
-      `${GRAPH_API_BASE}/${containerId}?fields=status_code&access_token=${accessToken}`
+      `${GRAPH_API_BASE}/${containerId}?fields=status_code,status&access_token=${accessToken}`
     );
     const data = await res.json();
 
     if (data.status_code === "FINISHED") return;
     if (data.status_code === "ERROR") {
-      throw new Error("Instagram rechazó la imagen");
+      console.error("[Instagram] container error:", JSON.stringify(data));
+      const raw = data.status || `Instagram rechazó el ${label}`;
+      throw new Error(humanizeInstagramError(raw, label));
+    }
+    if (data.status_code === "EXPIRED") {
+      throw new Error(`El container del ${label} expiró antes de publicarse. Volvé a intentar.`);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 
-  throw new Error("Timeout esperando que Instagram procese la imagen");
+  throw new Error(`Timeout esperando que Instagram procese el ${label}`);
 }
 
 // --- Helpers reutilizables ---
@@ -134,8 +188,38 @@ export async function publishToInstagram(
   imageUrl: string,
   caption: string
 ): Promise<string> {
-  const creationId = await createMediaContainer(imageUrl, caption);
-  await waitForMediaReady(creationId);
+  const creationId = await createMediaContainer({
+    image_url: imageUrl,
+    caption,
+  });
+  await waitForMediaReady(creationId, { mediaLabel: "imagen" });
+  return await publishMediaContainer(creationId);
+}
+
+/**
+ * Publica un Reel en Instagram vía Graph API. share_to_feed=true para que
+ * aparezca también en el feed regular además de la sección Reels.
+ *
+ * El procesamiento de video tarda más que el de imagen (~30-90s); por eso
+ * el wait usa maxAttempts más altos y delay más largo.
+ */
+export async function publishReelToInstagram(
+  videoUrl: string,
+  caption: string,
+  opts: { coverUrl?: string } = {}
+): Promise<string> {
+  const creationId = await createMediaContainer({
+    media_type: "REELS",
+    video_url: videoUrl,
+    caption,
+    share_to_feed: true,
+    ...(opts.coverUrl ? { cover_url: opts.coverUrl } : {}),
+  });
+  await waitForMediaReady(creationId, {
+    maxAttempts: 60,
+    delayMs: 3000,
+    mediaLabel: "video",
+  });
   return await publishMediaContainer(creationId);
 }
 
@@ -151,21 +235,18 @@ export async function publishPiece(pieceId: string) {
     throw new Error("La pieza no tiene imagen generada");
   }
 
-  // Templates de video (REMOTION) generan imageUrl=thumbnail + videoUrl=MP4.
-  // Publicar como imagen estática subiría el thumbnail JPG en lugar del Reel.
-  // Hasta que tengamos el flujo Graph API media_type=REELS, lo bloqueamos.
-  if (piece.videoUrl) {
-    throw new Error(
-      "Publicación de Reels todavía no está soportada — la pieza es video"
-    );
-  }
-
   if (piece.publications.some((p) => p.status === "PUBLISHED")) {
     throw new Error("Esta pieza ya fue publicada en Instagram");
   }
 
   const fullCaption = buildFullCaption(piece);
-  const igMediaId = await publishToInstagram(piece.imageUrl, fullCaption);
+  // Branch por tipo de media: video → Reel (con thumbnail como cover),
+  // sino imagen estática.
+  const igMediaId = piece.videoUrl
+    ? await publishReelToInstagram(piece.videoUrl, fullCaption, {
+        coverUrl: piece.imageUrl,
+      })
+    : await publishToInstagram(piece.imageUrl, fullCaption);
 
   const publication = await prisma.publication.create({
     data: {
