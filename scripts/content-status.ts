@@ -165,12 +165,13 @@ function computePillarSuggestion(counts: Record<string, number>): {
 }
 
 function pillarToTemplates(pillar: string): string[] {
-  // Recomendación de templates por pilar (derivado de list-templates descriptions)
+  // Recomendación de templates por pilar (derivado de list-templates descriptions).
+  // Incluye templates de imagen estática y de video (frase-animada para Reels).
   switch (pillar) {
     case "educacion":
-      return ["bold-statement", "headline", "stat-surround", "whatsapp-conversation"];
+      return ["bold-statement", "frase-animada", "headline", "stat-surround", "whatsapp-conversation"];
     case "dolor":
-      return ["carta-fundador", "bold-statement", "headline", "us-vs-them"];
+      return ["carta-fundador", "bold-statement", "frase-animada", "headline", "us-vs-them"];
     case "producto":
       return ["features-pointout", "us-vs-them", "whatsapp-conversation"];
     case "detras_de_escena":

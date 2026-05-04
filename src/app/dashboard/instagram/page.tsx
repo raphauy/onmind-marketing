@@ -4,6 +4,7 @@ import { getPublishedAndScheduledPieces } from "@/services/piece-service";
 import { getProfile } from "@/services/instagram-service";
 import { Badge } from "@/components/ui/badge";
 import { formatScheduledBadge } from "@/lib/dates";
+import { MEDIA_ICON, getMediaType } from "@/lib/piece-media";
 
 const STATUS_BADGE: Record<string, { label: string; color: string }> = {
   APPROVED: { label: "Aprobada", color: "bg-white text-blue-600 border-white shadow-sm" },
@@ -121,6 +122,7 @@ export default async function InstagramPage() {
               piece.status === "SCHEDULED"
                 ? piece.publications[0]?.scheduledAt ?? null
                 : null;
+            const MediaIcon = MEDIA_ICON[getMediaType(piece)];
             return (
               <Link
                 key={piece.slug}
@@ -135,6 +137,9 @@ export default async function InstagramPage() {
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 )}
+                <div className="absolute top-1.5 left-1.5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]">
+                  <MediaIcon size={18} strokeWidth={2} />
+                </div>
                 {isPublished && (
                   <div className="absolute top-1.5 right-1.5 bg-green-500 rounded-full p-0.5">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">

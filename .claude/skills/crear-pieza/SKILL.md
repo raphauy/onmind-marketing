@@ -45,6 +45,7 @@ Con base en la sugerencia del Paso 1:
   - Temas que funcionan bien en Instagram B2B inmobiliario
   - El tono y vocabulario de marca
 - **Template:** recomendá uno de los `recommendedTemplates` que devolvió el script. Si el usuario no tiene preferencia, ejecutá `node .claude/skills/crear-pieza/scripts/list-templates.mjs` para mostrarle las opciones completas con sus campos.
+  - **Imagen estática vs video:** los templates con `renderer: "REMOTION"` producen un **video MP4 9:16 para Reels** (ej. `frase-animada`). Los demás (`LLM`, `SATORI`) producen una imagen. Aclará al usuario qué tipo es cuando lo recomendás. Para video, mencioná `durationSec` (duración en segundos).
 
 Pedí confirmación explícita del trío (pilar, tema, template) antes de avanzar.
 
@@ -83,7 +84,7 @@ Mostrá un resumen completo antes de guardar:
 ```
 📋 Resumen de la pieza
 ━━━━━━━━━━━━━━━━━━━━
-Template: [nombre]
+Template: [nombre]  ([imagen | video XXs 9:16])
 Pilar: [pilar]
 Tema: [tema]
 Costo estimado: $[costo]
@@ -98,6 +99,8 @@ Caption:
 
 Hashtags: [hashtags]
 ```
+
+Si es un template de video (`renderer: REMOTION`), aclará en el header del resumen el formato y la duración (ej. "video 10s 9:16 — Reels").
 
 Pedí confirmación explícita al usuario. Cuando confirme, guardá con este comando:
 

@@ -44,6 +44,9 @@ next-env.d.ts
 dev.log
 copy-paste.txt
 /output/
+.remotion-snapshot-bundle/
+/public-remotion/
+/borrar_MSedes.txt
 
 # python
 __pycache__/

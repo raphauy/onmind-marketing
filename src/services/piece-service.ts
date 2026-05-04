@@ -154,9 +154,15 @@ export async function setActiveGeneration(pieceId: string, generationId: string)
     data: { isActive: true },
   })
 
+  // Piece refleja el asset de la Generation activa. Para video (Generation.videoUrl
+  // presente) imageUrl apunta al thumbnail y thumbnailUrl es el mismo.
   await prisma.piece.update({
     where: { id: pieceId },
-    data: { imageUrl: generation.imageUrl },
+    data: {
+      imageUrl: generation.imageUrl,
+      videoUrl: generation.videoUrl,
+      thumbnailUrl: generation.videoUrl ? generation.imageUrl : null,
+    },
   })
 }
 

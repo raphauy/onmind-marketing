@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma"
 import { put } from "@vercel/blob"
 import { addLogoOverlay } from "@/lib/logo-overlay"
 import { getSatoriRenderer } from "@/lib/renderers"
+import { renderRemotionTemplate } from "@/lib/remotion/render"
+import { REMOTION_FPS } from "@/lib/remotion/config"
 import type { Template } from "@prisma/client"
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -102,7 +104,7 @@ function extractImageBuffer(
 
 export async function generatePieceImage(
   pieceId: string
-): Promise<{ imageUrl: string }> {
+): Promise<{ imageUrl: string; videoUrl?: string }> {
   const piece = await prisma.piece.findUniqueOrThrow({
     where: { id: pieceId },
     include: { template: true },
@@ -117,51 +119,78 @@ export async function generatePieceImage(
   try {
     const { template } = piece
     const fieldValues = piece.fieldValues as Record<string, string>
+    const version = Date.now().toString(36)
 
-    let imageBuffer: Buffer | null = null
     let prompt = ""
     let modelUsed = ""
     let durationMs = 0
+    let imageUrl = ""
+    let videoUrl: string | undefined
 
-    if (template.renderer === "SATORI") {
-      // Render programático: JSX -> SVG -> PNG. Sin LLM, sin costo, determinista.
-      const renderer = getSatoriRenderer(template.slug)
-      const startTime = Date.now()
-      imageBuffer = await renderer(fieldValues)
-      durationMs = Date.now() - startTime
-      prompt = `[satori:${template.slug}] ${JSON.stringify(fieldValues)}`
-      modelUsed = `satori:${template.slug}`
-    } else {
-      // Render LLM: prompt + modelo vía OpenRouter.
-      if (!template.model) {
+    if (template.renderer === "REMOTION") {
+      // Render programático de video MP4. El logo overlay ya está embebido
+      // en la composition (no se aplica sharp post-procesado).
+      // En producción Vercel corre en Sandbox; en local in-process. Ver
+      // src/lib/remotion/render.ts para la lógica de dispatch.
+      if (!template.durationSec) {
         throw new Error(
-          `Template "${template.slug}" tiene renderer=LLM pero model es null`
+          `Template "${template.slug}" tiene renderer=REMOTION pero durationSec es null`
         )
       }
-      prompt = buildPrompt(template, fieldValues)
-      modelUsed = template.model
-      const result = await callOpenRouter(prompt, template.model)
+      modelUsed = `remotion:${template.slug}`
+      prompt = `[remotion:${template.slug}] ${JSON.stringify(fieldValues)}`
+      const result = await renderRemotionTemplate(template.slug, fieldValues, {
+        pieceSlug: piece.slug,
+        version,
+        durationInFrames: template.durationSec * REMOTION_FPS,
+      })
       durationMs = result.durationMs
-      imageBuffer = extractImageBuffer(result.data)
-      if (!imageBuffer) {
-        throw new Error("No se obtuvo imagen del modelo")
+      videoUrl = result.videoUrl
+      // imageUrl apunta al thumbnail para que dashboards y previews que esperan
+      // imagen sigan funcionando sin cambios.
+      imageUrl = result.thumbnailUrl
+    } else {
+      let imageBuffer: Buffer | null = null
+
+      if (template.renderer === "SATORI") {
+        // Render programático: JSX -> SVG -> PNG. Sin LLM, sin costo, determinista.
+        const renderer = getSatoriRenderer(template.slug)
+        const startTime = Date.now()
+        imageBuffer = await renderer(fieldValues)
+        durationMs = Date.now() - startTime
+        prompt = `[satori:${template.slug}] ${JSON.stringify(fieldValues)}`
+        modelUsed = `satori:${template.slug}`
+      } else {
+        // Render LLM: prompt + modelo vía OpenRouter.
+        if (!template.model) {
+          throw new Error(
+            `Template "${template.slug}" tiene renderer=LLM pero model es null`
+          )
+        }
+        prompt = buildPrompt(template, fieldValues)
+        modelUsed = template.model
+        const result = await callOpenRouter(prompt, template.model)
+        durationMs = result.durationMs
+        imageBuffer = extractImageBuffer(result.data)
+        if (!imageBuffer) {
+          throw new Error("No se obtuvo imagen del modelo")
+        }
       }
+
+      // Add logo overlay + resize al aspect ratio del template
+      const finalImage = await addLogoOverlay(
+        imageBuffer,
+        template.darkOverlay,
+        template.aspectRatio
+      )
+
+      const upload = await put(
+        `piezas/${piece.slug}-${version}.png`,
+        finalImage,
+        { access: "public", contentType: "image/png", addRandomSuffix: false }
+      )
+      imageUrl = upload.url
     }
-
-    // Add logo overlay + resize al aspect ratio del template
-    const finalImage = await addLogoOverlay(
-      imageBuffer,
-      template.darkOverlay,
-      template.aspectRatio
-    )
-
-    // Upload to Vercel Blob (con timestamp para no pisar versiones anteriores)
-    const version = Date.now().toString(36)
-    const { url: imageUrl } = await put(
-      `piezas/${piece.slug}-${version}.png`,
-      finalImage,
-      { access: "public", contentType: "image/png", addRandomSuffix: false }
-    )
 
     // Desactivar generaciones anteriores
     await prisma.generation.updateMany({
@@ -169,15 +198,17 @@ export async function generatePieceImage(
       data: { isActive: false },
     })
 
-    // SATORI es siempre gratuito — no depender del seed.
+    // Programáticos (SATORI, REMOTION) son siempre gratuitos.
     const costUsd =
-      template.renderer === "SATORI" ? 0 : template.costPerImage
+      template.renderer === "SATORI" || template.renderer === "REMOTION"
+        ? 0
+        : template.costPerImage
 
-    // Crear registro de generación
     await prisma.generation.create({
       data: {
         pieceId,
         imageUrl,
+        videoUrl,
         prompt,
         model: modelUsed,
         costUsd,
@@ -186,17 +217,18 @@ export async function generatePieceImage(
       },
     })
 
-    // Actualizar piece: imagen activa y costo acumulado
     await prisma.piece.update({
       where: { id: pieceId },
       data: {
         status: "GENERATED",
         imageUrl,
+        videoUrl,
+        thumbnailUrl: videoUrl ? imageUrl : null,
         costUsd: { increment: costUsd },
       },
     })
 
-    return { imageUrl }
+    return videoUrl ? { imageUrl, videoUrl } : { imageUrl }
   } catch (error) {
     await prisma.piece.update({
       where: { id: pieceId },

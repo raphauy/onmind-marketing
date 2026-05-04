@@ -151,6 +151,15 @@ export async function publishPiece(pieceId: string) {
     throw new Error("La pieza no tiene imagen generada");
   }
 
+  // Templates de video (REMOTION) generan imageUrl=thumbnail + videoUrl=MP4.
+  // Publicar como imagen estática subiría el thumbnail JPG en lugar del Reel.
+  // Hasta que tengamos el flujo Graph API media_type=REELS, lo bloqueamos.
+  if (piece.videoUrl) {
+    throw new Error(
+      "Publicación de Reels todavía no está soportada — la pieza es video"
+    );
+  }
+
   if (piece.publications.some((p) => p.status === "PUBLISHED")) {
     throw new Error("Esta pieza ya fue publicada en Instagram");
   }

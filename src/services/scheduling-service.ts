@@ -162,6 +162,26 @@ export async function publishDuePublications(): Promise<PublishRunResult> {
       continue
     }
 
+    // Piezas REMOTION: imageUrl es thumbnail JPG, videoUrl es el MP4. Aún no
+    // implementamos el flujo Graph API media_type=REELS; bloquear para no
+    // publicar el thumbnail como imagen.
+    if (piece.videoUrl) {
+      await prisma.publication.update({
+        where: { id: pub.id },
+        data: {
+          status: "FAILED",
+          attempts: { increment: 1 },
+          lastError: "Publicación de Reels todavía no soportada",
+        },
+      })
+      result.failed++
+      result.errors.push({
+        publicationId: pub.id,
+        error: "Reels no soportado",
+      })
+      continue
+    }
+
     await prisma.publication.update({
       where: { id: pub.id },
       data: { status: "PUBLISHING", attempts: { increment: 1 } },

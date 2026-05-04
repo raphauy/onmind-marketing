@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import {
   generatePieceAction,
   approvePieceAction,
@@ -26,6 +27,16 @@ import { Loader2, Sparkles, Check, RotateCcw, Trash2, ArchiveRestore, Send, Undo
 import { ScheduleDialog } from "@/components/schedule-dialog"
 import { formatInUY } from "@/lib/dates"
 
+// Mensajes de error de Server Actions pueden venir con stack traces o paths
+// largos. Mostramos un toast con label corto como título y solo la primera
+// línea como descripción; el detalle completo va a la consola del browser
+// para debugging.
+function notifyActionError(label: string, errorMessage: string) {
+  console.error(`[piece-actions] ${label}:`, errorMessage)
+  const firstLine = errorMessage.split("\n")[0].slice(0, 220)
+  toast.error(label, { description: firstLine })
+}
+
 export function PieceActions({
   slug,
   status,
@@ -48,42 +59,34 @@ export function PieceActions({
   const [publishing, setPublishing] = useState(false)
   const [unapproving, setUnapproving] = useState(false)
   const [unscheduling, setUnscheduling] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const busy = generating || approving || deleting || publishing || unapproving || unscheduling
   const scheduledDate = scheduledAt ? new Date(scheduledAt) : undefined
 
   async function handleGenerate() {
     setGenerating(true)
-    setError(null)
     const result = await generatePieceAction(slug)
     setGenerating(false)
     if (result.success) {
       router.refresh()
     } else {
-      setError(result.error)
+      notifyActionError("No se pudo generar la imagen", result.error)
     }
   }
 
   async function handleApprove() {
     setApproving(true)
-    setError(null)
     const result = await approvePieceAction(slug)
     setApproving(false)
     if (result.success) {
       router.refresh()
     } else {
-      setError(result.error)
+      notifyActionError("No se pudo aprobar la pieza", result.error)
     }
   }
 
   return (
     <div className="space-y-3">
-      {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          {error}
-        </div>
-      )}
 
       {(status === "DRAFT" || status === "FAILED") && (
         <button
@@ -220,13 +223,15 @@ export function PieceActions({
                 <AlertDialogAction
                   onClick={async () => {
                     setPublishing(true)
-                    setError(null)
                     const result = await publishPieceAction(slug)
                     setPublishing(false)
                     if (result.success) {
                       router.refresh()
                     } else {
-                      setError(result.error)
+                      notifyActionError(
+                        "No se pudo publicar en Instagram",
+                        result.error
+                      )
                     }
                   }}
                 >
@@ -266,13 +271,15 @@ export function PieceActions({
                 <AlertDialogAction
                   onClick={async () => {
                     setUnapproving(true)
-                    setError(null)
                     const result = await unapprovePieceAction(slug)
                     setUnapproving(false)
                     if (result.success) {
                       router.refresh()
                     } else {
-                      setError(result.error)
+                      notifyActionError(
+                        "No se pudo quitar del feed",
+                        result.error
+                      )
                     }
                   }}
                 >
@@ -347,13 +354,15 @@ export function PieceActions({
                   <AlertDialogAction
                     onClick={async () => {
                       setUnscheduling(true)
-                      setError(null)
                       const result = await unschedulePieceAction(slug)
                       setUnscheduling(false)
                       if (result.success) {
                         router.refresh()
                       } else {
-                        setError(result.error)
+                        notifyActionError(
+                          "No se pudo cancelar la programación",
+                          result.error
+                        )
                       }
                     }}
                     className="bg-destructive text-white hover:bg-destructive/90"

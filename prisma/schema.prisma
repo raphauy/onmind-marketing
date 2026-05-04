@@ -73,6 +73,10 @@ model Template {
   // Costo estimado en USD por imagen generada con este template/modelo
   costPerImage Float   @default(0)
 
+  // Duración en segundos para templates de video (renderer=REMOTION).
+  // Null para templates de imagen estática (LLM, SATORI).
+  durationSec Int?
+
   // Configuración visual
   darkOverlay Boolean  @default(false)   // Si el logo debe ir en blanco (fondo oscuro)
   aspectRatio String   @default("4:5")   // "4:5", "1:1", "9:16"
@@ -107,9 +111,11 @@ model Piece {
   // Estado
   status      PieceStatus @default(DRAFT)
 
-  // Imagen activa (apunta a la generación seleccionada)
-  imageUrl    String?     // URL de Vercel Blob de la generación activa
-  costUsd     Float       @default(0) // Costo total acumulado de todas las generaciones
+  // Asset activo (apunta a la generación seleccionada)
+  imageUrl     String?    // URL de imagen (templates LLM, SATORI) o thumbnail (REMOTION)
+  videoUrl     String?    // URL de video MP4 (templates REMOTION). Null para imagen estática.
+  thumbnailUrl String?    // URL del frame de preview para video (REMOTION). Null si no aplica.
+  costUsd      Float      @default(0) // Costo total acumulado de todas las generaciones
 
   // Soft delete
   deletedAt   DateTime?
@@ -137,9 +143,13 @@ model Generation {
   pieceId     String
   piece       Piece    @relation(fields: [pieceId], references: [id], onDelete: Cascade)
 
-  imageUrl    String   // URL de Vercel Blob
-  prompt      String   // Prompt enviado al modelo
-  model       String   // Modelo usado (ej: google/gemini-3.1-flash-image-preview)
+  // Para templates de imagen (LLM, SATORI) imageUrl tiene la imagen final.
+  // Para templates de video (REMOTION) imageUrl tiene el thumbnail y videoUrl tiene el MP4.
+  imageUrl     String  // URL de Vercel Blob (siempre presente — imagen o thumbnail)
+  videoUrl     String? // URL de Vercel Blob del MP4 (solo REMOTION)
+
+  prompt      String   // Prompt enviado al modelo (LLM) o snapshot de inputs (SATORI/REMOTION)
+  model       String   // Modelo usado (ej: google/gemini-3.1-flash-image-preview, satori:slug, remotion:slug)
   costUsd     Float    // Costo de esta generación
   durationMs  Int      // Duración en ms
 
@@ -191,4 +201,5 @@ enum PublicationStatus {
 enum TemplateRenderer {
   LLM        // Imagen generada por modelo de IA vía OpenRouter (prompt + modelo)
   SATORI     // Render programático JSX -> SVG -> PNG (sin LLM, determinista, cero costo)
+  REMOTION   // Video MP4 programático React -> Chromium headless -> H.264 (cero costo)
 }

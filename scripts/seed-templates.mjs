@@ -607,6 +607,46 @@ ${CRITICAL_RULES}
     ],
     promptTemplate: null,
   },
+  {
+    slug: "frase-animada",
+    name: "Frase animada (video Reels)",
+    description:
+      "Video 9:16 para Reels: frase contundente que aparece palabra por palabra con stagger, línea accent teal, contexto que entra al final. Render programático con Remotion, cero costo. Ideal para principios, mitos, verdades incómodas en formato video.",
+    renderer: "REMOTION",
+    model: null,
+    costPerImage: 0,
+    // Mantener en sync con TEMPLATE_DURATION_SECONDS["frase-animada"]
+    // en src/lib/remotion/config.ts (fuente de verdad del Composition).
+    durationSec: 10,
+    darkOverlay: false,
+    aspectRatio: "9:16",
+    fields: [
+      {
+        key: "eyebrow",
+        label: "Etiqueta superior (opcional)",
+        type: "text",
+        required: false,
+        placeholder: "Principio 01",
+      },
+      {
+        key: "statement",
+        label:
+          "Frase contundente (recomendado 4–10 palabras; usar \\n para forzar saltos de línea)",
+        type: "textarea",
+        required: true,
+        placeholder: "El silencio\ntambién es\nun mensaje.",
+      },
+      {
+        key: "context",
+        label: "Contexto breve (1–2 oraciones, fade in al final)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Si tus clientes no saben nada de vos hace meses, están asumiendo que ya no les interesás.",
+      },
+    ],
+    promptTemplate: null,
+  },
 ];
 
 async function main() {

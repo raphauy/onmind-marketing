@@ -55,7 +55,7 @@ async function main() {
     })
     console.log("Templates disponibles:\n")
     for (const t of templates) {
-      const costLabel = t.renderer === "SATORI" ? "programático, $0" : `$${t.costPerImage}/imagen`
+      const costLabel = t.renderer === "SATORI" || t.renderer === "REMOTION" ? "programático, $0" : `$${t.costPerImage}/imagen`
       console.log(`  --template=${t.slug}`)
       console.log(`    ${t.name} (${costLabel})`)
       console.log(`    ${t.description}\n`)
@@ -123,7 +123,10 @@ async function main() {
     },
   })
 
-  const costLabel = template.renderer === "SATORI" ? "$0 (programático)" : `$${template.costPerImage}`
+  const costLabel =
+    template.renderer === "SATORI" || template.renderer === "REMOTION"
+      ? "$0 (programático)"
+      : `$${template.costPerImage}`
   console.log(`✅ Piece creada: ${piece.slug} (${piece.id})`)
   console.log(`   Template: ${template.name}`)
   console.log(`   Renderer: ${template.renderer}`)

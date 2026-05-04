@@ -28,6 +28,18 @@ const PILLAR_LABELS: Record<string, string> = {
   detras_de_escena: "Detrás de escena",
 }
 
+function aspectClass(aspectRatio: string): string {
+  switch (aspectRatio) {
+    case "1:1":
+      return "aspect-square"
+    case "9:16":
+      return "aspect-[9/16]"
+    case "4:5":
+    default:
+      return "aspect-[4/5]"
+  }
+}
+
 export default async function PieceDetailPage({
   params,
 }: {
@@ -79,8 +91,19 @@ export default async function PieceDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Imagen */}
         <div>
-          <div className="aspect-[4/5] bg-muted rounded-lg overflow-hidden border">
-            {piece.imageUrl ? (
+          <div
+            className={`${aspectClass(piece.template.aspectRatio)} bg-muted rounded-lg overflow-hidden border`}
+          >
+            {piece.videoUrl ? (
+              <video
+                src={piece.videoUrl}
+                poster={piece.imageUrl ?? undefined}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            ) : piece.imageUrl ? (
               <ImageGallery
                 images={galleryImages}
                 startIndex={activeIndex >= 0 ? activeIndex : 0}

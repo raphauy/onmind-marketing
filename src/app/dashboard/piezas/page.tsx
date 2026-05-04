@@ -2,6 +2,7 @@ import { getPieces, getPieceStats } from "@/services/piece-service"
 import Link from "next/link"
 import { Plus, Image as ImageIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { MEDIA_ICON, getMediaType } from "@/lib/piece-media"
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   DRAFT: { label: "Borrador", color: "bg-gray-100 text-gray-600" },
@@ -129,6 +130,15 @@ export default async function PiezasPage({
                       <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
                     </div>
                   )}
+                  {/* Media type icon */}
+                  {(() => {
+                    const MediaIcon = MEDIA_ICON[getMediaType(piece)]
+                    return (
+                      <div className="absolute top-2 left-2 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]">
+                        <MediaIcon size={18} strokeWidth={2} />
+                      </div>
+                    )
+                  })()}
                   {/* Status badge */}
                   <Badge
                     variant="outline"
