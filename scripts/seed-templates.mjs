@@ -608,6 +608,82 @@ ${CRITICAL_RULES}
     promptTemplate: null,
   },
   {
+    slug: "chat-animado",
+    name: "Conversación WhatsApp animada (video Reels)",
+    description:
+      "Video 9:16 para Reels: simulación realista de WhatsApp con dos rondas de mensajes separadas por fechas. Header con nombre y avatar, fondo cream/beige (light) o carbón (dark) capturado de WhatsApp Web, burbujas con piquito y typing del cliente entre mensajes. Render programático con Remotion, cero costo. Ideal para mostrar el producto en acción: cómo OnMind dispara mensajes que mantienen el vínculo y traen respuestas reales.",
+    renderer: "REMOTION",
+    model: null,
+    costPerImage: 0,
+    // Mantener en sync con TEMPLATE_DURATION_SECONDS["chat-animado"]
+    // en src/lib/remotion/config.ts (fuente de verdad del Composition).
+    durationSec: 17,
+    darkOverlay: false,
+    aspectRatio: "9:16",
+    fields: [
+      {
+        key: "contactName",
+        label: "Nombre del contacto en el header",
+        type: "text",
+        required: true,
+        placeholder: "Martín",
+      },
+      {
+        key: "theme",
+        label: "Modo del chat",
+        type: "text",
+        required: true,
+        placeholder: "light",
+      },
+      {
+        key: "dateLabel1",
+        label: "Separador de fecha 1 (ronda inicial)",
+        type: "text",
+        required: true,
+        placeholder: "vie, 19 dic.",
+      },
+      {
+        key: "sentMessage1",
+        label: "Mensaje enviado 1 (disparo de OnMind)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Hola Martín, ¿cómo va todo con la casa? ¿Alguna duda con los servicios?",
+      },
+      {
+        key: "receivedMessage1",
+        label: "Respuesta del cliente 1",
+        type: "textarea",
+        required: true,
+        placeholder: "¡Todo bien, gracias! Cualquier cosa te escribo.",
+      },
+      {
+        key: "dateLabel2",
+        label: "Separador de fecha 2 (segunda ronda, ~2 meses después)",
+        type: "text",
+        required: true,
+        placeholder: "mar, 17 feb.",
+      },
+      {
+        key: "sentMessage2",
+        label: "Mensaje enviado 2 (segundo disparo de OnMind)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Hola Martín, ¿cómo arrancaste el año? ¿Todo en orden con la casa?",
+      },
+      {
+        key: "receivedMessage2",
+        label: "Respuesta del cliente 2 (vínculo activo)",
+        type: "textarea",
+        required: true,
+        placeholder:
+          "Justo iba a escribirte. Un conocido busca alquiler por la zona.",
+      },
+    ],
+    promptTemplate: null,
+  },
+  {
     slug: "frase-animada",
     name: "Frase animada (video Reels)",
     description:

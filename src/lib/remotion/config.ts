@@ -21,6 +21,7 @@ export const THUMBNAIL_FRAME_RATIO = 0.8
 // y src/remotion/Root.tsx (durationInFrames del Composition).
 export const TEMPLATE_DURATION_SECONDS: Record<string, number> = {
   "frase-animada": 10,
+  "chat-animado": 17,
 }
 
 export function templateDurationInFrames(slug: string): number {

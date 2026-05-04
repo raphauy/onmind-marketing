@@ -10,6 +10,11 @@ import {
   FraseAnimadaDefaults,
   fraseAnimadaSchema,
 } from "./templates/FraseAnimada"
+import {
+  ChatAnimado,
+  ChatAnimadoDefaults,
+  chatAnimadoSchema,
+} from "./templates/ChatAnimado"
 
 // Convención: cada Composition.id matchea el slug del Template en la DB
 // y es la clave por la que el generation-service va a llamar al render.
@@ -26,6 +31,16 @@ export function RemotionRoot() {
         width={1080}
         height={1920}
         defaultProps={FraseAnimadaDefaults}
+      />
+      <Composition
+        id="chat-animado"
+        component={ChatAnimado}
+        schema={chatAnimadoSchema}
+        durationInFrames={templateDurationInFrames("chat-animado")}
+        fps={REMOTION_FPS}
+        width={1080}
+        height={1920}
+        defaultProps={ChatAnimadoDefaults}
       />
     </>
   )
