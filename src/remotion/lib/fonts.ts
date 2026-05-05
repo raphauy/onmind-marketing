@@ -31,3 +31,27 @@ export function loadGeistFonts(): Promise<void> {
 
   return promise
 }
+
+let emojiPromise: Promise<void> | null = null
+
+// Carga Noto Color Emoji. Es la font de emojis a color que usa Android
+// (y WhatsApp en pantalla). Pesa ~11MB pero es lo que necesitamos para que
+// los emojis se vean reales en el chat. Se usa como fallback de Geist:
+// `fontFamily: "Geist, Noto Color Emoji"` hace que el browser use Noto
+// solo para los glifos que Geist no tiene.
+export function loadEmojiFont(): Promise<void> {
+  if (typeof document === "undefined") return Promise.resolve()
+  if (emojiPromise) return emojiPromise
+
+  emojiPromise = (async () => {
+    const font = new FontFace(
+      "Noto Color Emoji",
+      `url(${staticFile("/fonts/NotoColorEmoji.ttf")}) format('truetype')`,
+      { weight: "400", style: "normal" }
+    )
+    const loaded = await font.load()
+    document.fonts.add(loaded)
+  })()
+
+  return emojiPromise
+}

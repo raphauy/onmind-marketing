@@ -8,7 +8,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react"
 import { z } from "zod"
 import { BRAND } from "../lib/colors"
-import { loadGeistFonts } from "../lib/fonts"
+import { loadGeistFonts, loadEmojiFont } from "../lib/fonts"
 import { LogoOverlay } from "../components/LogoOverlay"
 
 export const chatAnimadoSchema = z.object({
@@ -40,6 +40,10 @@ const RECV2_AT = 347
 const LOGO_AT = 0
 
 type Theme = "light" | "dark"
+
+// Font stack de los textos del chat: Geist primero (para letras), Noto
+// Color Emoji como fallback per-glyph (para los emojis 🙌 🎉 ❤️ etc).
+const CHAT_FONT_FAMILY = '"Geist", "Noto Color Emoji"'
 
 // Paleta WhatsApp por tema. Inspirada en la app real, ajustada al brand.
 // El avatar siempre usa BRAND.teal para integrar con OnMind.
@@ -487,9 +491,9 @@ export function ChatAnimado({
 }: ChatAnimadoProps) {
   const frame = useCurrentFrame()
 
-  const [fontHandle] = useState(() => delayRender("Loading Geist"))
+  const [fontHandle] = useState(() => delayRender("Loading fonts"))
   useEffect(() => {
-    loadGeistFonts()
+    Promise.all([loadGeistFonts(), loadEmojiFont()])
       .then(() => continueRender(fontHandle))
       .catch(() => continueRender(fontHandle))
   }, [fontHandle])
@@ -505,7 +509,7 @@ export function ChatAnimado({
   })
 
   return (
-    <AbsoluteFill style={{ backgroundColor: t.chatBg, fontFamily: "Geist" }}>
+    <AbsoluteFill style={{ backgroundColor: t.chatBg, fontFamily: CHAT_FONT_FAMILY }}>
       <ChatBackground theme={theme} />
       <div
         style={{
