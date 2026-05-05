@@ -4,7 +4,6 @@ import {
   interpolate,
   delayRender,
   continueRender,
-  staticFile,
 } from "remotion"
 import { useEffect, useState, type ReactNode } from "react"
 import { z } from "zod"
@@ -44,7 +43,9 @@ type Theme = "light" | "dark"
 
 // Paleta WhatsApp por tema. Inspirada en la app real, ajustada al brand.
 // El avatar siempre usa BRAND.teal para integrar con OnMind.
-// `chatBgImage` es la textura del fondo del chat capturada de WhatsApp Web.
+// La textura del fondo se renderiza proceduralmente con radial-gradients
+// CSS (ver ChatBackground) — los gradients pintan sincrónicamente y sí
+// aparecen en cada worker del render headless paralelo.
 const themeColors = {
   light: {
     headerBg: "#075E54",
@@ -58,7 +59,9 @@ const themeColors = {
     dateBg: "#E1F2FA",
     dateText: "#54656F",
     typingDot: "#667781",
-    chatBgImage: `url(${staticFile("/brand/whatsapp-bg-light.png")})`,
+    bgGrainColor: "rgba(0,0,0,0.07)",
+    bgPatchSoft: "rgba(0,0,0,0.04)",
+    bgPatchStrong: "rgba(0,0,0,0.06)",
   },
   dark: {
     headerBg: "#1F2C34",
@@ -72,7 +75,9 @@ const themeColors = {
     dateBg: "#1F2C34",
     dateText: "#8696A0",
     typingDot: "#8696A0",
-    chatBgImage: `url(${staticFile("/brand/whatsapp-bg-dark.png")})`,
+    bgGrainColor: "rgba(255,255,255,0.05)",
+    bgPatchSoft: "rgba(255,255,255,0.03)",
+    bgPatchStrong: "rgba(255,255,255,0.045)",
   },
 } as const
 
@@ -160,6 +165,38 @@ function ChatItem({
         {children}
       </div>
     </div>
+  )
+}
+
+// Background del chat: textura procedural con CSS radial-gradients.
+// Capa 1: patrón de "grano" pequeño repetido cada 5px (da textura tipo papel).
+// Capa 2: manchas grandes superpuestas para variación local de tono.
+// Todo CSS gradients, sin imágenes, así pinta sincrónicamente en cada worker.
+function ChatBackground({ theme }: { theme: Theme }) {
+  const t = themeColors[theme]
+  const grain = t.bgGrainColor
+  const a = t.bgPatchSoft
+  const b = t.bgPatchStrong
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 0,
+        backgroundColor: t.chatBg,
+        backgroundImage: [
+          `radial-gradient(circle at 50% 50%, ${grain} 0.9px, transparent 1.4px)`,
+          `radial-gradient(ellipse 620px 460px at 12% 8%, ${b}, transparent 60%)`,
+          `radial-gradient(ellipse 540px 620px at 78% 18%, ${a}, transparent 60%)`,
+          `radial-gradient(ellipse 700px 500px at 32% 42%, ${a}, transparent 60%)`,
+          `radial-gradient(ellipse 480px 580px at 88% 52%, ${b}, transparent 60%)`,
+          `radial-gradient(ellipse 600px 480px at 18% 68%, ${a}, transparent 60%)`,
+          `radial-gradient(ellipse 720px 540px at 70% 82%, ${b}, transparent 60%)`,
+        ].join(", "),
+        backgroundSize:
+          "5px 5px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%",
+      }}
+    />
   )
 }
 
@@ -469,10 +506,12 @@ export function ChatAnimado({
 
   return (
     <AbsoluteFill style={{ backgroundColor: t.chatBg, fontFamily: "Geist" }}>
+      <ChatBackground theme={theme} />
       <div
         style={{
+          position: "relative",
+          zIndex: 1,
           flex: 1,
-          backgroundColor: t.chatBg,
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -536,11 +575,7 @@ export function ChatAnimado({
             flexDirection: "column",
             justifyContent: "flex-end",
             gap: 16,
-            position: "relative",
-            backgroundImage: t.chatBgImage,
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            boxSizing: "border-box",
           }}
         >
           <ChatItem startFrame={DATE1_AT} side="center">

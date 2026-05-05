@@ -14,7 +14,7 @@ import type { TemplateField } from "@/services/template-service"
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   DRAFT: { label: "Borrador", color: "bg-gray-100 text-gray-600" },
   GENERATING: { label: "Generando...", color: "bg-yellow-100 text-yellow-700" },
-  GENERATED: { label: "Imagen lista", color: "bg-blue-100 text-blue-700" },
+  GENERATED: { label: "Generada", color: "bg-blue-100 text-blue-700" },
   APPROVED: { label: "Aprobada", color: "bg-green-100 text-green-700" },
   SCHEDULED: { label: "Programada", color: "bg-purple-100 text-purple-700" },
   PUBLISHED: { label: "Publicada", color: "bg-emerald-100 text-emerald-700" },

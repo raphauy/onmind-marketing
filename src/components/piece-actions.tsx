@@ -282,7 +282,7 @@ export function PieceActions({
               <AlertDialogHeader>
                 <AlertDialogTitle>Quitar del feed</AlertDialogTitle>
                 <AlertDialogDescription>
-                  La pieza volverá al repositorio en estado &ldquo;Imagen lista&rdquo; y vas a poder aprobarla de nuevo.
+                  La pieza volverá al repositorio en estado &ldquo;Generada&rdquo; y vas a poder aprobarla de nuevo.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
