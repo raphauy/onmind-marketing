@@ -127,6 +127,16 @@ export async function generatePieceImage(
     let imageUrl = ""
     let videoUrl: string | undefined
 
+    if (template.renderer === "HYPERFRAMES") {
+      // Piezas HYPERFRAMES son bespoke: el video se rendereó offline con
+      // ElevenLabs + HyperFrames y se registró en DB con status GENERATED.
+      // No hay regeneración desde la UI (template.isRegeneratable=false esconde
+      // el botón). Si igual se invoca la action, fallar con mensaje claro.
+      throw new Error(
+        "Las piezas HYPERFRAMES no se regeneran desde la UI. Crear una pieza nueva con el skill crear-video-narrado."
+      )
+    }
+
     if (template.renderer === "REMOTION") {
       // Render programático de video MP4. El logo overlay ya está embebido
       // en la composition (no se aplica sharp post-procesado).

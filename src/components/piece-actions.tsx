@@ -45,6 +45,7 @@ export function PieceActions({
   slug,
   status,
   isDeleted,
+  isRegeneratable,
   publishedAt,
   scheduledAt,
   lastError,
@@ -52,6 +53,7 @@ export function PieceActions({
   slug: string
   status: string
   isDeleted: boolean
+  isRegeneratable: boolean
   publishedAt?: string
   scheduledAt?: string
   lastError?: string
@@ -98,7 +100,7 @@ export function PieceActions({
   return (
     <div className="space-y-3">
 
-      {(status === "DRAFT" || status === "FAILED") && (
+      {(status === "DRAFT" || status === "FAILED") && isRegeneratable && (
         <button
           onClick={handleGenerate}
           disabled={busy}
@@ -171,18 +173,20 @@ export function PieceActions({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <button
-            onClick={handleGenerate}
-            disabled={busy}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
-          >
-            {generating ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <RotateCcw className="w-4 h-4" />
-            )}
-            Regenerar
-          </button>
+          {isRegeneratable && (
+            <button
+              onClick={handleGenerate}
+              disabled={busy}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 border rounded-lg text-sm font-medium hover:bg-muted disabled:opacity-50 cursor-pointer"
+            >
+              {generating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RotateCcw className="w-4 h-4" />
+              )}
+              Regenerar
+            </button>
+          )}
         </div>
       )}
 

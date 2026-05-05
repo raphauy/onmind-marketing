@@ -81,6 +81,10 @@ model Template {
   darkOverlay Boolean  @default(false)   // Si el logo debe ir en blanco (fondo oscuro)
   aspectRatio String   @default("4:5")   // "4:5", "1:1", "9:16"
 
+  // Si el template soporta regenerar piezas existentes desde la UI.
+  // false para templates bespoke (HYPERFRAMES) donde cada pieza es única.
+  isRegeneratable Boolean @default(true)
+
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -199,7 +203,8 @@ enum PublicationStatus {
 }
 
 enum TemplateRenderer {
-  LLM        // Imagen generada por modelo de IA vía OpenRouter (prompt + modelo)
-  SATORI     // Render programático JSX -> SVG -> PNG (sin LLM, determinista, cero costo)
-  REMOTION   // Video MP4 programático React -> Chromium headless -> H.264 (cero costo)
+  LLM         // Imagen generada por modelo de IA vía OpenRouter (prompt + modelo)
+  SATORI      // Render programático JSX -> SVG -> PNG (sin LLM, determinista, cero costo)
+  REMOTION    // Video MP4 programático React -> Chromium headless -> H.264 (cero costo)
+  HYPERFRAMES // Video MP4 narrado bespoke (HyperFrames + ElevenLabs voz/música). No paramétrico.
 }
