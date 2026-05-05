@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #fafafa;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        color: #111;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 160px 90px;
+        text-align: center;
+      }
+
+      .chip {
+        position: absolute;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 36px;
+        font-weight: 600;
+        color: #007056;
+        letter-spacing: 0.02em;
+        background: #e7f4f0;
+        padding: 14px 32px;
+        border-radius: 999px;
+        opacity: 0;
+        z-index: 10;
+      }
+
+      /* ───── Scene 1: Intro ───── */
+      .intro-title {
+        font-size: 116px;
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.025em;
+        max-width: 920px;
+      }
+      .intro-title .accent {
+        color: #007056;
+      }
+
+      /* ───── Scene 2: Plantillas + Categorías ───── */
+      .config-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+        align-items: stretch;
+        width: 760px;
+      }
+      .config-card {
+        display: flex;
+        align-items: center;
+        gap: 36px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 44px 48px;
+        box-shadow: 0 6px 24px rgba(0, 112, 86, 0.06);
+        position: relative;
+        text-align: left;
+      }
+      .config-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 24px;
+        bottom: 24px;
+        width: 6px;
+        background: #007056;
+        border-radius: 0 6px 6px 0;
+      }
+      .config-num {
+        font-size: 90px;
+        font-weight: 800;
+        color: #007056;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        min-width: 100px;
+      }
+      .config-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .config-label {
+        font-size: 60px;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.01em;
+        line-height: 1;
+      }
+      .config-sublabel {
+        font-size: 30px;
+        font-weight: 500;
+        color: #777;
+      }
+      .config-once {
+        font-size: 42px;
+        font-weight: 500;
+        color: #555;
+        margin-top: 56px;
+      }
+      .config-once strong {
+        color: #007056;
+        font-weight: 700;
+      }
+
+      /* ───── Number scenes (745, 5559) ───── */
+      .pretitle {
+        font-size: 44px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 36px;
+        letter-spacing: -0.01em;
+      }
+      .big-num {
+        font-size: 380px;
+        font-weight: 900;
+        color: #007056;
+        font-variant-numeric: tabular-nums;
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+      }
+      .post-label {
+        font-size: 52px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-top: 36px;
+        max-width: 920px;
+        line-height: 1.2;
+      }
+      .post-label .muted {
+        color: #555;
+        font-weight: 500;
+      }
+
+      /* ───── Scene 4-5: Stats with comparison ───── */
+      .stats {
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+        align-items: center;
+        width: 920px;
+      }
+      .stat-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 12px;
+      }
+      .stat-row.primary .num {
+        font-size: 320px;
+        font-weight: 900;
+        color: #007056;
+        font-variant-numeric: tabular-nums;
+        line-height: 0.9;
+        letter-spacing: -0.04em;
+      }
+      .stat-row.primary .pct {
+        font-size: 180px;
+        font-weight: 800;
+        color: #007056;
+        line-height: 1;
+      }
+      .stat-caption {
+        font-size: 44px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-top: -10px;
+      }
+
+      .vs-divider {
+        width: 480px;
+        height: 1px;
+        background: #d1d5db;
+        margin: 24px 0;
+      }
+
+      .vs-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+      }
+      .vs-context {
+        font-size: 34px;
+        font-weight: 500;
+        color: #6b7280;
+        max-width: 720px;
+        line-height: 1.25;
+      }
+      .vs-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .vs-prefix {
+        font-size: 56px;
+        font-weight: 700;
+        color: #b91c1c;
+        margin-right: 8px;
+      }
+      .vs-num {
+        font-size: 180px;
+        font-weight: 900;
+        color: #b91c1c;
+        font-variant-numeric: tabular-nums;
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+      }
+      .vs-pct {
+        font-size: 110px;
+        font-weight: 800;
+        color: #b91c1c;
+      }
+
+      /* ───── Combo S6: 5559 + acciones ───── */
+      .combo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+        width: 920px;
+      }
+      .combo-top {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .combo-top .big-num {
+        font-size: 280px;
+      }
+      .combo-label {
+        font-size: 38px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-top: 18px;
+        max-width: 880px;
+        line-height: 1.25;
+      }
+      .combo-label .muted {
+        color: #555;
+        font-weight: 500;
+      }
+      .combo-divider {
+        width: 360px;
+        height: 1px;
+        background: #d1d5db;
+      }
+      .combo-bottom {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .combo-pre {
+        font-size: 42px;
+        font-weight: 600;
+        color: #555;
+      }
+      .combo-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        align-items: center;
+      }
+      .action {
+        font-size: 92px;
+        font-weight: 800;
+        color: #b91c1c;
+        letter-spacing: -0.02em;
+        text-decoration: line-through;
+        text-decoration-thickness: 8px;
+        text-decoration-color: #b91c1c;
+        line-height: 1.05;
+      }
+
+      /* ───── Scene 8: Outro ───── */
+      .outro-handle {
+        font-size: 132px;
+        font-weight: 800;
+        color: #007056;
+        letter-spacing: -0.025em;
+      }
+      .outro-tag {
+        font-size: 56px;
+        font-weight: 500;
+        color: #444;
+        margin-top: 30px;
+        max-width: 880px;
+        line-height: 1.25;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="38"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio
+        id="audio-mezcla"
+        data-start="0"
+        data-duration="38"
+        data-track-index="9"
+        src="mezcla.mp3"
+        data-volume="1"
+      ></audio>
+
+      <div id="chip" class="chip">@OnMindApp</div>
+
+      <!-- S1: Intro -->
+      <div class="scene" id="s1">
+        <div class="intro-title" id="s1-title">
+          Un agente <span class="accent">inmobiliario</span> real
+        </div>
+      </div>
+
+      <!-- S2: Plantillas + Categorías -->
+      <div class="scene" id="s2">
+        <div class="config-stack">
+          <div class="config-card" id="s2-c1">
+            <div class="config-num">01</div>
+            <div class="config-text">
+              <div class="config-label">Plantillas</div>
+              <div class="config-sublabel">mensajes pre-escritos</div>
+            </div>
+          </div>
+          <div class="config-card" id="s2-c2">
+            <div class="config-num">02</div>
+            <div class="config-text">
+              <div class="config-label">Categorías</div>
+              <div class="config-sublabel">para sus contactos</div>
+            </div>
+          </div>
+        </div>
+        <div class="config-once" id="s2-once">
+          configurado <strong>una sola vez</strong>
+        </div>
+      </div>
+
+      <!-- S3: 745 mensajes enviados -->
+      <div class="scene" id="s3">
+        <div class="pretitle" id="s3-pre">OnMind envió por él</div>
+        <div class="big-num" id="s3-num">0</div>
+        <div class="post-label" id="s3-label">
+          mensajes <span class="muted">en lo que va del año</span>
+        </div>
+      </div>
+
+      <!-- S4: 54% + comparison <20% -->
+      <div class="scene" id="s4">
+        <div class="stats">
+          <div>
+            <div class="pretitle" id="s4-pre">Tasa de respuesta</div>
+            <div class="stat-row primary">
+              <div class="num" id="s4-num">0</div>
+              <div class="pct" id="s4-pct">%</div>
+            </div>
+          </div>
+          <div class="vs-divider" id="s4-divider"></div>
+          <div class="vs-block" id="s4-vs">
+            <div class="vs-context" id="s4-vs-context">
+              En WhatsApp marketing tradicional el promedio es de
+            </div>
+            <div class="vs-row">
+              <div class="vs-prefix">menos de</div>
+              <div class="vs-num">20</div>
+              <div class="vs-pct">%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S6: 5559 mensajes + tres acciones combinados -->
+      <div class="scene" id="s6">
+        <div class="combo">
+          <div class="combo-top">
+            <div class="pretitle" id="s6-pre">Y ya tiene listos</div>
+            <div class="big-num" id="s6-num">0</div>
+            <div class="combo-label" id="s6-label">
+              mensajes para los <span class="muted">próximos 12 meses</span>
+            </div>
+          </div>
+          <div class="combo-divider" id="s6-divider"></div>
+          <div class="combo-bottom">
+            <div class="combo-pre" id="s7-pre">que él no va a</div>
+            <div class="combo-actions">
+              <div class="action" id="act-1">escribir</div>
+              <div class="action" id="act-2">pensar</div>
+              <div class="action" id="act-3">recordar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S8: Outro -->
+      <div class="scene" id="s8">
+        <div class="outro-handle" id="s8-handle">@OnMindApp</div>
+        <div class="outro-tag" id="s8-tag">
+          automatizá el vínculo con tus clientes
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function showScene(id, t, dur = 0.5) {
+        tl.to("#" + id, { opacity: 1, duration: dur, ease: "power2.out" }, t);
+      }
+      function hideScene(id, t, dur = 0.4) {
+        tl.to("#" + id, { opacity: 0, duration: dur, ease: "power2.in" }, t);
+      }
+
+      // Chip @OnMindApp
+      tl.to("#chip", { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.4);
+
+      // ========== S1 (0.0 - 4.2s) intro ==========
+      showScene("s1", 0.6);
+      tl.from("#s1-title", { opacity: 0, y: 60, duration: 0.9, ease: "power3.out" }, 0.8);
+      hideScene("s1", 4.0);
+
+      // ========== S2 (4.0 - 8.5s) plantillas + categorías ==========
+      showScene("s2", 4.1);
+      tl.from("#s2-c1", { opacity: 0, x: -80, duration: 0.6, ease: "back.out(1.4)" }, 4.7);
+      tl.from("#s2-c2", { opacity: 0, x: -80, duration: 0.6, ease: "back.out(1.4)" }, 5.7);
+      tl.from("#s2-once", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 7.0);
+      hideScene("s2", 8.2);
+
+      // ========== S3 (8.2 - 13.0s) 745 mensajes ==========
+      showScene("s3", 8.3);
+      tl.from("#s3-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 8.5);
+      tl.from("#s3-num", { opacity: 0, scale: 0.7, duration: 0.4, ease: "power2.out" }, 9.0);
+      const c745 = { v: 0 };
+      tl.to(
+        c745,
+        {
+          v: 745,
+          duration: 1.8,
+          ease: "power2.out",
+          onUpdate: function () {
+            const el = document.getElementById("s3-num");
+            if (el) el.textContent = Math.round(c745.v);
+          },
+        },
+        9.2,
+      );
+      tl.from("#s3-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 11.4);
+      // Hold 745 visible from 11s to 12.7s before transition
+      hideScene("s3", 12.7);
+
+      // ========== S4 (12.7 - 22.6s) 54% + <20% ==========
+      showScene("s4", 12.9);
+      tl.from("#s4-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 13.1);
+      tl.from("#s4-num", { opacity: 0, scale: 0.65, duration: 0.4, ease: "back.out(1.6)" }, 14.0);
+      const c54 = { v: 0 };
+      tl.to(
+        c54,
+        {
+          v: 54,
+          duration: 0.9,
+          ease: "power2.out",
+          onUpdate: function () {
+            const el = document.getElementById("s4-num");
+            if (el) el.textContent = Math.round(c54.v);
+          },
+        },
+        14.2,
+      );
+      tl.from("#s4-pct", { opacity: 0, scale: 0.6, duration: 0.3, ease: "back.out(1.6)" }, 15.0);
+
+      // Comparison block builds in while 54% stays visible
+      tl.fromTo(
+        "#s4-divider",
+        { scaleX: 0 },
+        { scaleX: 1, duration: 0.6, ease: "power2.out", transformOrigin: "center center" },
+        17.0,
+      );
+      tl.to("#s4-vs", { opacity: 1, duration: 0.5, ease: "power2.out" }, 17.4);
+      tl.from("#s4-vs-context", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 17.5);
+      tl.from(".vs-row", { opacity: 0, y: 30, duration: 0.6, ease: "back.out(1.4)" }, 19.6);
+
+      hideScene("s4", 22.4);
+
+      // ========== S6 (22.4 - 34.0s) combo: 5559 + acciones ==========
+      showScene("s6", 22.6);
+      tl.from("#s6-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 22.8);
+      tl.from("#s6-num", { opacity: 0, scale: 0.65, duration: 0.4, ease: "power2.out" }, 23.3);
+      const c5559 = { v: 0 };
+      tl.to(
+        c5559,
+        {
+          v: 5559,
+          duration: 2.4,
+          ease: "power3.out",
+          onUpdate: function () {
+            const el = document.getElementById("s6-num");
+            if (el) el.textContent = Math.round(c5559.v);
+          },
+        },
+        23.5,
+      );
+      tl.from("#s6-label", { opacity: 0, y: 20, duration: 0.6, ease: "power2.out" }, 27.0);
+
+      // Acciones aparecen abajo mientras 5559 permanece arriba
+      tl.fromTo(
+        "#s6-divider",
+        { scaleX: 0 },
+        { scaleX: 1, duration: 0.6, ease: "power2.out", transformOrigin: "center center" },
+        29.4,
+      );
+      tl.from("#s7-pre", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 29.8);
+      tl.from("#act-1", { opacity: 0, x: -40, duration: 0.4, ease: "power3.out" }, 31.5);
+      tl.from("#act-2", { opacity: 0, x: -40, duration: 0.4, ease: "power3.out" }, 32.3);
+      tl.from("#act-3", { opacity: 0, x: -40, duration: 0.4, ease: "power3.out" }, 33.0);
+
+      hideScene("s6", 34.0);
+
+      // ========== S8 (34.0 - 38.0s) outro hold ==========
+      showScene("s8", 34.1);
+      tl.from("#s8-handle", { opacity: 0, scale: 0.85, y: 30, duration: 0.7, ease: "back.out(1.4)" }, 34.3);
+      tl.from("#s8-tag", { opacity: 0, y: 20, duration: 0.6, ease: "power2.out" }, 34.9);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
