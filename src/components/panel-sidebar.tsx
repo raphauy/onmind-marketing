@@ -39,6 +39,10 @@ import {
   ExternalLink,
   Users,
   UserPlus,
+  MessageSquareText,
+  CalendarClock,
+  Clock,
+  HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -46,7 +50,11 @@ const estrategiaItems = [
   { label: "Instagram", href: "/dashboard/estrategia/instagram" },
 ];
 
-export function PanelSidebar() {
+export function PanelSidebar({
+  pendingFollowUps = 0,
+}: {
+  pendingFollowUps?: number;
+} = {}) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   const [estrategiaOpen, setEstrategiaOpen] = useState(
@@ -110,6 +118,55 @@ export function PanelSidebar() {
                   <Link href="/dashboard/leads/nuevo" onClick={closeMobile}>
                     <UserPlus className="w-4 h-4" />
                     <span>Nuevo lead</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/leads/seguimiento"}
+                  asChild
+                >
+                  <Link href="/dashboard/leads/seguimiento" onClick={closeMobile}>
+                    <Clock className="w-4 h-4" />
+                    <span>Seguimiento</span>
+                    {pendingFollowUps > 0 && (
+                      <span className="ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-semibold">
+                        {pendingFollowUps}
+                      </span>
+                    )}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/configuracion"}
+                  asChild
+                >
+                  <Link href="/dashboard/configuracion" onClick={closeMobile}>
+                    <MessageSquareText className="w-4 h-4" />
+                    <span>Mis mensajes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/disponibilidad"}
+                  asChild
+                >
+                  <Link href="/dashboard/disponibilidad" onClick={closeMobile}>
+                    <CalendarClock className="w-4 h-4" />
+                    <span>Disponibilidad</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/leads/ayuda"}
+                  asChild
+                >
+                  <Link href="/dashboard/leads/ayuda" onClick={closeMobile}>
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Ayuda</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

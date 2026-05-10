@@ -1,8 +1,12 @@
-import { addHours, isAfter, startOfHour } from "date-fns"
+import { addHours, format as formatDF, isAfter, startOfHour } from "date-fns"
 import { es } from "date-fns/locale"
 import { format, toZonedTime } from "date-fns-tz"
 
 export const UY_TZ = "America/Montevideo"
+
+// `toZonedTime` se mantiene exportado para usos puntuales que sí lo necesitan
+// (ej. trabajar con componentes de fecha local).
+export { toZonedTime }
 
 /**
  * Combina una fecha (Calendar → hora local 00:00) con una hora entera (0-23)
@@ -19,10 +23,16 @@ export function composeLocalDateTime(date: Date, hour: number): Date {
 
 /**
  * Formatea un Date UTC en hora de Uruguay usando locale es.
- * Display consistente para cualquier navegador del mundo.
+ *
+ * Estrategia: `toZonedTime` desplaza el Date para que sus componentes locales
+ * (getHours, getDate, etc.) sean los de UY. Después se formatea con
+ * `format` de `date-fns` regular, que lee esos componentes directamente sin
+ * aplicar conversión TZ propia. Funciona consistentemente entre Node y browser
+ * (a diferencia de `format` con option `timeZone` de `date-fns-tz`, que
+ * mostró ser inestable en algunos runtimes).
  */
 export function formatInUY(date: Date, pattern = "EEEE d 'de' MMMM, HH:mm 'hs'"): string {
-  return format(toZonedTime(date, UY_TZ), pattern, { timeZone: UY_TZ, locale: es })
+  return formatDF(toZonedTime(date, UY_TZ), pattern, { locale: es })
 }
 
 /**

@@ -14,9 +14,14 @@ model User {
   isActive       Boolean        @default(true)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
-  otpTokens      OtpToken[]
-  deletedPieces  Piece[]
-  leadActivities LeadActivity[]
+  otpTokens          OtpToken[]
+  deletedPieces      Piece[]
+  leadActivities     LeadActivity[]
+  ownedLeads         Lead[]              @relation("LeadOwner")
+  messageTemplates   MessageTemplate[]
+  availabilityRules  AvailabilityRule[]
+  availabilityBlocks AvailabilityBlock[]
+  bookings           Booking[]
 }
 
 model OtpToken {
@@ -223,12 +228,21 @@ model Lead {
   source       LeadSource @default(WEB)
   businessType String? // Rubro / tipo de negocio (libre)
 
+  // Owner asignado (Raphael o Martín). Round-robin par/impar al crear, override manual.
+  ownerUserId String?
+  owner       User?   @relation("LeadOwner", fields: [ownerUserId], references: [id])
+
+  // Booking de la demo (link de agendar + slot reservado).
+  // Relación 1:1 — un lead tiene a lo sumo un booking activo.
+  booking Booking?
+
   // Fecha de inicio del trial pago de 15 días.
   // Se setea automáticamente la primera vez que el lead entra en estado IN_EVALUATION.
   // Si vuelve a un estado anterior y avanza de nuevo, NO se resetea.
   trialStartedAt DateTime?
 
   activities LeadActivity[]
+  followUps  LeadFollowUp[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -236,6 +250,7 @@ model Lead {
   @@index([status])
   @@index([email])
   @@index([createdAt])
+  @@index([ownerUserId])
 }
 
 // LeadActivity: timeline de eventos del lead.
@@ -277,4 +292,121 @@ enum LeadActivityType {
   NOTE // Nota libre escrita por un usuario
   STATUS_CHANGE // Cambio de estado (auto, registra el delta)
   SYSTEM // Evento del sistema (webhook, copia de mensaje, etc.)
+}
+
+// Plantillas de mensaje configurables por usuario.
+// Cada usuario tiene su propio set: email + WhatsApp para cada propósito (booking link y follow-ups).
+// Variables disponibles: {nombre} en todos, {linkBooking} solo en BOOKING_LINK.
+model MessageTemplate {
+  id        String                 @id @default(cuid())
+  userId    String
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel   MessageTemplateChannel
+  purpose   MessageTemplatePurpose
+  // Solo aplica a channel = EMAIL. Para WhatsApp queda null.
+  subject   String?
+  body      String
+  updatedAt DateTime               @updatedAt
+  createdAt DateTime               @default(now())
+
+  @@unique([userId, channel, purpose])
+  @@index([userId])
+}
+
+enum MessageTemplateChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum MessageTemplatePurpose {
+  BOOKING_LINK // "Te paso el link para agendar la demo"
+  FOLLOWUP_CONTACTED // Lead en CONTACTED sin respuesta
+  FOLLOWUP_DEMO_DONE // Lead en DEMO_DONE sin avanzar
+  CHECKIN_CUSTOMER_MONTH_1 // Cliente, check-in a mitad del primer mes
+}
+
+// Disponibilidad recurrente por usuario.
+// Define un bloque semanal (ej. "lunes 10:00-12:00") en hora local UY (America/Montevideo).
+// Los slots concretos se proyectan al pedir disponibilidad para un rango de fechas.
+model AvailabilityRule {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 0=Domingo, 1=Lunes, ..., 6=Sábado (JS Date.getDay)
+  startTime String // "HH:mm" en hora UY
+  endTime   String // "HH:mm" en hora UY (exclusive)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([userId, active])
+}
+
+// Bloqueo puntual: invalida un slot que cae dentro de [startsAt, endsAt) en UTC.
+// Permite una reunión inesperada que choca con la plantilla.
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startsAt  DateTime // UTC
+  endsAt    DateTime // UTC
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, startsAt])
+}
+
+// Booking: link único por lead para que elija slot.
+// Estado PENDING al generarse, CONFIRMED al reservar, CANCELLED si se cancela.
+model Booking {
+  id            String        @id @default(cuid())
+  leadId        String        @unique
+  lead          Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  ownerUserId   String
+  owner         User          @relation(fields: [ownerUserId], references: [id])
+  token         String        @unique
+  status        BookingStatus @default(PENDING)
+  // Slot reservado (UTC). Null mientras está PENDING.
+  startsAt      DateTime?
+  endsAt        DateTime?
+  reservedAt    DateTime?
+  // Marcador opcional para el botón "Crear evento en Google Calendar" desde el detail.
+  calendarEventCreated Boolean @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([ownerUserId, startsAt])
+}
+
+enum BookingStatus {
+  PENDING // Link generado, lead aún no reservó
+  CONFIRMED // Lead eligió slot
+  CANCELLED // Cancelado manualmente
+}
+
+// Follow-up automatizado: marca de "este lead se quedó frío en X estado".
+// El cron diario crea uno cuando un lead cumple el umbral de inactividad y no
+// tiene follow-up activo (resolvedAt IS NULL) para ese triggerState.
+// Resoluciones:
+// - STATE_CHANGE: el lead cambió de estado, se resuelve automáticamente.
+// - USER_ACTION: el owner marcó "follow-up hecho" desde el panel/detail.
+// - DISMISSED: descartado manualmente sin haber hecho contacto.
+model LeadFollowUp {
+  id           String              @id @default(cuid())
+  leadId       String
+  lead         Lead                @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  triggerState LeadStatus
+  dueAt        DateTime
+  notifiedAt   DateTime?
+  resolvedAt   DateTime?
+  resolvedBy   FollowUpResolvedBy?
+  createdAt    DateTime            @default(now())
+
+  @@index([leadId])
+  @@index([resolvedAt])
+}
+
+enum FollowUpResolvedBy {
+  STATE_CHANGE
+  USER_ACTION
+  DISMISSED
 }

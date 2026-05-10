@@ -68,7 +68,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={cn("antialiased", geist.variable)} suppressHydrationWarning>
       <body className="min-h-screen font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster richColors position="top-center" />
         </ThemeProvider>

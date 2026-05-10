@@ -18,6 +18,206 @@
   - Endpoint `/api/webhooks/onmind/leads` con `ONMIND_WEBHOOK_SECRET` (header `X-OnMind-Secret`) y validación Zod. Idempotente por email.
   - `sendLeadCreatedEmail` (a ambos) y `sendLeadStatusChangedEmail` (al socio que NO movió). Templates en `src/components/emails/`.
   - Doc del contrato en `docs/operacion/webhook-onmind-leads.md` para que Raphael lo emita desde el repo OnMind.
+- **Fase 2 implementada — Webhook + owner round-robin + emails.**
+  - **Schema** (`prisma/schema.prisma`): `Lead.ownerUserId` (nullable) + relación `owner User?` con backref `User.ownedLeads` (`relation: "LeadOwner"`). Index `@@index([ownerUserId])`. `prisma db push` aplicado al branch `dev` de Neon (host nuevo `ep-calm-dawn-an43vpsh`).
+  - **Asignación** (`src/services/lead-assignment-service.ts`): `assignNextOwnerId()` round-robin par/impar — cuenta `prisma.lead.count()` y devuelve `users[count % users.length]`. Users ordenados por `createdAt asc` (estable). `listOwnerCandidates()` para alimentar el dropdown del detail. Si solo hay 1 user activo lo devuelve a él; si no hay, devuelve null (no rompe el flujo).
+  - **Emails** (`src/components/emails/`): `lead-created-email.tsx` (datos del lead + owner asignado + botón "Ver lead") y `lead-status-changed-email.tsx` (transición de estado + quién lo movió). Reutilizan `email-theme.ts` para colores/tipografía. En `email-service.ts` se agregaron `sendLeadCreatedEmail()` y `sendLeadStatusChangedEmail()` siguiendo el patrón del OTP: en `NODE_ENV=development` solo loguean en consola; en prod usan Resend con `EMAIL_FROM`. Si Resend devuelve error, no se rompe — solo se loguea (los emails no son críticos para el flujo).
+  - **Hooks en lead-service** (`src/services/lead-service.ts`):
+    - `createLead` ahora acepta `ownerUserId` opcional. Si no se pasa, llama a `assignNextOwnerId()`. Registra LeadActivity SYSTEM con el owner asignado y dispara `sendLeadCreatedEmail` a todos los users activos.
+    - `updateLeadStatus` registra STATUS_CHANGE con labels en español (vía `LEAD_STATUS_LABEL`) y dispara `sendLeadStatusChangedEmail` excluyendo al `changedByUserId` (al socio que NO movió). Si el status no cambió, no hace nada.
+    - Nuevo `updateLeadOwner(id, newOwnerUserId, authorUserId)` — registra LeadActivity SYSTEM `"Owner: X → Y"`. No-op si el owner es el mismo.
+    - `getLeads` y `getLeadById` ahora `include: { owner: { select: ... } }`.
+    - Las funciones `notifyLeadCreated` y `notifyStatusChanged` van envueltas en try/catch para que un fallo de Resend no rompa la creación del lead.
+  - **Webhook receptor** (`src/app/api/webhooks/onmind/leads/route.ts`): POST. Auth con `timingSafeEqual` contra `ONMIND_WEBHOOK_SECRET` vía header `X-OnMind-Secret`. Body validado con Zod (`name`, `email`, `phone?`, `source?`, `businessType?`). Idempotente por email: si ya existe Lead con ese email, registra LeadActivity SYSTEM "Webhook OnMind recibió un ingreso duplicado para este email" y devuelve `{ ok: true, duplicated: true, leadId }`. Si es nuevo, llama `createLead()` que dispara round-robin + email a ambos. Errores: 400 invalid_payload/invalid_json, 401 unauthorized, 500 server_misconfigured (si falta el secret).
+  - **Selector de owner en detail** (`src/app/dashboard/leads/[id]/lead-detail.tsx`): `OwnerChanger` con Select shadcn. Página carga candidatos vía `listOwnerCandidates()` y los pasa por props. Cambio dispara `changeOwnerAction` con useTransition (cambio inmediato). "Sin owner" como opción (constante `UNASSIGNED`).
+  - **Listado** (`src/app/dashboard/leads/page.tsx`): nueva columna "Owner" entre Origen y Estado.
+  - **Doc del contrato** (`docs/operacion/webhook-onmind-leads.md`): URL prod/dev, headers, body con tabla de campos, todas las respuestas (200 nuevo, 200 duplicado, 400, 401, 500), idempotencia, retries sugeridos (3 con backoff), snippet para integrar en el repo OnMind, env vars en ambos lados, comando `openssl rand -hex 32`, test manual con curl.
+  - **Lint/typecheck**: `pnpm tsc --noEmit` y `pnpm lint` limpios en archivos nuevos.
+- **Setup pendiente del usuario antes de probar Fase 2**:
+  - Generar shared secret con `openssl rand -hex 32` y agregarlo a `.env.local` como `ONMIND_WEBHOOK_SECRET=...`.
+  - Para emails reales en dev: están en modo "dev — solo log en consola". Si querés probar el flujo real, setear `NODE_ENV=production` localmente o ajustar la guarda. Con NODE_ENV=development (default `pnpm dev`) los `console.log` muestran a quién y qué se enviaría.
+- **Pendientes para Fase 3** (siguiente sesión):
+  - Vista kanban con `@dnd-kit/core` (instalar). Drag&drop de cards entre columnas dispara `changeStatusAction`.
+  - Toggle Lista ↔ Kanban en `/dashboard/leads`.
+  - `LeadCard` con countdown de trial cuando `status === IN_EVALUATION` (X días restantes calculado con date-fns).
+  - "Perdido" como columna terminal aparte del flujo principal.
+- **Fase 3 implementada — Kanban con drag&drop + countdown de trial.**
+  - **Dependencia**: `@dnd-kit/core` 6.3.1 instalado con pnpm.
+  - **`src/proxy.ts`**: agregado `/api/webhooks` a las rutas públicas para que el endpoint del webhook (Fase 2) no quede tras la sesión de NextAuth.
+  - **`src/components/lead-card.tsx`**: card reutilizable. Muestra nombre + iniciales del owner (avatar circular teal con tooltip de nombre completo), badge de origen, rubro truncado a 140px y countdown de trial en ámbar cuando `status === IN_EVALUATION` (calculado con `differenceInCalendarDays`, constante `TRIAL_DAYS = 15`). Modo dual: en kanban (`draggable`) renderiza un `<div>` con cursor grab; fuera del kanban es un `<Link>` al detail. Soporta estado `isDragging` con opacidad 0.5 y shadow.
+  - **`src/components/leads-kanban.tsx`** (client): `DndContext` con `PointerSensor` (`distance: 5px` para no disparar drag en clicks accidentales). 6 columnas activas en horizontal scroll (NEW → CUSTOMER) + LOST como banda terminal full-width abajo. Cada columna usa `useDroppable` con id = nombre del status; cada card usa `useDraggable` con id = leadId. `DragOverlay` con `dropAnimation: null` y leve rotación para feedback visual. Optimistic update: `setLeads` mueve el lead en local antes de llamar `changeStatusAction`; si falla, rollback al estado anterior + `toast.error`. También aplica el set local de `trialStartedAt` cuando se mueve a `IN_EVALUATION` (visualmente el countdown aparece de inmediato; el backend ya lo persiste por la lógica de `updateLeadStatus`). Helper `groupByStatus` para distribuir.
+  - **`src/app/dashboard/leads/page.tsx`** refactor: nuevo query param `view=kanban|list` (default `kanban`). `ViewToggle` en el header con dos botones (Kanban + Lista). Filtros por estado solo aparecen en vista lista. En kanban `max-w-[1600px]` para que las 6 columnas + scroll quepan; en lista vuelve a `max-w-6xl`.
+  - **Lint/typecheck**: ambos limpios. Hubo un fix por TS al inicio: el wrapper polimórfico de `LeadCard` (`Link` vs `div`) no tipaba bien con `href` opcional; resuelto con dos branches explícitos.
+- **Aclaración sobre URLs en emails (dev)**: el `detailUrl` que se construye en `email-service.ts` toma `NEXT_PUBLIC_APP_URL`. Si en `.env.local` está apuntando a un host distinto al que usa Raphael en el navegador (ej. `marketing-onmind.localhost` vs `localhost`), las cookies de NextAuth no se comparten y al abrir el link del email manda a `/login`. Es comportamiento esperado del dashboard protegido — solución: alinear `NEXT_PUBLIC_APP_URL` al host donde se tiene sesión.
+- **Pendientes para Fase 4** (siguiente sesión):
+  - Modelo `MessageTemplate` (userId, channel EMAIL/WHATSAPP, purpose enum, subject?, body). Defaults seedeados.
+  - 4 propósitos: BOOKING_LINK, FOLLOWUP_CONTACTED, FOLLOWUP_DEMO_DONE, CHECKIN_CUSTOMER_MONTH_1.
+  - Página `/dashboard/configuracion` con tabs por propósito (textarea email + textarea WhatsApp por cada uno).
+  - Botones "Copiar email" / "Copiar WhatsApp" en el detail del lead, sensibles al estado actual (BOOKING_LINK siempre, follow-ups según status). Booking link queda deshabilitado hasta Fase 6.
+  - Al copiar, registrar `LeadActivity` SYSTEM "Copió follow-up email/WhatsApp" para trazabilidad.
+- **Layout/UI fixes intermedios** (entre Fase 3 y 4):
+  - **`dashboard/layout.tsx`**: pasamos del `<main className="flex-1">` plano al patrón de OnMind admin (`SidebarProvider` con `h-svh overflow-hidden`, `SidebarInset` con `overflow-hidden`, scroll container `flex-col flex-1 overflow-y-auto`). Esto eliminó el doble scroll horizontal del browser que aparecía con el kanban ancho.
+  - **`leads/page.tsx`**: el wrapper del view kanban es `flex flex-col flex-1 min-h-0`, header con `shrink-0`, contenido del kanban con `flex-1 min-h-0`. Permite el `mt-auto` del `LeadsKanban` para pegar la banda "Perdido" al fondo del viewport.
+  - **`leads-kanban.tsx`**: el grid de 6 columnas activas pasó de `flex gap-3 overflow-x-auto` con `w-72 shrink-0` por columna a un `grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3` responsive. La banda "Perdido" usa `mt-auto pt-4`. Se agregó `id="leads-kanban"` al `DndContext` para evitar hydration mismatch del `aria-describedby` auto-incremental de dnd-kit (Strict Mode).
+  - **`globals.css`**: scrollbars finitos globales — `scrollbar-width: thin` (Firefox) + `::-webkit-scrollbar` 8px (Chromium/Safari) con thumb `rgba(0,0,0,0.18)` y hover `0.32`. Variantes para dark mode.
+- **Fase 4 implementada — Templates de mensajes + acciones desde el detail.**
+  - **Schema** (`prisma/schema.prisma`): nuevo modelo `MessageTemplate` (userId, channel, purpose, subject?, body) con unique compuesto `(userId, channel, purpose)`. Enums `MessageTemplateChannel` (EMAIL, WHATSAPP) y `MessageTemplatePurpose` (BOOKING_LINK, FOLLOWUP_CONTACTED, FOLLOWUP_DEMO_DONE, CHECKIN_CUSTOMER_MONTH_1). User.messageTemplates como backref. `prisma db push` aplicado.
+  - **Service** (`src/services/message-template-service.ts`):
+    - `DEFAULTS` map con los 8 templates por defecto en español on-brand. Variables: `{nombre}` en todos, `{linkBooking}` en BOOKING_LINK, FOLLOWUP_CONTACTED.
+    - `getTemplatesForUser(userId)` — devuelve los 8 mezclando persistidos con defaults. **No escribe en DB hasta que el user guarde** (los defaults se inyectan en memoria).
+    - `getTemplateForUser(userId, channel, purpose)` — uno solo, idem mezcla.
+    - `upsertTemplate({...})` — upsert con clave compuesta. Si channel=WHATSAPP, fuerza subject=null.
+    - `resetTemplateToDefault({...})` — borra el persistido. Próxima lectura cae al default.
+    - `interpolate(text, vars)` — reemplaza `{nombre}` y `{linkBooking}`. Si una var no se pasa, queda string vacío.
+    - Exports: `PURPOSE_LABEL`, `PURPOSE_ORDER`, tipo `ResolvedTemplate` con flag `isDefault` para la UI.
+  - **Página `/dashboard/configuracion`** (`page.tsx` server + `templates-editor.tsx` client):
+    - Tabs shadcn por propósito (4 tabs). Dentro de cada tab dos forms separados (Email + WhatsApp), cada uno una card.
+    - Email muestra Asunto + Mensaje. WhatsApp solo Mensaje.
+    - Badge "Default" cuando el template es el seedeado. Botón "Restaurar default" cuando ya está editado (borra el persistido).
+    - Variables disponibles indicadas debajo de cada textarea, con `<code>` resaltado.
+    - Server actions: `saveTemplateAction` (Zod, upsert) y `resetTemplateAction` (delete). Toast en cada operación. `useActionState` con guard pattern para no resetear durante render.
+    - Instalado `tabs.tsx` de shadcn.
+  - **Sidebar** (`panel-sidebar.tsx`): nuevo grupo "Configuración" con item "Mis mensajes" (icon `MessageSquareText`).
+  - **Acciones desde el detail** (`lead-detail.tsx`):
+    - Helper `relevantActionsForStatus(status)` decide qué grupo mostrar según el estado: NEW → Booking; CONTACTED → Booking + Follow-up contactado; DEMO_DONE → Follow-up post demo; CUSTOMER → Check-in mes 1. DEMO_SCHEDULED, IN_EVALUATION, LOST no muestran la card.
+    - Componente `LeadActions` (sección arriba del grid de datos/notas) con título "Acciones" y filas por grupo, cada una con botones "Copiar email" + "Copiar WhatsApp".
+    - Botones de **BOOKING_LINK quedan deshabilitados con tooltip** "Generá el link de booking primero (Fase 6)" — están listos para activarse cuando exista el link.
+    - Si el lead no tiene `phone`, el botón WhatsApp queda deshabilitado con tooltip "Lead sin teléfono cargado".
+  - **Server action** (`leads/[id]/actions.ts`): `resolveTemplateForLeadAction(leadId, channel, purpose)`:
+    - Toma el template del **usuario logueado** (no del owner del lead — decisión del plan).
+    - Interpola con `{nombre: lead.name}` y `{linkBooking: ""}` (Fase 4 no tiene link aún; en Fase 6 se rellena).
+    - Si channel=WHATSAPP y hay phone, construye `https://wa.me/{phoneClean}?text={encoded}` (cleanea no-dígitos).
+    - Registra `LeadActivity` SYSTEM "Copió email/WhatsApp · {label}" con autor.
+    - Devuelve `{ ok, subject, body, waUrl }`.
+  - **UX del copy**: el client llama `navigator.clipboard.writeText(...)`. Para email arma `Asunto: ...\n\n{body}`. Para WhatsApp solo el body. Toast con descripción opcional "Abrir WhatsApp Web" como link cuando hay `waUrl`.
+  - **Lint/typecheck**: limpios.
+- **Pendientes para Fase 5** (siguiente sesión):
+  - Modelos `AvailabilityRule` (recurrencia semanal por user) y `AvailabilityBlock` (bloqueos puntuales).
+  - Service `availability-service.ts` con `computeAvailableSlots(userId, fromDate, toDate)` proyectando reglas a slots de 30 min y restando bloqueos + bookings (Fase 6 cierra bookings).
+  - Página `/dashboard/disponibilidad` con plantilla semanal + bloqueos próximos.
+  - Sidebar: item "Disponibilidad".
+  - Todo en UTC, UI en `America/Montevideo`.
+- **Mejoras de UI en Fase 4** (después de la primera prueba):
+  - Tabs de `/dashboard/configuracion` rediseñados: etiquetas cortas (Booking, Sin respuesta, Post demo, Check-in) en grid de 4 columnas iguales. Adentro de cada tab va el título largo + descripción explicativa. Más legible y predecible.
+  - Nuevos exports en `message-template-service.ts`: `PURPOSE_SHORT_LABEL` y `PURPOSE_DESCRIPTION`.
+  - Bug fix: la card del kanban era un `<div>` cuando estaba en modo draggable, así que el click no navegaba al detail. Ahora la `LeadCard` siempre es `<Link>`; dnd-kit con `activationConstraint: { distance: 5 }` distingue click (<5px → click pasa) de drag (≥5px → bloquea click). Funciona en ambas vistas.
+  - Vista persistida vía URL: los links a `/dashboard/leads/[id]` incluyen `?from=list` o `?from=kanban`. El botón "Volver a leads" del detail respeta el param y vuelve a la vista correcta.
+- **Fase 5 implementada — Disponibilidad por persona (plantillas semanales + bloqueos puntuales).**
+  - **Schema** (`prisma/schema.prisma`):
+    - `AvailabilityRule` (id, userId, dayOfWeek 0-6, startTime "HH:mm", endTime "HH:mm", active, createdAt). Index `(userId, active)`.
+    - `AvailabilityBlock` (id, userId, startsAt UTC, endsAt UTC, reason?, createdAt). Index `(userId, startsAt)`.
+    - `User.availabilityRules` y `availabilityBlocks` como backrefs.
+    - `prisma db push` aplicado.
+  - **Service** (`src/services/availability-service.ts`):
+    - Constantes: `SLOT_MIN = 30`, `DAY_LABELS` (Domingo→Sábado por índice), `DAY_ORDER` ([1,2,3,4,5,6,0] para mostrar lunes-domingo).
+    - Helpers: `isValidTime("HH:mm")`, `timeToMinutes`, `parseHHmm`.
+    - CRUD reglas: `getRulesForUser`, `addRule` (valida formato + end > start), `deleteRule`.
+    - CRUD bloqueos: `getBlocksForUser` (con range opcional), `addBlock` (valida end > start), `deleteBlock`.
+    - **`computeAvailableSlots(userId, from, to, now?)`**: proyecta reglas a slots de 30 min en hora UY. Itera día a día en zona local UY (`toZonedTime`), arma `Date` UTC con `fromZonedTime("yyyy-MM-ddTHH:mm:00", "America/Montevideo")`. Filtra slots dentro del rango pedido, posteriores a `now`, y que no overlapeen con bloqueos. Devuelve array ordenado de `{ startsAt, endsAt }` UTC. La función queda lista para que Fase 6 reste también los bookings existentes.
+  - **Página `/dashboard/disponibilidad`** (`page.tsx` server + `availability-editor.tsx` client + `actions.ts`):
+    - Server actions: `addRuleAction`, `deleteRuleAction`, `addBlockAction`, `deleteBlockAction`. Usan `auth()` para tomar `userId`. Bloqueos convierten hora UY a UTC con `fromZonedTime`. Validación con Zod.
+    - Sección "Plantilla semanal": lista de 7 días en orden lunes-domingo con sus reglas como chips (formato "10:00 a 12:00") y botón X para eliminar. Botón "Agregar bloque" abre Dialog con Select de día (default Lunes) y dos Selects de hora cada 30 min (`TIME_OPTIONS`).
+    - Sección "Bloqueos puntuales": lista cronológica de los próximos 60 días. Cada bloqueo muestra fecha (capitalize), rango horario en zona UY (`formatInUY`), motivo opcional, botón eliminar. Botón "Bloquear slot" abre Dialog con Calendar shadcn (date picker en Popover, deshabilita días pasados), Selects de horario y campo motivo.
+    - Sidebar: nuevo item "Disponibilidad" en grupo "Configuración" debajo de "Mis mensajes" (icon `CalendarClock`).
+  - **Lint/typecheck**: limpios.
+- **Pendientes para Fase 6** (siguiente sesión):
+  - Modelo `Booking` (leadId unique, ownerUserId, startsAt, endsAt, token unique, status PENDING/CONFIRMED/CANCELLED, calendarEventCreated). Relación `Lead.booking Booking?`.
+  - Service `booking-service.ts`: `createBookingLink` (idempotente), `getBookingByToken`, `reserveSlot` (transiciona Lead a DEMO_SCHEDULED + emails + LeadActivity).
+  - Página pública `/agendar/[token]` excluida del proxy de auth. Calendario de 14 días con slots disponibles del owner.
+  - En el detail del lead: botón "Generar link de booking" → muestra link copiable. Habilita los botones de copiar email/WA de Fase 4 con `{linkBooking}` interpolado.
+  - Tarjeta "Demo agendada" en el detail con botón "Abrir en Google Calendar" pre-llenado (Meet auto, sin OAuth).
+  - Templates de email para confirmación al lead y al owner.
+  - Verificar que `/agendar/*` esté en `publicRoutes` del `proxy.ts`.
+- **Refactor intermedio Fase 5 → Fase 6**:
+  - Extraídas constantes safe-for-client a `src/lib/availability-constants.ts` (DAY_LABELS, DAY_ORDER, SLOT_MIN, isValidTime, timeToMinutes). El service `availability-service.ts` las re-exporta. Esto resolvió un crash al cargar `/dashboard/disponibilidad` porque el client component importaba constantes desde el service y eso arrastraba Prisma al bundle.
+  - Cambio del patrón "set state during render with guard" a `useEffect` en `availability-editor.tsx` y `templates-editor.tsx` — el patrón anterior hacía que dialogs no se cerraran tras submit y se acumularan submits duplicados. `useEffect` con dep `[state]` queda más predecible.
+  - Sidebar: el grupo "Configuración" se eliminó. "Mis mensajes" y "Disponibilidad" ahora viven dentro del grupo "Leads" junto a Pipeline y Nuevo lead.
+- **Fase 6 implementada — Booking público + reserva + Calendar prellenado.**
+  - **Schema** (`prisma/schema.prisma`): nuevo modelo `Booking` (id, leadId unique 1:1 con Lead, ownerUserId, token unique, status, startsAt?, endsAt?, reservedAt?, calendarEventCreated). Enum `BookingStatus` (PENDING, CONFIRMED, CANCELLED). Relación `Lead.booking`. `User.bookings` backref. `prisma db push` aplicado.
+  - **Service** (`src/services/booking-service.ts`):
+    - `getOrCreateBooking({ leadId, ownerUserId })` — idempotente. Si ya existe, lo retorna; si no, crea uno PENDING con token URL-safe (24 bytes base64url).
+    - `bookingPublicUrl(token)` — construye la URL pública usando `NEXT_PUBLIC_APP_URL`.
+    - `getBookingByLeadId(leadId)` y `getBookingByToken(token)` — ambos con `include` de owner y lead.
+    - `reserveSlot({ token, startsAt, endsAt })` — el flujo crítico:
+      1. Carga el booking. Si CONFIRMED o CANCELLED, falla.
+      2. Llama a `computeAvailableSlots` del owner para validar que el slot todavía está disponible (race condition friendly).
+      3. Persiste con `status = CONFIRMED`, `startsAt`, `endsAt`, `reservedAt`.
+      4. Llama `updateLeadStatus(leadId, "DEMO_SCHEDULED")` que registra LeadActivity STATUS_CHANGE y dispara email entre socios.
+      5. `addSystemActivity` con mensaje "Slot reservado para...".
+      6. Dispara `sendBookingConfirmedOwnerEmail` y `sendBookingConfirmedLeadEmail`. No bloquean si fallan.
+    - `googleCalendarUrl({ startsAt, endsAt, leadName, leadEmail })` — arma URL `https://calendar.google.com/calendar/render?action=TEMPLATE...` con `text`, `dates`, `details` y `add` (asistente). El user agrega Meet manualmente desde Google Calendar.
+    - `markCalendarEventCreated(bookingId)` — flag para cambiar el copy del botón de "Crear" a "Volver a abrir".
+  - **`computeAvailableSlots` actualizado**: ahora también consulta bookings CONFIRMED del owner y los suma a los blockers junto con los AvailabilityBlock. Garantiza que un slot ya reservado no aparezca al próximo lead.
+  - **Templates email** (`booking-confirmed-owner-email.tsx`, `booking-confirmed-lead-email.tsx`) + funciones `sendBookingConfirmedOwnerEmail`, `sendBookingConfirmedLeadEmail` en `email-service.ts`. Helper `formatBookingWhen` con `date-fns-tz` que rinde "Martes 13 de mayo, 10:00 hs (UY)".
+  - **Página pública `/agendar/[token]`**:
+    - `proxy.ts` actualizado: `/agendar` agregado a `publicRoutes` para que NextAuth no intercepte.
+    - `page.tsx` (server): carga booking, si está CANCELLED muestra mensaje rojo, si CONFIRMED muestra "Demo confirmada" con la fecha, si PENDING calcula slots de los próximos 14 días con `computeAvailableSlots` y renderiza `BookingPicker`.
+    - Layout propio (Shell + Card) sin sidebar, con logo OnMind arriba, footer con copyright.
+    - `booking-picker.tsx` (client): agrupa slots por día (lunes 10:00, 10:30...), botones outline con HH:mm, click abre `AlertDialog` shadcn de confirmación con texto formato "Vas a agendar la demo con [Owner] para [whenLabel]". Confirmar dispara `reserveSlotAction` (server action con Zod). Si falla (slot ya tomado) toast de error y refresca; si OK toast + refresh muestra estado CONFIRMED.
+  - **Integración en el detail del lead** (`lead-detail.tsx`):
+    - `BookingSection` con 3 estados:
+      1. **Sin booking**: card con título "Link de booking" y botón "Generar link". Click → `generateBookingLinkAction` crea el Booking PENDING + lo copia al clipboard.
+      2. **Booking PENDING**: muestra el URL en un input estilo `<code>` con botón "Copiar".
+      3. **Booking CONFIRMED**: card verde "Demo agendada" con fecha capitalize + botón "Crear evento en Google Calendar" (o "Volver a abrir"). Abre la URL pre-llenada en pestaña nueva y marca `calendarEventCreated=true`.
+    - Los botones de **BOOKING_LINK** en `LeadActions` ahora se habilitan automáticamente cuando `hasBookingLink=true` (existe Booking del lead). Antes estaban deshabilitados con tooltip "Generá el link de booking primero (Fase 6)" — el copy quedó adaptado a "Generá el link de booking primero" sin la mención de Fase.
+    - `resolveTemplateForLeadAction` interpola `{linkBooking}` con `bookingPublicUrl(booking.token)` cuando existe el Booking; si no, queda string vacío (igual que antes).
+    - Server actions nuevas: `generateBookingLinkAction(leadId)` y `markCalendarEventCreatedAction(bookingId)`.
+  - **Page del detail** carga `bookingRaw` con `getBookingByLeadId`, lo serializa a `BookingInfo` (Date → ISO) con `calendarUrl` ya armado, y lo pasa a `LeadDetail`.
+  - **Lint/typecheck**: limpios.
+- **Pendientes para Fase 7** (siguiente sesión):
+  - Modelo `LeadFollowUp` (leadId, triggerState, dueAt, notifiedAt, resolvedAt, resolvedBy).
+  - Service `lead-followup-service.ts`: `scanAndCreateFollowUps` para el cron, `markResolved`, `listPendingByOwner`.
+  - Endpoint `/api/cron/scan-followups` (Vercel Cron, 1×/día).
+  - Reglas de umbral en `src/lib/leads-config.ts`: CONTACTED 3d, DEMO_DONE 5d, CUSTOMER 15d.
+  - Template email `lead-needs-followup-email.tsx`.
+  - Panel `/dashboard/leads/seguimiento` con leads pendientes + botón "Marcar follow-up hecho".
+  - Sidebar: ítem "Seguimiento" con badge numérico de pendientes del usuario.
+  - Indicadores visuales: badge ámbar en detail y punto en card del kanban cuando hay follow-up activo.
+  - `updateLeadStatus` debe llamar `markResolved` con razón `STATE_CHANGE` para resolver follow-ups activos.
+- **Mejoras intermedias de Fase 6**:
+  - Server-side pre-formatting de fechas para evitar hydration mismatches (server vs client TZ): `BookingPicker` recibe `timeLabel`, `dayKey`, `dayLabel`, `fullLabel` ya armados; `BlockRow` recibe `dateLabel`/`timeLabel`; `LeadDetail` recibe `lead.createdAtLabel`, `lead.trialStartedAtLabel`, `activity.createdAtLabel`, `booking.whenLabel`.
+  - `formatInUY` reescrito con la combinación estable `formatDF(toZonedTime(date, UY_TZ), pattern, { locale: es })` (date-fns regular sobre Date pre-shifted) en lugar de `format` de date-fns-tz con option `timeZone` que se mostraba inestable cross-runtime.
+  - `(UY)` quitado de los patterns para evitar `RangeError: Format string contains an unescaped latin alphabet character "U"`.
+  - `ThemeProvider` cambiado a `defaultTheme="light"` con `enableSystem={false}` para no inyectar el `<script>` de detección de tema (warning de React 19).
+  - Usuarios del CRM: nombres en DB actualizados a `Raphael` y `Martín` (antes mostraban `rapha.uy`/`msedes`).
+  - `generateBookingLinkAction` valida que el lead tenga owner y que el owner tenga al menos una `AvailabilityRule` activa antes de crear el booking. UI muestra advertencia ámbar deshabilitando el botón si no aplica.
+  - Card "Link de booking" trae link a `/dashboard/disponibilidad` para configurar antes de generar.
+  - Sidebar reorganizado: "Mis mensajes" y "Disponibilidad" pasaron al grupo "Leads" (junto a Pipeline y Nuevo lead). Grupo "Configuración" eliminado.
+- **Fase 7 implementada — Follow-up automatizado.**
+  - **Schema** (`prisma/schema.prisma`): nuevo modelo `LeadFollowUp` (id, leadId, triggerState, dueAt, notifiedAt?, resolvedAt?, resolvedBy?). Enum `FollowUpResolvedBy` (STATE_CHANGE, USER_ACTION, DISMISSED). Relación `Lead.followUps`. Indexes en `(leadId)` y `(resolvedAt)`. `prisma db push` aplicado.
+  - **Reglas** (`src/lib/leads-config.ts`):
+    | Estado | Días sin movimiento | Plantilla sugerida |
+    |---|---|---|
+    | CONTACTED | 3 | FOLLOWUP_CONTACTED |
+    | DEMO_DONE | 5 | FOLLOWUP_DEMO_DONE |
+    | CUSTOMER | 15 | CHECKIN_CUSTOMER_MONTH_1 |
+
+    "Sin movimiento" se aproxima vía `lead.updatedAt` (que se actualiza con cualquier cambio de status, owner, datos o trial start).
+  - **Service** (`src/services/lead-followup-service.ts`):
+    - `scanAndCreateFollowUps(now?)` — itera reglas, busca leads en cada `triggerState` con `updatedAt < cutoff` y sin follow-up activo para ese estado, crea LeadFollowUp + LeadActivity SYSTEM "Follow-up automático: lead lleva X días sin movimiento" + dispara email al owner. Setea `notifiedAt` si el email se envía. Retorna `{ created, notified }`.
+    - `markResolvedForLead(leadId, reason)` — resuelve TODOS los activos del lead.
+    - `markResolved(followUpId, reason)` — resuelve uno solo.
+    - `listPendingFollowUps({ ownerUserId? })` — lista para el panel, opcionalmente filtrada por owner.
+    - `countPendingForOwner(ownerUserId)` — count para el badge del sidebar.
+    - `getActiveFollowUpsByLeadIds(leadIds[])` y `getActiveFollowUpForLead(leadId)` — para indicadores en kanban y detail.
+  - **Email** (`lead-needs-followup-email.tsx` + `sendLeadNeedsFollowUpEmail` en `email-service.ts`): template con asunto "Lead {nombre} necesita seguimiento", banner ámbar con días sin movimiento + estado, botón "Abrir lead". En dev mode log a consola, en prod usa Resend (con manejo de errores no-fatales).
+  - **Cron** (`src/app/api/cron/scan-followups/route.ts`): GET autenticado por `Authorization: Bearer ${CRON_SECRET}`. Para Vercel Cron 1×/día (cuando se configure en `vercel.json`). Llama `scanAndCreateFollowUps()`.
+  - **Hook en `updateLeadStatus`**: al cambiar de estado se hace `prisma.leadFollowUp.updateMany({ leadId, resolvedAt: null }, { resolvedAt: now, resolvedBy: "STATE_CHANGE" })`. Inline para evitar import circular con el follow-up service.
+  - **Panel** (`/dashboard/leads/seguimiento` — `page.tsx`, `actions.ts`, `row-actions.tsx`):
+    - Filtros badge "Míos" (default) / "Todos".
+    - Lista por orden ascendente de creación (más antiguo primero — más urgente).
+    - Cada fila: nombre del lead (link al detail), badge de status, "X días sin movimiento" en ámbar con icono Clock, owner.
+    - Acciones por fila: "Abrir" (link al detail), "Hecho" (resuelve con `USER_ACTION`), botón X discreto para "Descartar" (resuelve con `DISMISSED`).
+    - Server actions `markFollowUpDoneAction` y `dismissFollowUpAction` registran LeadActivity SYSTEM con la razón.
+  - **Indicador en detail del lead**: `FollowUpBanner` ámbar arriba de la card de booking cuando hay follow-up activo, con "X días sin movimiento" + botón "Marcar como hecho". El handler hace dynamic import de `markFollowUpDoneAction` desde el directorio de seguimiento (evita acoplar archivos pero podría refactorearse a un actions compartido más adelante).
+  - **Indicador en kanban**: la `LeadCard` recibe `hasActiveFollowUp` y muestra un punto ámbar en `top-1 right-1` cuando aplica. La `LeadsKanban` recibe el `Set` de leadIds desde el server (cargado en `/dashboard/leads/page.tsx` con `getActiveFollowUpsByLeadIds`).
+  - **Sidebar**: nuevo ítem "Seguimiento" en grupo Leads (icon Clock). Layout `dashboard/layout.tsx` ahora es async, llama `countPendingForOwner` y pasa `pendingFollowUps` al `PanelSidebar`. Si > 0, badge ámbar circular con el número a la derecha del item.
+  - **Lint/typecheck**: limpios.
+- **Setup pendiente del usuario para activar Fase 7 en producción**:
+  - Asegurarse de tener `CRON_SECRET` en `.env.local` y en Vercel.
+  - Configurar Vercel Cron en `vercel.json` (o `vercel.ts`) apuntando a `/api/cron/scan-followups` con frecuencia diaria (sugerido: `0 12 * * *` UTC = 09:00 UY). El cron de Fase 7 corre en paralelo al ya existente `publish-scheduled` que usa el mismo secret.
+  - Test manual en dev: `curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/scan-followups`. Para forzar follow-ups, pegar un lead atrás en el tiempo con un UPDATE: `UPDATE "Lead" SET status='CONTACTED', "updatedAt"=NOW() - INTERVAL '4 days' WHERE id='...';`.
+- **CRM ligero — implementación completa.** 7 fases cerradas. El loop end-to-end funciona: webhook crea lead → round-robin asigna owner → owner genera link de booking (con disponibilidad cargada) → lead reserva slot → demo agendada con Calendar pre-llenado → estados se mueven en kanban con drag&drop → trial countdown visible → follow-up automático cuando el lead se enfría → panel para retomar.
 
 ## 2026-04-06
 - **Inicio del proyecto.** Se creó el workspace onmind-marketing.

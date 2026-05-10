@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/publish-scheduled",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/scan-followups",
+      "schedule": "0 12 * * *"
     }
   ]
 }
