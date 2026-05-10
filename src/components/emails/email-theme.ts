@@ -58,6 +58,29 @@ export const EMAIL_INLINE_STYLES = {
     padding: '12px',
   },
 
+  // Caja de datos del lead/contexto, con borde sutil y fondo gris.
+  dataSection: {
+    backgroundColor: ONMIND_EMAIL_COLORS.mutedSection,
+    border: `1px solid ${ONMIND_EMAIL_COLORS.border}`,
+    borderRadius: '8px',
+    padding: '16px 18px',
+    marginBottom: '16px',
+  },
+
+  dataDivider: {
+    borderTop: `1px solid ${ONMIND_EMAIL_COLORS.border}`,
+    marginTop: '12px',
+    paddingTop: '12px',
+  },
+
+  explanatoryNote: {
+    color: ONMIND_EMAIL_COLORS.textSecondary,
+    fontSize: '12px',
+    lineHeight: '1.5',
+    margin: '12px 0 0 0',
+    fontStyle: 'italic' as const,
+  },
+
   codeSection: {
     backgroundColor: ONMIND_EMAIL_COLORS.mutedSection,
     border: `2px dashed ${ONMIND_EMAIL_COLORS.border}`,

@@ -64,30 +64,53 @@ export default function LeadNeedsFollowUpEmail({
                 </Container>
               </Section>
 
-              <Section className="px-4 pt-2 pb-3">
+              <Section className="px-6 pt-5 pb-5">
                 <Heading
                   style={{
                     color: ONMIND_EMAIL_COLORS.textPrimary,
                     fontSize: "20px",
-                    fontWeight: "600",
-                    margin: "0 0 6px 0",
+                    fontWeight: "700",
+                    margin: "0 0 10px 0",
+                    lineHeight: "1.3",
                   }}
                 >
                   Hola {ownerName}
                 </Heading>
                 <Text
                   style={{
-                    color: ONMIND_EMAIL_COLORS.textSecondary,
-                    fontSize: "14px",
-                    margin: "0 0 14px 0",
+                    color: ONMIND_EMAIL_COLORS.textPrimary,
+                    fontSize: "15px",
                     lineHeight: "1.5",
+                    margin: "0 0 18px 0",
                   }}
                 >
-                  El lead <strong>{leadName}</strong> lleva{" "}
-                  <strong>{daysSinceUpdate} días</strong> sin movimiento en
-                  estado{" "}
-                  <strong>{statusLabel}</strong>. Conviene volver a contactarlo.
+                  Conviene volver a contactar a un lead que se quedó frío.
                 </Text>
+
+                <Section style={EMAIL_INLINE_STYLES.dataSection}>
+                  <Text
+                    style={{
+                      color: ONMIND_EMAIL_COLORS.textPrimary,
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      margin: 0,
+                    }}
+                  >
+                    {leadName}
+                  </Text>
+                  <Text
+                    style={{
+                      color: ONMIND_EMAIL_COLORS.textSecondary,
+                      fontSize: "13px",
+                      margin: "6px 0 0 0",
+                    }}
+                  >
+                    <strong style={{ color: ONMIND_EMAIL_COLORS.warning }}>
+                      {daysSinceUpdate} días
+                    </strong>{" "}
+                    sin movimiento en estado <strong>{statusLabel}</strong>.
+                  </Text>
+                </Section>
 
                 <Section className="text-center">
                   <Button
@@ -95,7 +118,7 @@ export default function LeadNeedsFollowUpEmail({
                     style={{
                       backgroundColor: ONMIND_EMAIL_COLORS.primary,
                       color: ONMIND_EMAIL_COLORS.textWhite,
-                      padding: "10px 20px",
+                      padding: "10px 22px",
                       borderRadius: "6px",
                       fontWeight: "600",
                       fontSize: "14px",
@@ -105,15 +128,30 @@ export default function LeadNeedsFollowUpEmail({
                     Abrir lead
                   </Button>
                 </Section>
+
+                <Text style={EMAIL_INLINE_STYLES.explanatoryNote}>
+                  Te avisamos una sola vez por lead. Cuando lo contactes, marcá
+                  la fila como hecha en el panel de Seguimiento.
+                </Text>
               </Section>
 
               <Section style={EMAIL_INLINE_STYLES.footerSection}>
                 <Text
                   style={{
-                    color: ONMIND_EMAIL_COLORS.textMuted,
+                    color: ONMIND_EMAIL_COLORS.textSecondary,
                     fontSize: "12px",
                     textAlign: "center",
                     margin: 0,
+                  }}
+                >
+                  {appName} · Sistema de notificaciones automáticas
+                </Text>
+                <Text
+                  style={{
+                    color: ONMIND_EMAIL_COLORS.textMuted,
+                    fontSize: "12px",
+                    textAlign: "center",
+                    margin: "4px 0 0 0",
                   }}
                 >
                   © {new Date().getFullYear()} {appName}.

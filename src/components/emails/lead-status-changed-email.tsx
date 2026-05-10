@@ -64,34 +64,39 @@ export default function LeadStatusChangedEmail({
                 </Container>
               </Section>
 
-              <Section className="px-4 pt-2 pb-3">
+              <Section className="px-6 pt-5 pb-5">
                 <Heading
                   style={{
                     color: ONMIND_EMAIL_COLORS.textPrimary,
                     fontSize: "20px",
-                    fontWeight: "600",
-                    margin: "0 0 12px 0",
+                    fontWeight: "700",
+                    margin: "0 0 10px 0",
+                    lineHeight: "1.3",
                   }}
                 >
                   {leadName}
                 </Heading>
 
-                <Section
+                <Text
                   style={{
-                    backgroundColor: ONMIND_EMAIL_COLORS.mutedSection,
-                    borderRadius: "6px",
-                    padding: "16px",
-                    marginBottom: "16px",
-                    textAlign: "center",
+                    color: ONMIND_EMAIL_COLORS.textSecondary,
+                    fontSize: "15px",
+                    lineHeight: "1.5",
+                    margin: "0 0 18px 0",
                   }}
                 >
+                  El lead se movió en el pipeline.
+                </Text>
+
+                <Section style={EMAIL_INLINE_STYLES.dataSection}>
                   <Text
                     style={{
                       color: ONMIND_EMAIL_COLORS.textSecondary,
                       fontSize: "12px",
-                      margin: "0 0 8px 0",
+                      margin: "0 0 6px 0",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
+                      fontWeight: "600",
                     }}
                   >
                     Estado
@@ -110,11 +115,11 @@ export default function LeadStatusChangedEmail({
                     <Text
                       style={{
                         color: ONMIND_EMAIL_COLORS.textSecondary,
-                        fontSize: "12px",
-                        margin: "8px 0 0 0",
+                        fontSize: "13px",
+                        margin: "10px 0 0 0",
                       }}
                     >
-                      Movido por {changedByName}
+                      Movido por <strong>{changedByName}</strong>
                     </Text>
                   )}
                 </Section>
@@ -125,7 +130,7 @@ export default function LeadStatusChangedEmail({
                     style={{
                       backgroundColor: ONMIND_EMAIL_COLORS.primary,
                       color: ONMIND_EMAIL_COLORS.textWhite,
-                      padding: "10px 20px",
+                      padding: "10px 22px",
                       borderRadius: "6px",
                       fontWeight: "600",
                       fontSize: "14px",
@@ -135,15 +140,30 @@ export default function LeadStatusChangedEmail({
                     Ver lead
                   </Button>
                 </Section>
+
+                <Text style={EMAIL_INLINE_STYLES.explanatoryNote}>
+                  Te avisamos cada vez que el otro socio mueve un lead, así no
+                  hay sorpresas.
+                </Text>
               </Section>
 
               <Section style={EMAIL_INLINE_STYLES.footerSection}>
                 <Text
                   style={{
-                    color: ONMIND_EMAIL_COLORS.textMuted,
+                    color: ONMIND_EMAIL_COLORS.textSecondary,
                     fontSize: "12px",
                     textAlign: "center",
                     margin: 0,
+                  }}
+                >
+                  {appName} · Sistema de notificaciones automáticas
+                </Text>
+                <Text
+                  style={{
+                    color: ONMIND_EMAIL_COLORS.textMuted,
+                    fontSize: "12px",
+                    textAlign: "center",
+                    margin: "4px 0 0 0",
                   }}
                 >
                   © {new Date().getFullYear()} {appName}.

@@ -47,7 +47,6 @@ export default function LeadCreatedEmail({
               <Section style={EMAIL_INLINE_STYLES.headerSection}>
                 <Container className="px-4">
                   <Heading
-                    className="text-lg font-bold"
                     style={{
                       color: ONMIND_EMAIL_COLORS.textWhite,
                       margin: 0,
@@ -70,23 +69,47 @@ export default function LeadCreatedEmail({
                 </Container>
               </Section>
 
-              <Section className="px-4 pt-2 pb-3">
+              <Section className="px-6 pt-5 pb-5">
                 <Heading
                   style={{
                     color: ONMIND_EMAIL_COLORS.textPrimary,
                     fontSize: "20px",
-                    fontWeight: "600",
-                    margin: "0 0 12px 0",
+                    fontWeight: "700",
+                    margin: "0 0 10px 0",
+                    lineHeight: "1.3",
                   }}
                 >
-                  {leadName}
+                  Alguien quiere conocer OnMind
                 </Heading>
+
+                <Text
+                  style={{
+                    color: ONMIND_EMAIL_COLORS.textPrimary,
+                    fontSize: "15px",
+                    lineHeight: "1.5",
+                    margin: "0 0 18px 0",
+                  }}
+                >
+                  <strong>{leadName}</strong>{" "}
+                  <span style={{ color: ONMIND_EMAIL_COLORS.textSecondary }}>
+                    solicitó una demo desde la landing page.
+                  </span>
+                </Text>
+
+                <Section style={EMAIL_INLINE_STYLES.dataSection}>
+                  <DataRow label="Email" value={leadEmail} />
+                  {leadPhone && <DataRow label="WhatsApp" value={leadPhone} />}
+                  <DataRow label="Origen" value={leadSourceLabel} />
+                  {leadBusinessType && (
+                    <DataRow label="Rubro" value={leadBusinessType} />
+                  )}
+                </Section>
 
                 {ownerName && (
                   <Section
                     style={{
                       ...EMAIL_INLINE_STYLES.infoAlert,
-                      marginBottom: "16px",
+                      marginBottom: "18px",
                     }}
                   >
                     <Text
@@ -102,29 +125,13 @@ export default function LeadCreatedEmail({
                   </Section>
                 )}
 
-                <Section
-                  style={{
-                    backgroundColor: ONMIND_EMAIL_COLORS.mutedSection,
-                    borderRadius: "6px",
-                    padding: "12px 16px",
-                    marginBottom: "16px",
-                  }}
-                >
-                  <DataRow label="Email" value={leadEmail} />
-                  {leadPhone && <DataRow label="WhatsApp" value={leadPhone} />}
-                  <DataRow label="Origen" value={leadSourceLabel} />
-                  {leadBusinessType && (
-                    <DataRow label="Rubro" value={leadBusinessType} />
-                  )}
-                </Section>
-
                 <Section className="text-center">
                   <Button
                     href={detailUrl}
                     style={{
                       backgroundColor: ONMIND_EMAIL_COLORS.primary,
                       color: ONMIND_EMAIL_COLORS.textWhite,
-                      padding: "10px 20px",
+                      padding: "10px 22px",
                       borderRadius: "6px",
                       fontWeight: "600",
                       fontSize: "14px",
@@ -134,18 +141,34 @@ export default function LeadCreatedEmail({
                     Ver lead
                   </Button>
                 </Section>
+
+                <Text style={EMAIL_INLINE_STYLES.explanatoryNote}>
+                  Este email se envía automáticamente cuando alguien solicita
+                  una demo desde la landing page de OnMind.
+                </Text>
               </Section>
 
               <Section style={EMAIL_INLINE_STYLES.footerSection}>
                 <Text
                   style={{
-                    color: ONMIND_EMAIL_COLORS.textMuted,
+                    color: ONMIND_EMAIL_COLORS.textSecondary,
                     fontSize: "12px",
                     textAlign: "center",
                     margin: 0,
                   }}
                 >
-                  © {new Date().getFullYear()} {appName}.
+                  {appName} · Sistema de notificaciones automáticas
+                </Text>
+                <Text
+                  style={{
+                    color: ONMIND_EMAIL_COLORS.textMuted,
+                    fontSize: "12px",
+                    textAlign: "center",
+                    margin: "4px 0 0 0",
+                  }}
+                >
+                  © {new Date().getFullYear()} {appName}. Todos los derechos
+                  reservados.
                 </Text>
               </Section>
             </Section>
@@ -169,8 +192,9 @@ function DataRow({ label, value }: { label: string; value: string }) {
       <span
         style={{
           color: ONMIND_EMAIL_COLORS.textSecondary,
-          fontSize: "12px",
+          fontSize: "13px",
           marginRight: "8px",
+          fontWeight: "600",
         }}
       >
         {label}:

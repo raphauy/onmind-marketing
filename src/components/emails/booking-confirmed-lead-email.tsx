@@ -21,7 +21,7 @@ interface Props {
 export default function BookingConfirmedLeadEmail({
   leadName = "Nombre",
   ownerName = "Raphael",
-  whenLabel = "Martes 13 de mayo, 10:00 hs (UY)",
+  whenLabel = "Martes 13 de mayo, 10:00 hs",
   appName = "OnMind",
 }: Props) {
   return (
@@ -57,42 +57,49 @@ export default function BookingConfirmedLeadEmail({
                 </Container>
               </Section>
 
-              <Section className="px-4 pt-2 pb-3">
+              <Section className="px-6 pt-5 pb-5">
                 <Heading
                   style={{
                     color: ONMIND_EMAIL_COLORS.textPrimary,
                     fontSize: "20px",
-                    fontWeight: "600",
-                    margin: "0 0 6px 0",
+                    fontWeight: "700",
+                    margin: "0 0 10px 0",
+                    lineHeight: "1.3",
                   }}
                 >
                   Hola {leadName}
                 </Heading>
                 <Text
                   style={{
-                    color: ONMIND_EMAIL_COLORS.textSecondary,
-                    fontSize: "14px",
-                    margin: "0 0 12px 0",
+                    color: ONMIND_EMAIL_COLORS.textPrimary,
+                    fontSize: "15px",
                     lineHeight: "1.5",
+                    margin: "0 0 18px 0",
                   }}
                 >
-                  Tu demo con {ownerName} quedó agendada.
+                  Tu demo con <strong>{ownerName}</strong> quedó agendada.
                 </Text>
 
-                <Section
-                  style={{
-                    backgroundColor: ONMIND_EMAIL_COLORS.mutedSection,
-                    borderRadius: "6px",
-                    padding: "12px 16px",
-                    marginBottom: "16px",
-                  }}
-                >
+                <Section style={EMAIL_INLINE_STYLES.dataSection}>
+                  <Text
+                    style={{
+                      color: ONMIND_EMAIL_COLORS.textSecondary,
+                      fontSize: "12px",
+                      margin: "0 0 6px 0",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Cuándo
+                  </Text>
                   <Text
                     style={{
                       color: ONMIND_EMAIL_COLORS.textPrimary,
-                      fontSize: "15px",
-                      margin: 0,
+                      fontSize: "16px",
                       fontWeight: "600",
+                      margin: 0,
+                      textTransform: "capitalize" as const,
                     }}
                   >
                     {whenLabel}
@@ -107,8 +114,8 @@ export default function BookingConfirmedLeadEmail({
                     lineHeight: "1.5",
                   }}
                 >
-                  En unos minutos te llega el link de Google Meet por email.
-                  Cualquier cosa, respondé este mensaje.
+                  En unos minutos te llega un segundo email con el link de
+                  Google Meet. Cualquier consulta, respondé este mensaje.
                 </Text>
               </Section>
 
