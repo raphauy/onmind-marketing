@@ -36,7 +36,9 @@ export default async function ConfiguracionPage() {
       <p className="text-muted-foreground text-sm mb-6">
         Plantillas de email y WhatsApp para usar con leads. Cada uno tiene su
         propio set. Variables: <code>{"{nombre}"}</code> en todos,{" "}
-        <code>{"{linkBooking}"}</code> solo en el de booking.
+        <code>{"{linkBooking}"}</code> en booking y follow-up,{" "}
+        <code>{"{linkBrochure}"}</code> en cualquiera (URL del brochure de
+        OnMind).
       </p>
 
       <TemplatesEditor groups={byPurpose} />

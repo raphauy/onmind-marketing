@@ -23,6 +23,7 @@ import {
   markCalendarEventCreated,
 } from "@/services/booking-service"
 import { getRulesForUser } from "@/services/availability-service"
+import { BROCHURE_URL } from "@/lib/leads-config"
 import {
   LeadSource,
   LeadStatus,
@@ -179,7 +180,11 @@ export async function resolveTemplateForLeadAction(
   // Si el lead ya tiene un Booking, interpolamos su URL pública.
   const booking = await getBookingByLeadId(leadId)
   const linkBooking = booking ? bookingPublicUrl(booking.token) : ""
-  const vars = { nombre: lead.name, linkBooking }
+  const vars = {
+    nombre: lead.name,
+    linkBooking,
+    linkBrochure: BROCHURE_URL,
+  }
   const subject = template.subject
     ? interpolate(template.subject, vars)
     : null

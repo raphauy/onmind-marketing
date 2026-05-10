@@ -170,6 +170,8 @@ function TemplateForm({
               <code>{"{linkBooking}"}</code>
             </>
           )}
+          {" · "}
+          <code>{"{linkBrochure}"}</code>
         </p>
         {state.fieldErrors?.body && (
           <p className="text-xs text-red-600">{state.fieldErrors.body}</p>

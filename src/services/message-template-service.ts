@@ -7,7 +7,7 @@ import {
 
 // ── Defaults ──────────────────────────────────────────────────────
 // Tono OnMind: directo, en español, sin formalidades, sin em dash.
-// Variables: {nombre} y, solo en BOOKING_LINK, {linkBooking}.
+// Variables disponibles: {nombre}, {linkBooking}, {linkBrochure}.
 
 type DefaultTemplate = { subject?: string; body: string }
 
@@ -22,25 +22,31 @@ const DEFAULTS: Record<
 
 Te paso el link para que elijas día y horario para la demo: {linkBooking}
 
-La demo dura 20 minutos y la hacemos por Google Meet. Cualquier duda me decís.`,
+La demo dura 20 minutos y la hacemos por Google Meet. Te dejo también el brochure para que vayas viendo de qué trata OnMind: {linkBrochure}
+
+Cualquier duda me decís.`,
     },
     WHATSAPP: {
       body: `Hola {nombre}, te paso el link para agendar la demo cuando te quede cómodo: {linkBooking}
 
-La demo dura 20 minutos y la hacemos por Google Meet.`,
+La demo dura 20 minutos por Google Meet. Te dejo también el brochure: {linkBrochure}`,
     },
   },
   FOLLOWUP_CONTACTED: {
     EMAIL: {
       subject: "Quedó pendiente tu demo de OnMind",
-      body: `Hola {nombre}, te quedó pendiente lo de la demo. Te dejo el link por las dudas, cuando puedas elegís y listo.
+      body: `Hola {nombre}, te quedó pendiente lo de la demo. Te dejo el link a mano, cuando puedas elegís y listo.
 
-{linkBooking}`,
+{linkBooking}
+
+Y te paso de nuevo el brochure: {linkBrochure}`,
     },
     WHATSAPP: {
-      body: `Hola {nombre}, te quedó pendiente lo de la demo. Te dejo el link por las dudas, cuando puedas elegís y listo.
+      body: `Hola {nombre}, te quedó pendiente lo de la demo. Te dejo el link a mano, cuando puedas elegís y listo.
 
-{linkBooking}`,
+{linkBooking}
+
+Y te paso de nuevo el brochure: {linkBrochure}`,
     },
   },
   FOLLOWUP_DEMO_DONE: {
@@ -227,9 +233,10 @@ export async function resetTemplateToDefault(input: {
 // Reemplaza variables en un template.
 export function interpolate(
   text: string,
-  vars: { nombre?: string; linkBooking?: string }
+  vars: { nombre?: string; linkBooking?: string; linkBrochure?: string }
 ): string {
   return text
     .replaceAll("{nombre}", vars.nombre ?? "")
     .replaceAll("{linkBooking}", vars.linkBooking ?? "")
+    .replaceAll("{linkBrochure}", vars.linkBrochure ?? "")
 }

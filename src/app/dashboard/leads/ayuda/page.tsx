@@ -305,9 +305,11 @@ const SECTIONS: DocSection[] = [
       {
         question: "¿Qué variables puedo usar?",
         answer: (
-          <>
-            <code>{"{nombre}"}</code> en cualquier plantilla, y <code>{"{linkBooking}"}</code> en la de booking. Se reemplazan automáticamente cuando copiás.
-          </>
+          <ul className="list-disc pl-4 space-y-1">
+            <li><code>{"{nombre}"}</code> en cualquier plantilla.</li>
+            <li><code>{"{linkBooking}"}</code> en la de booking y follow-up sin respuesta. Es el link único del lead para agendar.</li>
+            <li><code>{"{linkBrochure}"}</code> en cualquiera. Es la URL pública del brochure de OnMind.</li>
+          </ul>
         ),
       },
       {

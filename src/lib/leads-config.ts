@@ -1,5 +1,11 @@
 import { LeadStatus, MessageTemplatePurpose } from "@prisma/client"
 
+// URL pública del brochure de OnMind, para usar como `{linkBrochure}` en las
+// plantillas de mensajes. Si se actualiza la versión del brochure, cambiar
+// acá y se propaga a todas las plantillas.
+export const BROCHURE_URL =
+  "https://marketing.onmindcrm.com/presentacion/onmind-brochure-2026-04-22.pdf"
+
 // Días desde la última actualización del Lead (lead.updatedAt) que disparan
 // el follow-up automático para cada estado. Si pasan más días sin movimiento
 // y el lead sigue en ese estado, el cron crea un LeadFollowUp.
