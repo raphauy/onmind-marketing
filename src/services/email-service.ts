@@ -160,6 +160,9 @@ interface SendBookingOwnerInput {
   leadName: string
   leadEmail: string
   startsAt: Date
+  // Si la reserva implicó un cambio de estado, el label desde donde venía
+  // el lead (ej. "Contactado"). Si null, no se muestra.
+  previousStatusLabel?: string | null
 }
 
 export async function sendBookingConfirmedOwnerEmail(
@@ -200,6 +203,7 @@ export async function sendBookingConfirmedOwnerEmail(
       leadEmail: input.leadEmail,
       whenLabel,
       detailUrl,
+      previousStatusLabel: input.previousStatusLabel ?? null,
     }),
   })
 

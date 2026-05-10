@@ -118,9 +118,15 @@ export async function reserveSlot(input: {
     },
   })
 
-  // Transición de estado del lead a DEMO_SCHEDULED.
-  // updateLeadStatus se ocupa del LeadActivity y del email entre socios.
-  await updateLeadStatus(booking.leadId, "DEMO_SCHEDULED")
+  // Transición de estado a DEMO_SCHEDULED. Saltamos el email genérico de
+  // cambio de estado porque ya mandamos uno específico ("Demo agendada")
+  // que cubre la transición y agrega el contexto de la reserva.
+  const statusResult = await updateLeadStatus(
+    booking.leadId,
+    "DEMO_SCHEDULED",
+    undefined,
+    { skipStatusEmail: true }
+  )
 
   await addSystemActivity(
     booking.leadId,
@@ -136,6 +142,9 @@ export async function reserveSlot(input: {
       leadName: booking.lead.name,
       leadEmail: booking.lead.email,
       startsAt: input.startsAt,
+      previousStatusLabel: statusResult.changed
+        ? statusResult.fromStatusLabel
+        : null,
     })
   } catch (e) {
     console.error("[reserveSlot] owner email error:", e)

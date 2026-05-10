@@ -172,14 +172,31 @@ export async function deleteLead(id: string) {
 // Si entra a IN_EVALUATION por primera vez, setea trialStartedAt.
 // Si vuelve hacia atrás, NO resetea trialStartedAt.
 // Resuelve cualquier LeadFollowUp activo del lead con razón STATE_CHANGE.
+//
+// `options.skipStatusEmail` (default false): si true, NO se dispara el email
+// de cambio de estado. Útil cuando el caller ya está mandando un email más
+// específico que cubre la transición (ej. "demo agendada" en booking-service).
+//
+// Devuelve además los labels de from/to para que el caller pueda
+// referenciarlos en su propio email si quiere.
 export async function updateLeadStatus(
   id: string,
   newStatus: LeadStatus,
-  authorUserId?: string
+  authorUserId?: string,
+  options: { skipStatusEmail?: boolean } = {}
 ) {
   const current = await prisma.lead.findUniqueOrThrow({ where: { id } })
 
-  if (current.status === newStatus) return current
+  if (current.status === newStatus) {
+    return {
+      lead: current,
+      fromStatus: current.status,
+      toStatus: newStatus,
+      fromStatusLabel: LEAD_STATUS_LABEL[current.status],
+      toStatusLabel: LEAD_STATUS_LABEL[newStatus],
+      changed: false,
+    }
+  }
 
   const shouldSetTrialStart =
     newStatus === "IN_EVALUATION" && !current.trialStartedAt
@@ -207,15 +224,24 @@ export async function updateLeadStatus(
     data: { resolvedAt: new Date(), resolvedBy: "STATE_CHANGE" },
   })
 
-  await notifyStatusChanged({
-    leadId: id,
-    leadName: current.name,
+  if (!options.skipStatusEmail) {
+    await notifyStatusChanged({
+      leadId: id,
+      leadName: current.name,
+      fromStatus: current.status,
+      toStatus: newStatus,
+      changedByUserId: authorUserId,
+    })
+  }
+
+  return {
+    lead: updated,
     fromStatus: current.status,
     toStatus: newStatus,
-    changedByUserId: authorUserId,
-  })
-
-  return updated
+    fromStatusLabel: LEAD_STATUS_LABEL[current.status],
+    toStatusLabel: LEAD_STATUS_LABEL[newStatus],
+    changed: true,
+  }
 }
 
 // Agregar una nota cuenta como movimiento real del lead, así que también

@@ -18,6 +18,8 @@ interface Props {
   leadEmail: string
   whenLabel: string
   detailUrl: string
+  // Si la reserva implicó cambio de estado, label de origen (ej. "Contactado").
+  previousStatusLabel?: string | null
   appName?: string
 }
 
@@ -27,6 +29,7 @@ export default function BookingConfirmedOwnerEmail({
   leadEmail = "lead@ejemplo.com",
   whenLabel = "Martes 13 de mayo, 10:00 hs",
   detailUrl = "https://marketing.onmindcrm.com/dashboard/leads",
+  previousStatusLabel = null,
   appName = "OnMind Marketing",
 }: Props) {
   return (
@@ -134,6 +137,26 @@ export default function BookingConfirmedOwnerEmail({
                       {leadName} ({leadEmail})
                     </span>
                   </Text>
+                  {previousStatusLabel && (
+                    <Text
+                      style={{
+                        margin: "8px 0 0 0",
+                        fontSize: "13px",
+                        color: ONMIND_EMAIL_COLORS.textSecondary,
+                      }}
+                    >
+                      <span style={{ marginRight: "8px", fontWeight: 600 }}>
+                        Estado:
+                      </span>
+                      <span
+                        style={{
+                          color: ONMIND_EMAIL_COLORS.textPrimary,
+                        }}
+                      >
+                        {previousStatusLabel} → Demo agendada
+                      </span>
+                    </Text>
+                  )}
                 </Section>
 
                 <Section className="text-center">
