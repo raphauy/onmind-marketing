@@ -16,6 +16,27 @@ const APP_URL =
   process.env.NEXTAUTH_URL ||
   'https://marketing.onmindcrm.com'
 
+// Emails INTERNOS (entre socios) que están temporalmente silenciados.
+// No afecta los emails al lead (confirmación de booking, OTP, etc.).
+// Sacar de este set para volver a recibir emails internos.
+// TODO: revertir antes de cerrar la prueba en producción.
+const MUTED_INTERNAL_RECIPIENTS = new Set<string>([
+  'msedes@remax.com.uy',
+])
+
+function filterMuted(to: string[]): {
+  filtered: string[]
+  muted: string[]
+} {
+  const filtered: string[] = []
+  const muted: string[] = []
+  for (const addr of to) {
+    if (MUTED_INTERNAL_RECIPIENTS.has(addr)) muted.push(addr)
+    else filtered.push(addr)
+  }
+  return { filtered, muted }
+}
+
 interface SendOtpEmailInput {
   to: string
   otp: string
@@ -70,6 +91,11 @@ export async function sendLeadCreatedEmail(
   input: SendLeadCreatedEmailInput
 ): Promise<void> {
   if (input.to.length === 0) return
+  const { filtered: to, muted } = filterMuted(input.to)
+  if (muted.length > 0) {
+    console.log(`[sendLeadCreatedEmail] muted: ${muted.join(', ')}`)
+  }
+  if (to.length === 0) return
 
   const detailUrl = `${APP_URL}/dashboard/leads/${input.leadId}`
   const subject = `Lead nuevo: ${input.leadName}`
@@ -92,7 +118,7 @@ export async function sendLeadCreatedEmail(
 
   const { data, error } = await resend.emails.send({
     from: fromEmail,
-    to: input.to,
+    to,
     subject,
     react: LeadCreatedEmail({
       leadName: input.leadName,
@@ -142,6 +168,11 @@ export async function sendBookingConfirmedOwnerEmail(
   input: SendBookingOwnerInput
 ): Promise<void> {
   if (input.to.length === 0) return
+  const { filtered: to, muted } = filterMuted(input.to)
+  if (muted.length > 0) {
+    console.log(`[sendBookingConfirmedOwnerEmail] muted: ${muted.join(', ')}`)
+  }
+  if (to.length === 0) return
 
   const detailUrl = `${APP_URL}/dashboard/leads/${input.leadId}`
   const whenLabel = formatBookingWhen(input.startsAt)
@@ -163,7 +194,7 @@ export async function sendBookingConfirmedOwnerEmail(
   const fromEmail = process.env.EMAIL_FROM || 'noreply@onmindcrm.com'
   const { data, error } = await resend.emails.send({
     from: fromEmail,
-    to: input.to,
+    to,
     subject,
     react: BookingConfirmedOwnerEmail({
       ownerName: input.ownerName,
@@ -231,6 +262,11 @@ export async function sendLeadStatusChangedEmail(
   input: SendLeadStatusChangedEmailInput
 ): Promise<void> {
   if (input.to.length === 0) return
+  const { filtered: to, muted } = filterMuted(input.to)
+  if (muted.length > 0) {
+    console.log(`[sendLeadStatusChangedEmail] muted: ${muted.join(', ')}`)
+  }
+  if (to.length === 0) return
 
   const detailUrl = `${APP_URL}/dashboard/leads/${input.leadId}`
   const subject = `${input.leadName}: ${input.fromStatusLabel} → ${input.toStatusLabel}`
@@ -252,7 +288,7 @@ export async function sendLeadStatusChangedEmail(
 
   const { data, error } = await resend.emails.send({
     from: fromEmail,
-    to: input.to,
+    to,
     subject,
     react: LeadStatusChangedEmail({
       leadName: input.leadName,
@@ -284,6 +320,11 @@ export async function sendLeadNeedsFollowUpEmail(
   input: SendLeadNeedsFollowUpInput
 ): Promise<void> {
   if (input.to.length === 0) return
+  const { filtered: to, muted } = filterMuted(input.to)
+  if (muted.length > 0) {
+    console.log(`[sendLeadNeedsFollowUpEmail] muted: ${muted.join(', ')}`)
+  }
+  if (to.length === 0) return
 
   const detailUrl = `${APP_URL}/dashboard/leads/${input.leadId}`
   const subject = `Lead ${input.leadName} necesita seguimiento`
@@ -304,7 +345,7 @@ export async function sendLeadNeedsFollowUpEmail(
   const fromEmail = process.env.EMAIL_FROM || 'noreply@onmindcrm.com'
   const { data, error } = await resend.emails.send({
     from: fromEmail,
-    to: input.to,
+    to,
     subject,
     react: LeadNeedsFollowUpEmail({
       ownerName: input.ownerName,
