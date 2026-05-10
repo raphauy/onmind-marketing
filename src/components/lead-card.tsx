@@ -50,7 +50,7 @@ export function LeadCard({
     : null
 
   const className = cn(
-    "relative block bg-white border rounded-md px-3 pt-2.5 pb-3 text-sm shadow-xs",
+    "relative flex flex-col bg-white border rounded-md px-3 pt-2.5 pb-3 text-sm shadow-xs min-h-[110px]",
     "transition-colors hover:border-primary/30",
     draggable
       ? "cursor-grab active:cursor-grabbing select-none"
@@ -71,29 +71,25 @@ export function LeadCard({
         />
       )}
 
-      <p className="font-medium leading-tight mb-2.5 pr-3">{lead.name}</p>
+      <p className="font-medium leading-tight pr-3">{lead.name}</p>
+
+      {lead.businessType && (
+        <p className="mt-1 text-[11px] text-muted-foreground truncate">
+          {lead.businessType}
+        </p>
+      )}
 
       {countdown && (
-        <div className="mb-2 flex items-center gap-1 text-[11px] text-amber-700">
+        <div className="mt-1 flex items-center gap-1 text-[11px] text-amber-700">
           <Clock className="w-3 h-3" />
           <span>{countdown}</span>
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-          <Badge
-            variant="outline"
-            className="h-5 text-[10px] leading-none px-1.5 py-0"
-          >
-            {LEAD_SOURCE_LABEL[lead.source] || lead.source}
-          </Badge>
-          {lead.businessType && (
-            <span className="text-[11px] text-muted-foreground truncate max-w-[140px]">
-              {lead.businessType}
-            </span>
-          )}
-        </div>
+      <div className="mt-auto pt-2 flex items-center justify-between gap-2">
+        <span className="inline-flex items-center h-5 px-2 rounded-full bg-muted text-muted-foreground text-[10px] font-medium leading-none">
+          {LEAD_SOURCE_LABEL[lead.source] || lead.source}
+        </span>
         {ownerInitials && (
           <span
             className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-[10px] font-semibold leading-none"
