@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma"
-import { addDays, addMinutes, startOfDay } from "date-fns"
-import { fromZonedTime, toZonedTime } from "date-fns-tz"
-import { format } from "date-fns-tz"
-import { UY_TZ } from "@/lib/dates"
+import { addDays, addMinutes, format as formatDF, startOfDay } from "date-fns"
+import { fromZonedTime, toZonedTimeUY, UY_TZ } from "@/lib/dates"
 import { SLOT_MIN, isValidTime, timeToMinutes } from "@/lib/availability-constants"
 
 export {
@@ -138,14 +136,14 @@ export async function computeAvailableSlots(
   }
 
   const slots: Slot[] = []
-  let cursor = startOfDay(toZonedTime(from, UY_TZ))
-  const end = toZonedTime(to, UY_TZ)
+  let cursor = startOfDay(toZonedTimeUY(from))
+  const end = toZonedTimeUY(to)
 
   while (cursor < end) {
     const dow = cursor.getDay()
     const dayRules = rulesByDay.get(dow)
     if (dayRules) {
-      const uyDateStr = format(cursor, "yyyy-MM-dd", { timeZone: UY_TZ })
+      const uyDateStr = formatDF(cursor, "yyyy-MM-dd")
       for (const rule of dayRules) {
         const ruleStart = uyDateAt(uyDateStr, rule.startTime)
         const ruleEnd = uyDateAt(uyDateStr, rule.endTime)

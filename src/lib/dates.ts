@@ -1,12 +1,59 @@
 import { addHours, format as formatDF, isAfter, startOfHour } from "date-fns"
 import { es } from "date-fns/locale"
-import { format, toZonedTime } from "date-fns-tz"
+import { fromZonedTime } from "date-fns-tz"
 
 export const UY_TZ = "America/Montevideo"
 
-// `toZonedTime` se mantiene exportado para usos puntuales que sí lo necesitan
-// (ej. trabajar con componentes de fecha local).
-export { toZonedTime }
+// Reexporto fromZonedTime para construir un Date UTC a partir de una hora local.
+// (Lo usa availability-service y otros para interpretar input UY → persistir UTC.)
+export { fromZonedTime }
+
+// Cache de Intl.DateTimeFormat (1 sola instancia, no se reinstancia por llamada).
+const UY_PARTS_FMT = new Intl.DateTimeFormat("en-US", {
+  timeZone: UY_TZ,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+})
+
+// Devuelve un Date "shifted" donde getFullYear/getMonth/getHours/etc.
+// devuelven los componentes locales en UY. NO refleja un instante real:
+// es solo un truco para que la API local de Date funcione como si la TZ
+// del proceso fuera Montevideo.
+//
+// Implementado con Intl.DateTimeFormat para máxima estabilidad cross-runtime.
+// Sustituye al `toZonedTime` de date-fns-tz, que mostró bugs en Node UTC.
+export function toZonedTimeUY(date: Date): Date {
+  const parts = UY_PARTS_FMT.formatToParts(date)
+  const get = (type: string) =>
+    Number(parts.find((p) => p.type === type)?.value ?? 0)
+  // hour=24 puede aparecer en algunos runtimes para medianoche; lo normalizamos.
+  const hour = get("hour")
+  return new Date(
+    get("year"),
+    get("month") - 1,
+    get("day"),
+    hour === 24 ? 0 : hour,
+    get("minute"),
+    get("second")
+  )
+}
+
+/**
+ * Formatea un Date UTC en hora de Uruguay usando locale es.
+ *
+ * Estrategia: shifteamos el Date a UY con `toZonedTimeUY` (basado en
+ * Intl.DateTimeFormat) y formateamos con `date-fns` regular leyendo los
+ * componentes locales del Date shifted. Funciona idéntico en Node, browser
+ * y Vercel, sin importar la TZ del proceso.
+ */
+export function formatInUY(date: Date, pattern = "EEEE d 'de' MMMM, HH:mm 'hs'"): string {
+  return formatDF(toZonedTimeUY(date), pattern, { locale: es })
+}
 
 /**
  * Combina una fecha (Calendar → hora local 00:00) con una hora entera (0-23)
@@ -19,20 +66,6 @@ export function composeLocalDateTime(date: Date, hour: number): Date {
   const d = new Date(date)
   d.setHours(hour, 0, 0, 0)
   return d
-}
-
-/**
- * Formatea un Date UTC en hora de Uruguay usando locale es.
- *
- * Estrategia: `toZonedTime` desplaza el Date para que sus componentes locales
- * (getHours, getDate, etc.) sean los de UY. Después se formatea con
- * `format` de `date-fns` regular, que lee esos componentes directamente sin
- * aplicar conversión TZ propia. Funciona consistentemente entre Node y browser
- * (a diferencia de `format` con option `timeZone` de `date-fns-tz`, que
- * mostró ser inestable en algunos runtimes).
- */
-export function formatInUY(date: Date, pattern = "EEEE d 'de' MMMM, HH:mm 'hs'"): string {
-  return formatDF(toZonedTime(date, UY_TZ), pattern, { locale: es })
 }
 
 /**
@@ -58,20 +91,21 @@ export function isValidSchedule(scheduledAt: Date): boolean {
  *   - "28/4" de ahí en adelante (sin año, sin hora)
  */
 export function formatScheduledBadge(scheduledAt: Date): string {
-  const zoned = toZonedTime(scheduledAt, UY_TZ)
-  const scheduledDayStr = format(scheduledAt, "yyyy-MM-dd", { timeZone: UY_TZ })
-  const todayStr = format(new Date(), "yyyy-MM-dd", { timeZone: UY_TZ })
+  const zoned = toZonedTimeUY(scheduledAt)
+  const todayZoned = toZonedTimeUY(new Date())
+  const scheduledDay = formatDF(zoned, "yyyy-MM-dd")
+  const todayDay = formatDF(todayZoned, "yyyy-MM-dd")
   const diffDays = Math.round(
-    (new Date(`${scheduledDayStr}T00:00:00Z`).getTime() -
-      new Date(`${todayStr}T00:00:00Z`).getTime()) /
-      86_400_000,
+    (new Date(`${scheduledDay}T00:00:00Z`).getTime() -
+      new Date(`${todayDay}T00:00:00Z`).getTime()) /
+      86_400_000
   )
-  const hour = format(zoned, "H", { timeZone: UY_TZ })
+  const hour = formatDF(zoned, "H")
   if (diffDays <= 0) return `Hoy ${hour}h`
   if (diffDays === 1) return `Mañana ${hour}h`
   if (diffDays <= 6) {
-    const weekday = format(zoned, "EEEE", { timeZone: UY_TZ, locale: es })
+    const weekday = formatDF(zoned, "EEEE", { locale: es })
     return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${hour}h`
   }
-  return format(zoned, "d/M", { timeZone: UY_TZ })
+  return formatDF(zoned, "d/M")
 }

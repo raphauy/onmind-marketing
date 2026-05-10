@@ -1,7 +1,6 @@
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
-import { format } from "date-fns-tz"
-import { UY_TZ } from "@/lib/dates"
+import { formatInUY } from "@/lib/dates"
 import { computeAvailableSlots } from "@/services/availability-service"
 import {
   addSystemActivity,
@@ -125,9 +124,7 @@ export async function reserveSlot(input: {
 
   await addSystemActivity(
     booking.leadId,
-    `Slot reservado para ${format(input.startsAt, "d/M/yyyy HH:mm", {
-      timeZone: UY_TZ,
-    })} (UY)`
+    `Slot reservado para ${formatInUY(input.startsAt, "d/M/yyyy HH:mm")} (UY)`
   )
 
   // Notificaciones al owner y al lead. No bloquean si fallan.
