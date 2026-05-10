@@ -114,8 +114,7 @@ export default function BookingConfirmedLeadEmail({
                     lineHeight: "1.5",
                   }}
                 >
-                  En unos minutos te llega un segundo email con el link de
-                  Google Meet. Cualquier consulta, respondé este mensaje.
+                  En breve te enviaremos el link de Google Meet.
                 </Text>
               </Section>
 
