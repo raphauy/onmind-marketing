@@ -105,7 +105,7 @@ const SECTIONS: DocSection[] = [
             <li><strong>Contactado:</strong> ya le mandamos el primer mensaje (típicamente con el link de booking) y estamos esperando que reserve.</li>
             <li><strong>Demo agendada:</strong> el lead reservó un slot. Pasa solo cuando reserva el link público.</li>
             <li><strong>Demo realizada:</strong> ya hicimos la demo. Lo movés a mano cuando termina la videollamada.</li>
-            <li><strong>En evaluación:</strong> el lead pagó el primer mes y está en los 15 días con devolución del dinero. La fecha de inicio del trial se setea automáticamente cuando entrás a este estado por primera vez.</li>
+            <li><strong>Primer mes:</strong> el lead pagó el primer mes y ya está usando OnMind. Dentro de los primeros 15 días puede pedir devolución del dinero, pero no enfatizamos la "evaluación": ya está adentro. La fecha de inicio se setea automáticamente al entrar a este estado por primera vez.</li>
             <li><strong>Cliente:</strong> arrancó la suscripción.</li>
             <li><strong>Perdido:</strong> no avanzó. Estado terminal.</li>
           </ul>
@@ -116,7 +116,7 @@ const SECTIONS: DocSection[] = [
         answer: (
           <ul className="list-disc pl-4 space-y-1">
             <li>Cuando el lead reserva un slot → pasa a <strong>Demo agendada</strong>.</li>
-            <li>Cuando entra a <strong>En evaluación</strong> → se guarda la fecha de inicio del trial (no se resetea si vuelve atrás y avanza de nuevo).</li>
+            <li>Cuando entra a <strong>Primer mes</strong> → se guarda la fecha de inicio del primer mes (no se resetea si vuelve atrás y avanza de nuevo).</li>
             <li>El resto se mueve a mano.</li>
           </ul>
         ),
@@ -133,7 +133,7 @@ const SECTIONS: DocSection[] = [
             <li>Nombre del lead.</li>
             <li>Origen (Web, Instagram, Referido).</li>
             <li>Iniciales del owner asignado (R o M) abajo a la derecha.</li>
-            <li>Cuando está en evaluación: días restantes del trial en ámbar.</li>
+            <li>Cuando está en Primer mes: días restantes hasta cumplir los 15 (período de devolución), en ámbar.</li>
             <li>Punto ámbar arriba a la derecha: el lead necesita seguimiento (ver sección).</li>
           </ul>
         ),
@@ -264,7 +264,7 @@ const SECTIONS: DocSection[] = [
       {
         question: "Después de la demo, ¿qué hago?",
         answer:
-          "Movés el lead a 'Demo realizada' (manual). Si arranca con la propuesta, lo movés a 'En evaluación' (esto setea la fecha de inicio del trial). Si pasa el trial y sigue, a 'Cliente'. Si en algún momento se cae el deal, a 'Perdido'.",
+          "Movés el lead a 'Demo realizada' (manual). Si arranca con la propuesta, lo movés a 'Primer mes' (esto setea la fecha de inicio). Pasados los 15 días sin pedir devolución, lo movés a 'Cliente'. Si en algún momento se cae el deal, a 'Perdido'.",
       },
     ],
     tips: [
@@ -374,7 +374,7 @@ const SECTIONS: DocSection[] = [
         question: "¿Cuándo NO molesta el sistema?",
         answer: (
           <ul className="list-disc pl-4 space-y-1">
-            <li>En estado <strong>En evaluación</strong> (los 15 días del trial pago) no hay follow-up automático — el cliente ya pagó, no queremos hostigar.</li>
+            <li>En estado <strong>Primer mes</strong> (los 15 días con devolución posible) no hay follow-up automático — ya pagó y está usando, no queremos hostigar.</li>
             <li>En <strong>Demo agendada</strong> tampoco: el lead ya está comprometido con una fecha.</li>
             <li>En <strong>Perdido</strong> obvio que no.</li>
           </ul>

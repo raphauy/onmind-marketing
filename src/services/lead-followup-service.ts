@@ -161,7 +161,7 @@ export function getStatusLabelEs(status: LeadStatus): string {
     CONTACTED: "Contactado",
     DEMO_SCHEDULED: "Demo agendada",
     DEMO_DONE: "Demo realizada",
-    IN_EVALUATION: "En evaluación",
+    IN_EVALUATION: "Primer mes",
     CUSTOMER: "Cliente",
     LOST: "Perdido",
   }
