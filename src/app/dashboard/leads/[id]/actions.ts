@@ -25,7 +25,6 @@ import {
 } from "@/services/booking-service"
 import { getRulesForUser } from "@/services/availability-service"
 import { BROCHURE_URL } from "@/lib/leads-config"
-import { redirect } from "next/navigation"
 import {
   LeadSource,
   LeadStatus,
@@ -165,6 +164,7 @@ export type DeleteLeadResult =
 
 // Eliminar un lead es destructivo: borra LeadActivity, LeadFollowUp y Booking.
 // Por ahora solo el superuser definido en SUPERUSER_EMAIL puede hacerlo.
+// El redirect lo hace el cliente con router.push después del ok:true.
 export async function deleteLeadAction(
   leadId: string
 ): Promise<DeleteLeadResult> {
@@ -179,7 +179,7 @@ export async function deleteLeadAction(
   await deleteLead(leadId)
   revalidatePath("/dashboard/leads")
   revalidatePath("/dashboard/leads/seguimiento")
-  redirect("/dashboard/leads")
+  return { ok: true }
 }
 
 export type ResolveTemplateResult =

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useActionState, useEffect, useState, useTransition } from "react"
 import {
   Lead,
@@ -213,6 +214,7 @@ function DangerZone({
   leadId: string
   leadName: string
 }) {
+  const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
 
@@ -223,9 +225,12 @@ function DangerZone({
         if (!res.ok) {
           toast.error(res.error)
           setOpen(false)
+          return
         }
-        // Si ok, la action redirige a /dashboard/leads — no llegamos acá.
-      } catch {
+        toast.success("Lead eliminado")
+        router.push("/dashboard/leads")
+      } catch (e) {
+        console.error(e)
         toast.error("No se pudo eliminar el lead")
         setOpen(false)
       }
