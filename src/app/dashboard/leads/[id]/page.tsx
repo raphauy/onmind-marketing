@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { differenceInCalendarDays } from "date-fns"
+import { auth } from "@/lib/auth"
 import { getLeadById } from "@/services/lead-service"
 import { listOwnerCandidates } from "@/services/lead-assignment-service"
 import {
@@ -23,7 +24,11 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ from?: string }>
 }) {
-  const [{ id }, sp] = await Promise.all([params, searchParams])
+  const [{ id }, sp, session] = await Promise.all([
+    params,
+    searchParams,
+    auth(),
+  ])
   const [lead, ownerCandidates, bookingRaw, activeFollowUp] = await Promise.all([
     getLeadById(id),
     listOwnerCandidates(),
@@ -32,6 +37,8 @@ export default async function LeadDetailPage({
   ])
 
   if (!lead) notFound()
+
+  const canDelete = session?.user?.email === "rapha.uy@rapha.uy"
 
   // Saber si el owner del lead tiene plantilla semanal configurada.
   // Si no, el botón "Generar link" se deshabilita con mensaje.
@@ -106,6 +113,7 @@ export default async function LeadDetailPage({
         booking={booking || null}
         ownerHasAvailability={ownerHasAvailability}
         followUp={followUp}
+        canDelete={canDelete}
       />
     </div>
   )

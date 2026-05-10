@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth"
 import {
   addNote,
   addSystemActivity,
+  deleteLead,
   updateLead,
   updateLeadOwner,
   updateLeadStatus,
@@ -24,12 +25,15 @@ import {
 } from "@/services/booking-service"
 import { getRulesForUser } from "@/services/availability-service"
 import { BROCHURE_URL } from "@/lib/leads-config"
+import { redirect } from "next/navigation"
 import {
   LeadSource,
   LeadStatus,
   MessageTemplateChannel,
   MessageTemplatePurpose,
 } from "@prisma/client"
+
+const SUPERUSER_EMAIL = "rapha.uy@rapha.uy"
 
 const updateLeadSchema = z.object({
   id: z.string(),
@@ -153,6 +157,29 @@ export async function markCalendarEventCreatedAction(bookingId: string) {
   if (!session?.user?.id) return
   await markCalendarEventCreated(bookingId)
   revalidatePath(`/dashboard/leads`)
+}
+
+export type DeleteLeadResult =
+  | { ok: true }
+  | { ok: false; error: string }
+
+// Eliminar un lead es destructivo: borra LeadActivity, LeadFollowUp y Booking.
+// Por ahora solo el superuser definido en SUPERUSER_EMAIL puede hacerlo.
+export async function deleteLeadAction(
+  leadId: string
+): Promise<DeleteLeadResult> {
+  const session = await auth()
+  if (!session?.user?.email) {
+    return { ok: false, error: "Sesión inválida" }
+  }
+  if (session.user.email !== SUPERUSER_EMAIL) {
+    return { ok: false, error: "No tenés permiso para eliminar leads" }
+  }
+
+  await deleteLead(leadId)
+  revalidatePath("/dashboard/leads")
+  revalidatePath("/dashboard/leads/seguimiento")
+  redirect("/dashboard/leads")
 }
 
 export type ResolveTemplateResult =

@@ -24,6 +24,7 @@ import {
   Copy,
   Clock,
   Check,
+  Trash2,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,6 +53,7 @@ import {
   addNoteAction,
   changeOwnerAction,
   changeStatusAction,
+  deleteLeadAction,
   generateBookingLinkAction,
   markCalendarEventCreatedAction,
   resolveTemplateForLeadAction,
@@ -59,6 +61,17 @@ import {
   type AddNoteState,
   type UpdateLeadState,
 } from "./actions"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type OwnerCandidate = { id: string; name: string | null; email: string }
 
@@ -94,12 +107,14 @@ export function LeadDetail({
   booking,
   ownerHasAvailability,
   followUp,
+  canDelete,
 }: {
   lead: LeadWithActivities
   ownerCandidates: OwnerCandidate[]
   booking: BookingInfo | null
   ownerHasAvailability: boolean
   followUp: FollowUpInfo | null
+  canDelete: boolean
 }) {
   const [editing, setEditing] = useState(false)
 
@@ -185,7 +200,89 @@ export function LeadDetail({
           <Timeline activities={lead.activities} />
         </section>
       </div>
+
+      {canDelete && <DangerZone leadId={lead.id} leadName={lead.name} />}
     </>
+  )
+}
+
+function DangerZone({
+  leadId,
+  leadName,
+}: {
+  leadId: string
+  leadName: string
+}) {
+  const [pending, startTransition] = useTransition()
+  const [open, setOpen] = useState(false)
+
+  const handleDelete = () => {
+    startTransition(async () => {
+      try {
+        const res = await deleteLeadAction(leadId)
+        if (!res.ok) {
+          toast.error(res.error)
+          setOpen(false)
+        }
+        // Si ok, la action redirige a /dashboard/leads — no llegamos acá.
+      } catch {
+        toast.error("No se pudo eliminar el lead")
+        setOpen(false)
+      }
+    })
+  }
+
+  return (
+    <section className="mt-6 border border-red-200 rounded-lg p-5 bg-red-50/40">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="font-semibold text-red-900 flex items-center gap-2">
+            <Trash2 className="w-4 h-4" />
+            Zona peligrosa
+          </h2>
+          <p className="text-sm text-red-900/80 mt-0.5">
+            Eliminar el lead borra también su timeline, follow-ups y booking.
+            Acción irreversible.
+          </p>
+        </div>
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="cursor-pointer border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800"
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              Eliminar lead
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar a {leadName}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Se borra el lead, todas sus notas y eventos del timeline,
+                cualquier follow-up activo y el booking si existe. Esta acción
+                no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={pending} className="cursor-pointer">
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={pending}
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDelete()
+                }}
+                className="cursor-pointer bg-red-600 hover:bg-red-700"
+              >
+                {pending ? "Eliminando..." : "Eliminar"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </section>
   )
 }
 

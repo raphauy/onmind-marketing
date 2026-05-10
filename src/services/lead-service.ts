@@ -163,6 +163,11 @@ export async function updateLeadOwner(
   return updated
 }
 
+// Elimina el lead y, por cascade, sus LeadActivity, LeadFollowUp y Booking.
+export async function deleteLead(id: string) {
+  return prisma.lead.delete({ where: { id } })
+}
+
 // Cambia el estado del lead, registra actividad y dispara email al socio que NO movió.
 // Si entra a IN_EVALUATION por primera vez, setea trialStartedAt.
 // Si vuelve hacia atrás, NO resetea trialStartedAt.
