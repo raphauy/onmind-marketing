@@ -1,13 +1,11 @@
 import { Resend } from 'resend'
-import { format } from 'date-fns-tz'
-import { es } from 'date-fns/locale'
 import OtpEmail from '@/components/emails/otp-email'
 import LeadCreatedEmail from '@/components/emails/lead-created-email'
 import LeadStatusChangedEmail from '@/components/emails/lead-status-changed-email'
 import BookingConfirmedOwnerEmail from '@/components/emails/booking-confirmed-owner-email'
 import BookingConfirmedLeadEmail from '@/components/emails/booking-confirmed-lead-email'
 import LeadNeedsFollowUpEmail from '@/components/emails/lead-needs-followup-email'
-import { UY_TZ } from '@/lib/dates'
+import { formatInUY } from '@/lib/dates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -149,10 +147,10 @@ interface SendLeadStatusChangedEmailInput {
 }
 
 function formatBookingWhen(d: Date): string {
-  return format(d, "EEEE d 'de' MMMM, HH:mm 'hs'", {
-    timeZone: UY_TZ,
-    locale: es,
-  })
+  // Usamos formatInUY (toZonedTime + format de date-fns regular) que es
+  // estable cross-runtime; el `format` de date-fns-tz con option timeZone
+  // mostraba inconsistencias entre Node y Vercel.
+  return formatInUY(d, "EEEE d 'de' MMMM, HH:mm 'hs'")
 }
 
 interface SendBookingOwnerInput {
