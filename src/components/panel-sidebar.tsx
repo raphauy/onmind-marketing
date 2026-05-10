@@ -37,6 +37,8 @@ import {
   Package,
   Presentation,
   ExternalLink,
+  Users,
+  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -74,6 +76,40 @@ export function PanelSidebar() {
                   <Link href="/dashboard" onClick={closeMobile}>
                     <LayoutDashboard className="w-4 h-4" />
                     <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Leads</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={
+                    pathname === "/dashboard/leads" ||
+                    (pathname.startsWith("/dashboard/leads/") &&
+                      pathname !== "/dashboard/leads/nuevo")
+                  }
+                  asChild
+                >
+                  <Link href="/dashboard/leads" onClick={closeMobile}>
+                    <Users className="w-4 h-4" />
+                    <span>Pipeline</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/dashboard/leads/nuevo"}
+                  asChild
+                >
+                  <Link href="/dashboard/leads/nuevo" onClick={closeMobile}>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Nuevo lead</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

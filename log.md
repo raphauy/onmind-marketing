@@ -1,5 +1,24 @@
 # Log de trabajo — OnMind Marketing
 
+## 2026-05-10
+- **CRM ligero de leads — diseño en 7 fases.** Plan completo en `~/.claude/plans/bien-tengo-un-problema-partitioned-abelson.md`. Cada fase es independiente y autocontenida para que un agente distinto la pueda tomar en una sesión nueva.
+  - Fases: 1) Foundation (modelo + alta manual + listado + detail con notas) · 2) Webhook + round-robin + emails · 3) Kanban + tracking de trial · 4) Templates de mensajes (booking + 3 follow-ups) · 5) Disponibilidad (reglas semanales + bloqueos) · 6) Booking público + reserva + Calendar prellenado · 7) Follow-up automatizado (panel + email + cron + indicadores).
+  - Decisiones clave: estados Nuevo→Contactado→Demo agendada→Demo realizada→En evaluación→Cliente/Perdido; owner round-robin par/impar con override manual y visibilidad compartida; booking con link único por token; slots por persona pero el lead no elige (UI muestra owner); plantillas semanales recurrentes + bloqueos puntuales, granularidad 30min; Google Meet semi-auto (botón abre Calendar pre-llenado, sin OAuth); templates de mensaje configurables por usuario y propósito con variables `{nombre}`/`{linkBooking}`; webhook OnMind con shared secret + Zod (contrato a doc); follow-up disparado por cron diario, panel dedicado + email puntual al entrar al estado, copia mensaje al clipboard, NO autoenvío; trial pago no se hostiga, sí check-in amistoso al cliente a mitad del primer mes.
+- **Fase 1 implementada — Foundation del CRM.**
+  - **Schema** (`prisma/schema.prisma`): nuevos modelos `Lead` y `LeadActivity`, enums `LeadStatus` (NEW/CONTACTED/DEMO_SCHEDULED/DEMO_DONE/IN_EVALUATION/CUSTOMER/LOST), `LeadSource` (INSTAGRAM/WEB/REFERRAL/OTHER), `LeadActivityType` (NOTE/STATUS_CHANGE/SYSTEM). `Lead` incluye `trialStartedAt` (auto-set la primera vez que entra a IN_EVALUATION, no se resetea si vuelve atrás). `User.leadActivities` para autoría. Indices en `status`, `email`, `createdAt` (Lead) y `(leadId, createdAt)` (LeadActivity). Aplicado con `npx prisma db push` (DB Neon en sync).
+  - **Service** (`src/services/lead-service.ts`): `getLeads`, `getLeadStats`, `getLeadById`, `createLead`, `updateLead`, `updateLeadStatus`, `addNote`, `addSystemActivity`. `updateLeadStatus` registra `LeadActivity` STATUS_CHANGE automática y maneja la lógica del trial.
+  - **Componente** (`src/components/lead-status-badge.tsx`): `LeadStatusBadge` con color por estado, exporta también `LEAD_STATUS_LABEL`, `LEAD_STATUS_ORDER`, `LEAD_SOURCE_LABEL` para reuso en fases siguientes.
+  - **Listado** (`src/app/dashboard/leads/page.tsx`): tabla con nombre, email, whatsapp, origen, estado y creado. Filtros por estado con contadores. Empty state con CTA. `force-dynamic`.
+  - **Alta manual** (`src/app/dashboard/leads/nuevo/`): page + lead-form (client) + actions con Zod (`createLeadAction`). Campos: nombre, email, whatsapp, origen (Select), rubro (Textarea). Crea con `authorUserId` de la sesión y registra activity SYSTEM "Lead creado". Redirige al detail.
+  - **Detail** (`src/app/dashboard/leads/[id]/`): page + lead-detail (client) + actions con tres server actions (`updateLeadAction`, `changeStatusAction`, `addNoteAction`). UI: header con nombre + creado + trial inicio si aplica + StatusChanger (Select que dispara cambio inmediato vía useTransition). Card "Datos del lead" con view/edit toggle. Card "Notas y actividad" con textarea para nuevas notas + timeline cronológico (NOTE/STATUS_CHANGE/SYSTEM con autor + tiempo en hora UY).
+  - **Sidebar** (`src/components/panel-sidebar.tsx`): nuevo grupo "Leads" entre "General" y "Contenido", con items "Pipeline" (`/dashboard/leads`) y "Nuevo lead" (`/dashboard/leads/nuevo`). Iconos `Users` + `UserPlus`.
+  - **Lint/typecheck**: `pnpm tsc --noEmit` pasa sin errores. `pnpm lint` limpio en archivos nuevos (los warnings/errores remanentes son pre-existentes en `ui/sidebar.tsx`, `logo-overlay.ts`, `piezas/page.tsx`).
+- **Pendientes para Fase 2** (siguiente sesión):
+  - Agregar `ownerUserId` a `Lead` (nullable). Selector de owner en el detail. Round-robin par/impar al crear (cuenta total de leads).
+  - Endpoint `/api/webhooks/onmind/leads` con `ONMIND_WEBHOOK_SECRET` (header `X-OnMind-Secret`) y validación Zod. Idempotente por email.
+  - `sendLeadCreatedEmail` (a ambos) y `sendLeadStatusChangedEmail` (al socio que NO movió). Templates en `src/components/emails/`.
+  - Doc del contrato en `docs/operacion/webhook-onmind-leads.md` para que Raphael lo emita desde el repo OnMind.
+
 ## 2026-04-06
 - **Inicio del proyecto.** Se creó el workspace onmind-marketing.
 - Se exploró el producto OnMind (PRD, landing, docs de pricing, assets visuales).
