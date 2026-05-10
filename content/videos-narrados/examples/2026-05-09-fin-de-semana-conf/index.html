@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #fafafa;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        color: #111;
+      }
+
+      .scene {
+        position: absolute; inset: 0; opacity: 0;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        padding: 160px 90px; text-align: center;
+      }
+
+      .chip {
+        position: absolute; top: 80px; left: 50%;
+        transform: translateX(-50%);
+        font-size: 36px; font-weight: 600;
+        color: #007056; background: #e7f4f0;
+        padding: 14px 32px; border-radius: 999px;
+        opacity: 0; z-index: 10;
+        letter-spacing: 0.02em;
+      }
+
+      .step-tag {
+        position: absolute; top: 200px; left: 50%;
+        transform: translateX(-50%);
+        font-size: 32px; font-weight: 700;
+        color: #007056; letter-spacing: 0.18em;
+        text-transform: uppercase;
+        opacity: 0;
+      }
+
+      /* ───── S1: Hook ───── */
+      .hook-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 28px;
+      }
+      .hook-line-1 {
+        font-size: 92px; font-weight: 800;
+        line-height: 1.05; letter-spacing: -0.025em;
+        max-width: 940px;
+      }
+      .hook-line-1 .accent { color: #007056; }
+      .hook-line-2 {
+        font-size: 92px; font-weight: 800;
+        line-height: 1.05; letter-spacing: -0.025em;
+        max-width: 940px;
+      }
+      .hook-line-2 .accent { color: #007056; }
+      .hook-sub {
+        font-size: 44px; font-weight: 500;
+        color: #555; margin-top: 36px;
+        letter-spacing: -0.005em;
+      }
+
+      /* ───── S2: 1.900 contactos en 11 categorías ───── */
+      .stat-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 32px;
+        width: 920px;
+      }
+      .stat-pre {
+        font-size: 42px; font-weight: 600;
+        color: #555; max-width: 820px;
+        line-height: 1.3;
+      }
+      .stat-row {
+        display: flex; align-items: stretch;
+        gap: 36px; width: 100%;
+        justify-content: center;
+      }
+      .stat-block {
+        flex: 1; max-width: 420px;
+        background: #fff; border: 1px solid #e5e7eb;
+        border-radius: 24px; padding: 48px 28px;
+        box-shadow: 0 6px 24px rgba(0, 112, 86, 0.05);
+        display: flex; flex-direction: column;
+        align-items: center; gap: 12px;
+        position: relative;
+      }
+      .stat-block::before {
+        content: ""; position: absolute;
+        left: 0; top: 28px; bottom: 28px;
+        width: 6px; background: #007056;
+        border-radius: 0 6px 6px 0;
+      }
+      .stat-num {
+        font-size: 156px; font-weight: 900;
+        color: #007056; letter-spacing: -0.04em;
+        line-height: 1; font-variant-numeric: tabular-nums;
+      }
+      .stat-label {
+        font-size: 36px; font-weight: 600;
+        color: #1a1a1a; line-height: 1.2;
+      }
+      .cat-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 14px; margin-top: 24px;
+        width: 820px;
+      }
+      .cat-chip {
+        background: #fff; border: 1px solid #d1d5db;
+        border-radius: 12px; padding: 20px 0;
+        font-size: 38px; font-weight: 700;
+        color: #1a1a1a; text-align: center;
+        letter-spacing: -0.01em;
+      }
+      .cat-chip.green { background: #007056; color: #fff; border-color: #007056; }
+
+      /* ───── S3: Frecuencia 6× / 12× ───── */
+      .freq-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 36px;
+        width: 920px;
+      }
+      .freq-pre {
+        font-size: 44px; font-weight: 600;
+        color: #555; line-height: 1.25;
+        max-width: 820px;
+      }
+      .freq-row {
+        display: flex; gap: 40px;
+        justify-content: center; width: 100%;
+        align-items: stretch;
+      }
+      .freq-card {
+        flex: 1; max-width: 420px;
+        background: #fff; border: 1px solid #e5e7eb;
+        border-radius: 24px; padding: 56px 28px 44px;
+        box-shadow: 0 6px 24px rgba(0, 112, 86, 0.05);
+        display: flex; flex-direction: column;
+        align-items: center; gap: 18px;
+        position: relative;
+      }
+      .freq-card::before {
+        content: ""; position: absolute;
+        left: 0; top: 28px; bottom: 28px;
+        width: 6px; background: #007056;
+        border-radius: 0 6px 6px 0;
+      }
+      .freq-num {
+        font-size: 200px; font-weight: 900;
+        color: #007056; letter-spacing: -0.05em;
+        line-height: 0.95;
+        font-variant-numeric: tabular-nums;
+      }
+      .freq-num .x {
+        font-size: 120px; font-weight: 700;
+        color: #1a1a1a; margin-left: 4px;
+      }
+      .freq-tag {
+        font-size: 30px; font-weight: 700;
+        color: #007056; letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: -4px;
+      }
+      .freq-label {
+        font-size: 32px; font-weight: 500;
+        color: #444; line-height: 1.25;
+        max-width: 320px;
+      }
+
+      /* ───── S4: 49 plantillas + momentos ───── */
+      .tpl-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 32px;
+        width: 920px;
+      }
+      .tpl-pre {
+        font-size: 42px; font-weight: 600;
+        color: #555;
+      }
+      .tpl-num {
+        font-size: 280px; font-weight: 900;
+        color: #007056; letter-spacing: -0.05em;
+        line-height: 0.9;
+        font-variant-numeric: tabular-nums;
+      }
+      .tpl-label {
+        font-size: 50px; font-weight: 700;
+        color: #1a1a1a; letter-spacing: -0.015em;
+        margin-top: -8px;
+      }
+      .moments-list {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 14px;
+        margin-top: 12px;
+      }
+      .moment-item {
+        font-size: 40px; font-weight: 600;
+        color: #1a1a1a; letter-spacing: -0.005em;
+      }
+      .moment-item .dot {
+        display: inline-block;
+        width: 10px; height: 10px;
+        background: #007056; border-radius: 50%;
+        vertical-align: middle;
+        margin-right: 18px;
+        margin-bottom: 6px;
+      }
+
+      /* ───── S5: 6.181 mensajes ───── */
+      .out-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 24px;
+      }
+      .out-pre {
+        font-size: 44px; font-weight: 600;
+        color: #555; margin-bottom: 16px;
+      }
+      .out-num {
+        font-size: 360px; font-weight: 900;
+        color: #007056; letter-spacing: -0.055em;
+        line-height: 0.9;
+        font-variant-numeric: tabular-nums;
+      }
+      .out-label {
+        font-size: 56px; font-weight: 700;
+        color: #1a1a1a; letter-spacing: -0.015em;
+        line-height: 1.15;
+        max-width: 920px;
+        margin-top: 16px;
+      }
+      .out-label .muted { color: #555; font-weight: 500; }
+
+      /* ───── S6: Triple anáfora "No tiene que..." ───── */
+      .triple-wrap {
+        display: flex; flex-direction: column;
+        align-items: flex-start; gap: 38px;
+        width: 880px;
+      }
+      .triple-line {
+        font-size: 78px; font-weight: 800;
+        color: #1a1a1a; letter-spacing: -0.025em;
+        line-height: 1.1;
+        text-align: left;
+      }
+      .triple-line .strike {
+        color: #007056;
+      }
+
+      /* ───── S7: Bonus "un día alcanza" ───── */
+      .bonus-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 28px;
+        max-width: 940px;
+      }
+      .bonus-pre {
+        font-size: 44px; font-weight: 600;
+        color: #555; line-height: 1.3;
+      }
+      .bonus-line {
+        font-size: 132px; font-weight: 900;
+        color: #007056; letter-spacing: -0.035em;
+        line-height: 1;
+      }
+      .bonus-line .small {
+        font-size: 70px; font-weight: 700;
+        color: #1a1a1a; letter-spacing: -0.02em;
+      }
+
+      /* ───── Outro ───── */
+      .outro-handle {
+        font-size: 132px; font-weight: 800;
+        color: #007056; letter-spacing: -0.025em;
+      }
+      .outro-tag {
+        font-size: 50px; font-weight: 500;
+        color: #444; margin-top: 30px;
+        max-width: 880px; line-height: 1.25;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="48"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio
+        id="audio-mezcla"
+        data-start="0"
+        data-duration="48"
+        data-track-index="9"
+        src="mezcla.mp3"
+        data-volume="1"
+      ></audio>
+
+      <div id="chip" class="chip">@OnMindApp</div>
+
+      <!-- S1: Hook -->
+      <div class="scene" id="s1">
+        <div class="hook-wrap">
+          <div class="hook-line-1" id="s1-l1">
+            Un <span class="accent">fin de semana</span> de trabajo.
+          </div>
+          <div class="hook-line-2" id="s1-l2">
+            Y todo el año <span class="accent">queda armado</span>.
+          </div>
+          <div class="hook-sub" id="s1-sub">Un agente real lo hizo así.</div>
+        </div>
+      </div>
+
+      <!-- S2: Paso 1 — 1.900 contactos en 11 categorías -->
+      <div class="step-tag" id="s2-tag">Paso 1</div>
+      <div class="scene" id="s2">
+        <div class="stat-wrap">
+          <div class="stat-pre" id="s2-pre">
+            Ordenó a sus contactos por importancia
+          </div>
+          <div class="stat-row">
+            <div class="stat-block" id="s2-b1">
+              <div class="stat-num" id="s2-n1">0</div>
+              <div class="stat-label">contactos activos</div>
+            </div>
+            <div class="stat-block" id="s2-b2">
+              <div class="stat-num" id="s2-n2">0</div>
+              <div class="stat-label">categorías</div>
+            </div>
+          </div>
+          <div class="cat-grid" id="s2-grid">
+            <div class="cat-chip green">A+</div>
+            <div class="cat-chip green">A</div>
+            <div class="cat-chip">B</div>
+            <div class="cat-chip">C</div>
+            <div class="cat-chip">D</div>
+            <div class="cat-chip">V</div>
+            <div class="cat-chip">R</div>
+            <div class="cat-chip">O</div>
+            <div class="cat-chip">BA</div>
+            <div class="cat-chip">AC</div>
+            <div class="cat-chip">Colegas</div>
+            <div class="cat-chip">+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: Paso 2 — frecuencia anual -->
+      <div class="step-tag" id="s3-tag">Paso 2</div>
+      <div class="scene" id="s3">
+        <div class="freq-wrap">
+          <div class="freq-pre" id="s3-pre">
+            Definió cuántas veces al año<br />quería estar presente con cada uno
+          </div>
+          <div class="freq-row">
+            <div class="freq-card" id="s3-c1">
+              <div class="freq-num"><span id="s3-n1">0</span><span class="x">×</span></div>
+              <div class="freq-tag">al año</div>
+              <div class="freq-label">para los más importantes</div>
+            </div>
+            <div class="freq-card" id="s3-c2">
+              <div class="freq-num"><span id="s3-n2">0</span><span class="x">×</span></div>
+              <div class="freq-tag">al año</div>
+              <div class="freq-label">para los que están en plena operación</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: Paso 3 — 49 plantillas -->
+      <div class="step-tag" id="s4-tag">Paso 3</div>
+      <div class="scene" id="s4">
+        <div class="tpl-wrap">
+          <div class="tpl-pre" id="s4-pre">Y armó</div>
+          <div class="tpl-num" id="s4-num">0</div>
+          <div class="tpl-label" id="s4-label">plantillas</div>
+          <div class="moments-list">
+            <div class="moment-item" id="s4-m1"><span class="dot"></span>Cumpleaños</div>
+            <div class="moment-item" id="s4-m2"><span class="dot"></span>Aniversario de compra</div>
+            <div class="moment-item" id="s4-m3"><span class="dot"></span>Saludo de fin de año</div>
+            <div class="moment-item" id="s4-m4"><span class="dot"></span>Seguimiento post-firma</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S5: Output 6.181 mensajes -->
+      <div class="scene" id="s5">
+        <div class="out-wrap">
+          <div class="out-pre" id="s5-pre">Cuando terminó</div>
+          <div class="out-num" id="s5-num">0</div>
+          <div class="out-label" id="s5-label">
+            mensajes <span class="muted">programados para los próximos 12 meses</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- S6: Triple anáfora -->
+      <div class="scene" id="s6">
+        <div class="triple-wrap">
+          <div class="triple-line" id="s6-l1">No tiene que <span class="strike">escribir</span> ni uno.</div>
+          <div class="triple-line" id="s6-l2">No tiene que <span class="strike">recordar</span> ninguna fecha.</div>
+          <div class="triple-line" id="s6-l3">No tiene que <span class="strike">pensar</span> qué decir.</div>
+        </div>
+      </div>
+
+      <!-- S7: Bonus -->
+      <div class="scene" id="s7">
+        <div class="bonus-wrap">
+          <div class="bonus-pre" id="s7-pre">
+            Si arrancás con las plantillas por defecto,
+          </div>
+          <div class="bonus-line" id="s7-line">
+            <span class="small">con</span> un día <span class="small">alcanza</span>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Outro -->
+      <div class="scene" id="outro">
+        <div class="outro-handle" id="outro-handle">@OnMindApp</div>
+        <div class="outro-tag" id="outro-tag">
+          automatizá el vínculo con tus clientes
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function showScene(id, t, dur = 0.5) {
+        tl.to("#" + id, { opacity: 1, duration: dur, ease: "power2.out" }, t);
+      }
+      function hideScene(id, t, dur = 0.4) {
+        tl.to("#" + id, { opacity: 0, duration: dur, ease: "power2.in" }, t);
+      }
+
+      // Chip @OnMindApp persistente
+      tl.to("#chip", { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.6);
+
+      // ========== S1 (1.4 - 6.5) Hook ==========
+      // Voz mezcla: "Un fin de semana de trabajo" 2.08-3.5
+      //             "Y todo el año queda armado" 3.6-5.0
+      //             "Un agente real lo hizo así" 5.18-6.4
+      showScene("s1", 1.4);
+      tl.from("#s1-l1", { opacity: 0, y: 50, duration: 0.7, ease: "power3.out" }, 1.6);
+      tl.from("#s1-l2", { opacity: 0, y: 50, duration: 0.7, ease: "power3.out" }, 3.5);
+      tl.from("#s1-sub", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 5.0);
+      hideScene("s1", 6.4);
+
+      // ========== S2 (6.5 - 13.5) Paso 1: 1.900 contactos / 11 categorías ==========
+      // Voz mezcla: "Primero, ordenó" 6.68-7.56
+      //             "mil novecientos contactos" 7.92-8.72
+      //             "once categorías" 9.76-10.68
+      //             "de los más cercanos a los menos" 10.7-13.0
+      tl.to("#s2-tag", { opacity: 1, duration: 0.4, ease: "power2.out" }, 6.4);
+      showScene("s2", 6.5);
+      tl.from("#s2-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 6.7);
+      tl.from("#s2-b1", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 7.7);
+      const c1900 = { v: 0 };
+      tl.to(c1900, {
+        v: 1900,
+        duration: 1.4,
+        ease: "power3.out",
+        onUpdate: function () {
+          const el = document.getElementById("s2-n1");
+          if (el) el.textContent = Math.round(c1900.v).toLocaleString("es-ES").replace(/,/g, ".");
+        },
+      }, 7.95);
+      tl.from("#s2-b2", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 9.5);
+      const c11 = { v: 0 };
+      tl.to(c11, {
+        v: 11,
+        duration: 0.9,
+        ease: "power2.out",
+        onUpdate: function () {
+          const el = document.getElementById("s2-n2");
+          if (el) el.textContent = Math.round(c11.v);
+        },
+      }, 9.78);
+      // Cat grid en cascada
+      tl.from("#s2-grid > *", {
+        opacity: 0, y: 14, scale: 0.92,
+        duration: 0.35, ease: "back.out(1.4)",
+        stagger: 0.06,
+      }, 10.9);
+      hideScene("s2", 13.4);
+      tl.to("#s2-tag", { opacity: 0, duration: 0.3 }, 13.4);
+
+      // ========== S3 (13.5 - 22.0) Paso 2: 6× / 12× al año ==========
+      // Voz mezcla: "Después definió" 12.58-13.66
+      //             "cuántas veces al año quería estar presente con cada uno" 13.5-17.0
+      //             "Seis veces al año para los más importantes" 16.94-19.34
+      //             "Doce veces para los que están en plena operación" 19.54-22.0
+      tl.to("#s3-tag", { opacity: 1, duration: 0.4, ease: "power2.out" }, 13.5);
+      showScene("s3", 13.6);
+      tl.from("#s3-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 13.8);
+      tl.from("#s3-c1", { opacity: 0, y: 40, duration: 0.5, ease: "back.out(1.3)" }, 16.7);
+      const c6 = { v: 0 };
+      tl.to(c6, {
+        v: 6,
+        duration: 0.7,
+        ease: "power2.out",
+        onUpdate: function () {
+          const el = document.getElementById("s3-n1");
+          if (el) el.textContent = Math.round(c6.v);
+        },
+      }, 16.95);
+      tl.from("#s3-c2", { opacity: 0, y: 40, duration: 0.5, ease: "back.out(1.3)" }, 19.3);
+      const c12 = { v: 0 };
+      tl.to(c12, {
+        v: 12,
+        duration: 0.7,
+        ease: "power2.out",
+        onUpdate: function () {
+          const el = document.getElementById("s3-n2");
+          if (el) el.textContent = Math.round(c12.v);
+        },
+      }, 19.55);
+      hideScene("s3", 22.1);
+      tl.to("#s3-tag", { opacity: 0, duration: 0.3 }, 22.1);
+
+      // ========== S4 (22.2 - 31.5) Paso 3: 49 plantillas + momentos ==========
+      // Voz mezcla: "Y armó cuarenta y nueve plantillas" 22.5-24.0
+      //             "una para cada momento del vínculo" 24.0-26.0
+      //             "Cumpleaños" 26.04, "Aniversario" 26.96, "saludo fin de año" 28.5, "seguimiento post-firma" 29.5
+      tl.to("#s4-tag", { opacity: 1, duration: 0.4, ease: "power2.out" }, 22.2);
+      showScene("s4", 22.3);
+      tl.from("#s4-pre", { opacity: 0, y: 30, duration: 0.4, ease: "power2.out" }, 22.4);
+      tl.from("#s4-num", { opacity: 0, scale: 0.6, duration: 0.4, ease: "back.out(1.6)" }, 22.6);
+      const c49 = { v: 0 };
+      tl.to(c49, {
+        v: 49,
+        duration: 1.2,
+        ease: "power3.out",
+        onUpdate: function () {
+          const el = document.getElementById("s4-num");
+          if (el) el.textContent = Math.round(c49.v);
+        },
+      }, 22.7);
+      tl.from("#s4-label", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 24.0);
+      tl.from("#s4-m1", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 26.0);
+      tl.from("#s4-m2", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 26.9);
+      tl.from("#s4-m3", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 28.4);
+      tl.from("#s4-m4", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 29.4);
+      hideScene("s4", 31.4);
+      tl.to("#s4-tag", { opacity: 0, duration: 0.3 }, 31.4);
+
+      // ========== S5 (31.5 - 37.6) Output: 6.181 mensajes ==========
+      // Voz mezcla: "Cuando terminó" 31.7-32.16
+      //             "seis mil ciento ochenta y un mensajes" 32.42-34.5
+      //             "quedaron programados para los próximos doce meses" 34.5-37.5
+      showScene("s5", 31.5);
+      tl.from("#s5-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 31.7);
+      tl.from("#s5-num", { opacity: 0, scale: 0.6, duration: 0.5, ease: "back.out(1.4)" }, 32.3);
+      const c6181 = { v: 0 };
+      tl.to(c6181, {
+        v: 6181,
+        duration: 2.0,
+        ease: "power3.out",
+        onUpdate: function () {
+          const el = document.getElementById("s5-num");
+          if (el) el.textContent = Math.round(c6181.v).toLocaleString("es-ES").replace(/,/g, ".");
+        },
+      }, 32.45);
+      tl.from("#s5-label", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 34.6);
+      hideScene("s5", 37.6);
+
+      // ========== S6 (37.6 - 42.6) Triple anáfora ==========
+      // Voz mezcla: "No tiene que escribir ni uno" 37.84-39.0
+      //             "No tiene que recordar ninguna fecha" 39.3-40.5
+      //             "No tiene que pensar qué decir" 41.2-42.5
+      showScene("s6", 37.6);
+      tl.from("#s6-l1", { opacity: 0, x: -40, duration: 0.5, ease: "power3.out" }, 37.7);
+      tl.from("#s6-l2", { opacity: 0, x: -40, duration: 0.5, ease: "power3.out" }, 39.2);
+      tl.from("#s6-l3", { opacity: 0, x: -40, duration: 0.5, ease: "power3.out" }, 41.1);
+      hideScene("s6", 42.6);
+
+      // ========== S7 (42.6 - 45.6) Bonus "un día alcanza" ==========
+      // Voz mezcla: "Y si arrancás con las plantillas por defecto" 42.5-44.6
+      //             "con un día alcanza" 44.78-45.44
+      showScene("s7", 42.6);
+      tl.from("#s7-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 42.7);
+      tl.from("#s7-line", { opacity: 0, scale: 0.85, duration: 0.6, ease: "back.out(1.4)" }, 44.6);
+      hideScene("s7", 45.6);
+
+      // ========== Outro (45.6 - 48.0) ==========
+      showScene("outro", 45.6);
+      tl.from("#outro-handle", { opacity: 0, scale: 0.85, y: 30, duration: 0.7, ease: "back.out(1.4)" }, 45.7);
+      tl.from("#outro-tag", { opacity: 0, y: 20, duration: 0.6, ease: "power2.out" }, 46.2);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
