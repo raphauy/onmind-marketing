@@ -16,11 +16,8 @@ const APP_URL =
 
 // Emails INTERNOS (entre socios) que están temporalmente silenciados.
 // No afecta los emails al lead (confirmación de booking, OTP, etc.).
-// Sacar de este set para volver a recibir emails internos.
-// TODO: revertir antes de cerrar la prueba en producción.
-const MUTED_INTERNAL_RECIPIENTS = new Set<string>([
-  'msedes@remax.com.uy',
-])
+// Para silenciar un destinatario durante una prueba, agregarlo al set.
+const MUTED_INTERNAL_RECIPIENTS = new Set<string>([])
 
 function filterMuted(to: string[]): {
   filtered: string[]
