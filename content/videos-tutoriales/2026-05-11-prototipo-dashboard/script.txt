@@ -1,0 +1,11 @@
+Este es el Dashboard de OnMind.
+De un vistazo ves los mensajes pendientes:
+hoy, mañana, esta semana y este mes.
+
+Más abajo, cada mensaje con el contacto,
+el contenido y la categoría.
+
+Cuando estás listo, un solo clic en Procesar mensajes,
+y OnMind los envía por vos.
+
+Todo tu negocio, en una sola pantalla.

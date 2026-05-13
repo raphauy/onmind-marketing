@@ -1,0 +1,38 @@
+Estos son los Contactos de OnMind.
+
+Tu base de clientes ya existe.
+La traés con un archivo CSV.
+Nombres, teléfonos, fechas, lo que tengas.
+En cuatro pasos quedó adentro: subir, mapear, previsualizar y confirmar.
+Y si un teléfono ya existía, OnMind no duplica.
+Actualiza los datos.
+
+Los nuevos no los cargás vos.
+Cuando alguien te escribe por WhatsApp,
+y su número no está en tu base,
+el contacto se crea solo.
+Toma el nombre desde el perfil, la foto,
+y queda listo para empezar a trabajarlo.
+
+Y la ficha guarda lo que importa de cada persona.
+Cumpleaños, si tiene hijos, sus hobbies,
+su profesión, dónde lo conociste,
+el motivo del primer contacto.
+Cada campo se edita con un clic.
+Sin formularios largos.
+
+Y todo eso se vuelve filtro.
+Categoría, etiquetas, operación,
+profesión, origen, fechas especiales.
+Los combinás como quieras.
+Y la búsqueda queda en la URL.
+La podés guardar, o compartir con tu equipo.
+
+Así decidís quién recibe qué.
+El Día del Padre va a los padres.
+El aniversario de compra,
+a los que cerraron operación este mes.
+Cada mensaje, a quien tiene sentido.
+
+Una base que conoce a tus clientes.
+Y se acuerda de cada uno por vos.

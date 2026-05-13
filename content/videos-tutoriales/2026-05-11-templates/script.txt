@@ -1,0 +1,11 @@
+Estos son los Templates de OnMind.
+
+La idea es simple: escribís el mensaje una sola vez.
+
+Donde va el nombre del contacto, ponés llaves nombre.
+
+Y listo. OnMind lo arma personalizado para cada persona.
+
+Una plantilla. Mil mensajes únicos.
+
+Tu cliente recibe algo que parece escrito para él. Y en parte, lo es.

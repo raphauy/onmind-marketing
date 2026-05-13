@@ -1,5 +1,38 @@
 # Log de trabajo — OnMind Marketing
 
+## 2026-05-12
+- **Skill `crear-video-tutorial` consolidado y enriquecido.**
+  - Sin tope rígido de duración: el video lleva el tiempo necesario para enseñar bien la feature. Reels 9:16 son cortos derivados, no sustituto del master 16:9 (educativo, landing/YouTube).
+  - Reel 9:16 dedicado por video: composición Remotion separada (`tutorial-<feature>-9x16`), 1080x1920, layout vertical (cards apiladas, stat en columna, `whiteSpace: nowrap` para chips inline). Comparte el mismo `voz.mp3` del master.
+  - Persistencia en DB: `scripts/save-video-tutorial.mjs` crea Template REMOTION (`tutorial-video-remotion`) + Piece GENERATED + Generation, sube assets a Vercel Blob.
+  - Assets para YouTube: `scripts/generate-youtube-assets.mjs` extrae frame del master, renderiza thumbnail con composición Remotion paramétrica `TutorialThumbnailYT` (1280x720), genera `youtube.md` con título + descripción + capítulos automáticos desde meta.md + tags + configuración recomendada.
+  - Lecciones documentadas en SKILL.md:
+    - **Densidad cómoda:** 2.8-3.2 wps. Si el video se siente apurado, **ampliar el guion** (no acelerar la voz).
+    - **Micro-momentos por escena:** cada escena debe cambiar visualmente 2-3 veces (entrada + sub-elementos secuenciales + detalle final). Duración mínima 4-5s por escena.
+    - **Safe zone del thumbnail YT:** evitar branding en top ~100px (header del player) y esquinas inferiores (botón "Mirar en YouTube" + ícono de compartir). Contenido siempre centrado vertical con padding 110/110.
+- **Tutorial "Contactos" producido (primer tutorial real del canal).**
+  - Master 16:9 (72s) + Reel 9:16 (72s) en `content/videos-tutoriales/2026-05-12-contactos/`.
+  - Guion: 190 palabras, ~2.8 wps. 8 escenas: intro · importación CSV · creación auto vía WhatsApp · ficha rica · filtros · resultado · cierre · outro.
+  - Pieza guardada en DB de producción con slug `2026-05-12-contactos`.
+  - Assets YouTube generados (thumbnail-yt.jpg + youtube.md con 7 capítulos cortos).
+  - **Decisión narrativa clave:** descartado momento "crear contacto manual" porque no representa el uso real — los agentes traen su base por CSV al onboarding y los nuevos entran solos vía WhatsApp. Confirmado en `onmind/src/services/evolution-webhook-service.ts:396` (`createContact` desde webhook entrante).
+
+## 2026-05-11
+- **Canal de YouTube OnMind creado y configurado.** Plan completo en `docs/planes/onmind-canal-youtube-2026-05-11.md`.
+  - **Identidad:** nombre `OnMind`, handle `@OnMindApp` (consistente con Instagram), Brand Account creado desde la cuenta personal de Raphael. URL: https://www.youtube.com/@OnMindApp
+  - **Posicionamiento:** foco en el problema ("Mantenemos vivo el vínculo con tus clientes") — no hablar de CRM ni del producto, hablar de la causa.
+  - **Pilares de contenido (etapa inicial):** solo Pilar 1 (Tutoriales OnMind). Pilares 2 (Vínculo educativo top-funnel) y 3 (Casos reales) postergados hasta que el motor de tutoriales esté corriendo. Decisión pragmática para no comprometer cadencia.
+  - **Estructura de playlists:** una sola playlist "Tutoriales OnMind" que se crea al subir el primer video. Re-evaluar partir en sub-playlists cuando haya 8-10 videos.
+  - **Assets visuales generados** con `scripts/generate-youtube-assets.ts` (sharp + satori + resvg). Output en `public/youtube/`:
+    - `avatar.png` (800x800): fondo teal #007056 + isotipo blanco.
+    - `banner.png` (2560x1440): gradiente teal, safe zone 1546x423 con isotipo + tagline "Mantenemos vivo el vínculo con tus clientes" + bajada "Tutoriales · Estrategias · Casos reales".
+    - `watermark.png` (150x150): círculo teal con isotipo blanco (regenerado tras descubrir que el watermark blanco transparente se perdía en thumbnails/fondos claros — relevante para tutoriales con UI clara de OnMind).
+  - **Configuración del canal:** descripción, palabras clave SEO, enlaces (sitio + Instagram), verificación SMS completada (desbloquea miniaturas custom y videos >15min), país Uruguay, idioma Español.
+  - **Pestaña Inicio:** desactivada hasta tener 3+ videos.
+  - **Textos para copiar guardados en `copy-paste.txt`.**
+  - **Próximos pasos:** subir primer tutorial, crear la playlist al subirlo, invitar a Martín como admin del Brand Account.
+- **Tutorial "Templates" producido como prototipo del nuevo skill `crear-video-tutorial`.** Master 16:9 (24s) + Reel 9:16 (24s) en `content/videos-tutoriales/2026-05-11-templates/`. Pieza guardada en DB. Sirvió para validar el flujo completo (composición Remotion, TTS ElevenLabs, derivada vertical, `save-video-tutorial.mjs`). Marcado como prueba — se va a regenerar cuando estén las composiciones canónicas estables.
+
 ## 2026-05-10
 - **CRM ligero de leads — diseño en 7 fases.** Plan completo en `~/.claude/plans/bien-tengo-un-problema-partitioned-abelson.md`. Cada fase es independiente y autocontenida para que un agente distinto la pueda tomar en una sesión nueva.
   - Fases: 1) Foundation (modelo + alta manual + listado + detail con notas) · 2) Webhook + round-robin + emails · 3) Kanban + tracking de trial · 4) Templates de mensajes (booking + 3 follow-ups) · 5) Disponibilidad (reglas semanales + bloqueos) · 6) Booking público + reserva + Calendar prellenado · 7) Follow-up automatizado (panel + email + cron + indicadores).

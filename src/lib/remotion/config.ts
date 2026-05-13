@@ -22,6 +22,14 @@ export const THUMBNAIL_FRAME_RATIO = 0.8
 export const TEMPLATE_DURATION_SECONDS: Record<string, number> = {
   "frase-animada": 10,
   "chat-animado": 17,
+  "tutorial-dashboard-a": 22,
+  "tutorial-dashboard-b": 22,
+  "tutorial-templates": 24,
+  "tutorial-templates-9x16": 24,
+  "tutorial-contactos": 72,
+  "tutorial-contactos-9x16": 72,
+  // Thumbnail estático YT: 1 frame, duración nominal 1s para que Remotion acepte.
+  "tutorial-thumbnail-yt": 1,
 }
 
 export function templateDurationInFrames(slug: string): number {
