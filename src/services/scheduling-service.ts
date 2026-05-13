@@ -4,7 +4,12 @@ import {
   publishReelToInstagram,
   publishToInstagram,
 } from "./instagram-service"
-import { isValidSchedule } from "@/lib/dates"
+import {
+  fromZonedTime,
+  isValidSchedule,
+  toZonedTimeUY,
+  UY_TZ,
+} from "@/lib/dates"
 
 const MAX_ATTEMPTS = 5
 const CRON_BATCH_SIZE = 10
@@ -239,4 +244,63 @@ export async function publishDuePublications(): Promise<PublishRunResult> {
   }
 
   return result
+}
+
+export type TomorrowCheckResult = {
+  missingDays: string[]
+  todayCount: number
+  tomorrowCount: number
+}
+
+// Devuelve el inicio del día UY (00:00 hora UY) en UTC para un offset en días.
+// dayOffset=0 → hoy en UY; dayOffset=1 → mañana en UY.
+function startOfUYDayUTC(dayOffset: number): Date {
+  const nowUY = toZonedTimeUY(new Date())
+  const local = new Date(
+    nowUY.getFullYear(),
+    nowUY.getMonth(),
+    nowUY.getDate() + dayOffset,
+    0,
+    0,
+    0,
+    0
+  )
+  return fromZonedTime(local, UY_TZ)
+}
+
+/**
+ * Chequea si hay alguna Publication de Instagram programada para hoy y/o
+ * mañana en hora UY. Devuelve qué días están vacíos.
+ *
+ * Cuenta cualquier Publication con scheduledAt dentro del día (PENDING,
+ * PUBLISHING, PUBLISHED). Si ya se publicó en el día, ese día queda cubierto.
+ * Las FAILED no cuentan.
+ */
+export async function checkInstagramCoverageNextTwoDays(): Promise<TomorrowCheckResult> {
+  const todayStart = startOfUYDayUTC(0)
+  const tomorrowStart = startOfUYDayUTC(1)
+  const dayAfterStart = startOfUYDayUTC(2)
+
+  const [todayCount, tomorrowCount] = await Promise.all([
+    prisma.publication.count({
+      where: {
+        platform: "instagram",
+        status: { not: "FAILED" },
+        scheduledAt: { gte: todayStart, lt: tomorrowStart },
+      },
+    }),
+    prisma.publication.count({
+      where: {
+        platform: "instagram",
+        status: { not: "FAILED" },
+        scheduledAt: { gte: tomorrowStart, lt: dayAfterStart },
+      },
+    }),
+  ])
+
+  const missingDays: string[] = []
+  if (todayCount === 0) missingDays.push("hoy")
+  if (tomorrowCount === 0) missingDays.push("mañana")
+
+  return { missingDays, todayCount, tomorrowCount }
 }

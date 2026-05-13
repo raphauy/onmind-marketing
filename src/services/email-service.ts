@@ -5,6 +5,7 @@ import LeadStatusChangedEmail from '@/components/emails/lead-status-changed-emai
 import BookingConfirmedOwnerEmail from '@/components/emails/booking-confirmed-owner-email'
 import BookingConfirmedLeadEmail from '@/components/emails/booking-confirmed-lead-email'
 import LeadNeedsFollowUpEmail from '@/components/emails/lead-needs-followup-email'
+import NoPublicationTomorrowEmail from '@/components/emails/no-publication-tomorrow-email'
 import { formatInUY } from '@/lib/dates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -360,4 +361,57 @@ export async function sendLeadNeedsFollowUpEmail(
     return
   }
   console.log(`[sendLeadNeedsFollowUpEmail] sent id=${data?.id}`)
+}
+
+interface SendNoPublicationTomorrowInput {
+  to: string[]
+  missingDays: string[]
+}
+
+export async function sendNoPublicationTomorrowEmail(
+  input: SendNoPublicationTomorrowInput
+): Promise<void> {
+  if (input.to.length === 0) return
+  const { filtered: to, muted } = filterMuted(input.to)
+  if (muted.length > 0) {
+    console.log(`[sendNoPublicationTomorrowEmail] muted: ${muted.join(', ')}`)
+  }
+  if (to.length === 0) return
+
+  const scheduleUrl = `${APP_URL}/dashboard/pieces`
+  const daysLabel =
+    input.missingDays.length === 1
+      ? input.missingDays[0]
+      : input.missingDays.join(' y ')
+  const subject = `Instagram sin contenido programado para ${daysLabel}`
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log('\n[sendNoPublicationTomorrowEmail] (dev mode, not sending)')
+    console.log(`  to: ${input.to.join(', ')}`)
+    console.log(`  subject: ${subject}`)
+    console.log(`  missingDays: ${input.missingDays.join(', ')}`)
+    return
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error('[sendNoPublicationTomorrowEmail] RESEND_API_KEY is not set')
+    return
+  }
+
+  const fromEmail = process.env.EMAIL_FROM || 'noreply@onmindcrm.com'
+  const { data, error } = await resend.emails.send({
+    from: fromEmail,
+    to,
+    subject,
+    react: NoPublicationTomorrowEmail({
+      missingDays: input.missingDays,
+      scheduleUrl,
+    }),
+  })
+
+  if (error) {
+    console.error('[sendNoPublicationTomorrowEmail] Resend error:', error)
+    return
+  }
+  console.log(`[sendNoPublicationTomorrowEmail] sent id=${data?.id}`)
 }

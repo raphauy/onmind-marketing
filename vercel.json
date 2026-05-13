@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/scan-followups",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/check-instagram-coverage",
+      "schedule": "0 9 * * *"
     }
   ]
 }
