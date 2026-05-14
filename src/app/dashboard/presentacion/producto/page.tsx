@@ -6,13 +6,13 @@ import { PdfLinkBar } from "@/components/pdf-link-bar";
 export default function ProductoPage() {
   const filePath = path.join(
     process.cwd(),
-    "docs/presentacion/onmind-producto-2026-04-29.md"
+    "docs/presentacion/onmind-producto.md"
   );
   const content = fs.readFileSync(filePath, "utf-8");
 
   return (
     <div className="max-w-3xl">
-      <PdfLinkBar path="/presentacion/onmind-producto-2026-04-29.pdf" />
+      <PdfLinkBar path="/presentacion/onmind-producto.pdf" />
       <MarkdownRenderer content={content} />
     </div>
   );

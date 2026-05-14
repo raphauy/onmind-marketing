@@ -1,6 +1,6 @@
 # OnMind — Documento de producto
 
-**Fecha:** Abril 2026
+**Fecha:** Mayo 2026
 
 > Una guía funcional de qué hace OnMind, cómo funciona y qué resuelve. Pensada para que cualquier persona — un creador de contenido, un cliente antes de una demo, alguien del equipo — entienda el producto a fondo en una lectura.
 
@@ -120,6 +120,27 @@ Cada mensaje enviado tiene un badge que indica de dónde salió: *Manual* (lo es
 
 ## Otras capacidades
 
+### Respuestas automáticas a anuncios de Meta
+
+*Disponible a partir del 18 de mayo de 2026.*
+
+Si hacés pauta en Instagram o Facebook, los leads que clickean en tu aviso terminan escribiéndote por WhatsApp. El problema clásico: si no contestás en minutos el lead se enfría, y aunque contestes después hay que acordarse de hacerle un segundo seguimiento — y casi nunca pasa. OnMind se hace cargo de esa primera parte.
+
+Por cada anuncio que tengas activo configurás una **regla** con:
+
+- **Texto disparador.** La pauta de Meta inserta automáticamente un texto cuando alguien hace clic en "Enviar mensaje" desde el aviso. OnMind lo busca en el primer mensaje del lead para saber de qué campaña viene.
+- **Categoría y etiquetas** que se asignan automáticamente al lead.
+- **Mensaje de saludo** y tiempo de espera (default: 1 minuto desde el primer mensaje del lead, para dar margen si manda varias líneas seguidas antes de que OnMind responda).
+- **Segundo seguimiento** y tiempo (en horas) por si el lead no respondió al saludo.
+
+El flujo: el lead escribe → OnMind espera el tiempo configurado por si sigue escribiendo → envía el saludo y categoriza el contacto → si pasa el tiempo sin respuesta, envía el segundo seguimiento → si tampoco responde, el lead queda como **Finalizado**.
+
+**Cuando el lead arranca una conversación real** (una pregunta, "me interesa", "coordinamos visita"), los mensajes automáticos se cortan y el lead pasa a **Conversando**. A partir de ahí lo atendés vos o tu equipo. Si responde algo corto ("ok", "gracias", un emoji), la automatización se mantiene activa y reprograma el siguiente envío — no se pierden leads tibios por una respuesta breve.
+
+**Si vos contestás manualmente** en cualquier momento, los automáticos se cortan inmediatamente. Tu intervención siempre gana.
+
+Cada pauta se configura por separado, así sabés exactamente de qué aviso viene cada contacto y podés medir qué campaña te trae mejor cartera.
+
 ### Campañas
 
 Permiten enviar un mensaje a un grupo de contactos filtrados por múltiples criterios, con texto, imagen, audio o documento. Soportan envío inmediato o programado, y distribución en varios días (ej: 50 mensajes por día durante una semana). Útil para anuncios puntuales, novedades del negocio, comunicaciones de fin de año.
@@ -154,11 +175,11 @@ Cada cuenta se conecta a **un número de WhatsApp**. La conexión se hace escane
 
 Para evitar confusiones — sobre todo en una demo o en contenido — conviene tener claro lo que OnMind **no** hace:
 
-- **No es un chatbot.** No responde leads nuevos por vos. Si te llega un cliente nuevo por WhatsApp, lo seguís atendiendo vos o tu equipo, como siempre. OnMind suma el contacto a tu cartera automáticamente, pero la conversación inicial es humana.
+- **No es un chatbot.** No conversa por vos. En leads de pauta de Meta hace el saludo inicial y un segundo seguimiento si no contestan; apenas el lead arranca una conversación real, te pasa el control. Fuera de pauta, los leads nuevos los seguís atendiendo vos o tu equipo, como siempre. OnMind suma el contacto a tu cartera automáticamente, pero la conversación es humana.
 - **No es spam.** El valor está en el mensaje justo en el momento justo, distribuido en el tiempo. No es una herramienta para descargas masivas.
 - **No es un CRM gigante** que requiera tres meses de implementación. Arrancás en un día.
 - **No reemplaza tu WhatsApp.** Tu WhatsApp Business sigue funcionando normal en tu celular. OnMind se conecta a tu número y suma capacidades — no te saca nada.
-- **No resuelve "responder rápido a leads nuevos".** Eso sigue siendo trabajo humano. OnMind resuelve mantener vivo el vínculo con la cartera que ya tenés.
+- **El foco principal es tu cartera, no captar leads.** OnMind resuelve mantener vivo el vínculo con los clientes que ya tenés. Para leads de pauta de Meta hay un módulo específico descrito arriba; pero el corazón del producto es el seguimiento recurrente a tu cartera, no la captación.
 
 ---
 
