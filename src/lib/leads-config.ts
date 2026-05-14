@@ -4,7 +4,7 @@ import { LeadStatus, MessageTemplatePurpose } from "@prisma/client"
 // plantillas de mensajes. Si se actualiza la versión del brochure, cambiar
 // acá y se propaga a todas las plantillas.
 export const BROCHURE_URL =
-  "https://marketing.onmindcrm.com/presentacion/onmind-brochure-2026-04-22.pdf"
+  "https://marketing.onmindcrm.com/presentacion/onmind-brochure.pdf"
 
 // Días desde la última actualización del Lead (lead.updatedAt) que disparan
 // el follow-up automático para cada estado. Si pasan más días sin movimiento

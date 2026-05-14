@@ -26,6 +26,8 @@ Vos solo revisás. Minutos al día.
 
 **Cierres con recordatorios.** Vencimientos de contrato, aniversarios de venta: el sistema retoma el contacto en el momento oportuno.
 
+**Tus anuncios de Meta dejan de enfriarse.** *Disponible a partir del 18 de mayo.* Cuando alguien te escribe por un aviso de Instagram o Facebook, OnMind lo saluda en segundos, lo etiqueta según la campaña y le hace un segundo seguimiento si no contesta. Apenas el lead arranca una conversación real, los automáticos se cortan y la atención queda en tus manos. Cada pauta se configura por separado, así sabés exactamente de qué aviso viene cada contacto y no se te escapa ninguno esperando respuesta.
+
 **Mensajes que se sienten personales.** Cada envío sale con el nombre de tu cliente, su propiedad, su operación. Nadie recibe un texto igual al del vecino.
 
 **Disciplina que cuida tu número.** El sistema distribuye los envíos con pausas, respeta horarios y personaliza cada mensaje. Es lo que minimiza el riesgo de baneo que sufre cualquiera que manda mensajes en tandas.
@@ -38,7 +40,7 @@ Tu WhatsApp Business sigue funcionando normal en tu celular. Tus clientes te ven
 
 ## Qué no es
 
-- **No es un chatbot.** No responde leads nuevos por vos.
+- **No es un chatbot.** No conversa por vos: saluda, hace seguimiento, y te pasa el lead apenas arranca la conversación real.
 - **No es spam.** Es el mensaje justo en el momento justo — no descargas masivas.
 - **No es un CRM gigante** para aprender tres meses. Arrancás en un día.
 
