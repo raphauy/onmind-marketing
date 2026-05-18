@@ -41,6 +41,13 @@ export default async function LeadsPage({
     leads.map((l) => l.id)
   )
 
+  const leadsWithLabels = leads.map((l) => ({
+    ...l,
+    bookingStartsAtLabel: l.booking?.startsAt
+      ? formatInUY(l.booking.startsAt, "EEE d MMM, HH:mm 'hs'")
+      : null,
+  }))
+
   return (
     <div
       className={cn(
@@ -117,7 +124,7 @@ export default async function LeadsPage({
       ) : view === "kanban" ? (
         <div className="flex-1 min-h-0">
           <LeadsKanban
-            initialLeads={leads}
+            initialLeads={leadsWithLabels}
             followUpLeadIds={Array.from(followUpLeadIds)}
           />
         </div>

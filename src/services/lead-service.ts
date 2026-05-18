@@ -21,6 +21,7 @@ export async function getLeads(filters?: LeadFilters) {
     },
     include: {
       owner: { select: { id: true, name: true, email: true } },
+      booking: { select: { startsAt: true } },
     },
     orderBy: { createdAt: "desc" },
   })

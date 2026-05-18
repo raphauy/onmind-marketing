@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Lead } from "@prisma/client"
 import { differenceInCalendarDays } from "date-fns"
-import { Clock } from "lucide-react"
+import { CalendarCheck, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { LEAD_SOURCE_LABEL } from "@/components/lead-status-badge"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,7 @@ const TRIAL_DAYS = 15
 
 export type LeadCardData = Lead & {
   owner: { id: string; name: string | null; email: string } | null
+  bookingStartsAtLabel?: string | null
 }
 
 function initialsOf(name: string | null, email: string): string {
@@ -83,6 +84,13 @@ export function LeadCard({
         <div className="mt-1 flex items-center gap-1 text-[11px] text-amber-700">
           <Clock className="w-3 h-3" />
           <span>{countdown}</span>
+        </div>
+      )}
+
+      {lead.status === "DEMO_SCHEDULED" && lead.bookingStartsAtLabel && (
+        <div className="mt-1 flex items-center gap-1 text-[11px] text-emerald-700">
+          <CalendarCheck className="w-3 h-3" />
+          <span className="capitalize">{lead.bookingStartsAtLabel}</span>
         </div>
       )}
 
