@@ -102,6 +102,12 @@ Reglas del guion:
 - **Sin guion largo.**
 - **Pronunciación de números:** escribir los números importantes en palabras ("setecientos cuarenta y cinco" en lugar de "745") para que el TTS los pronuncie limpio. Los números pequeños o porcentajes pueden ir como dígitos si fluyen mejor.
 - **Densidad:** no más de 1 dato cada 3-5 segundos. Si tenés muchos datos, recortá.
+- **Pausas con `<break time="Xs" />`:** ElevenLabs `multilingual_v2` respeta este tag (max 3s). Los saltos de línea por sí solos NO generan pausas marcadas. Usar breaks para que el TTS no recite todo seguido como una sola oración. Convenciones probadas:
+  - **`<break time="0.4s" />`** o **`0.5s`** entre frases dentro del mismo bloque conceptual
+  - **`<break time="1.0s" />`** a **`1.2s`** entre escenas / cambios de idea
+  - **`<break time="1.5s" />`** antes de un dato clave o un beat dramático
+  - Sin breaks → la voz sale apurada, los visuales no tienen tiempo de respirar
+  - Calcular impacto: cada break suma a la duración del audio total
 
 Mostrá el guion al usuario y esperá feedback. Iterar hasta aprobación.
 
@@ -162,6 +168,19 @@ TRACK="01-tech-modern.mp3"  # según mood
 ln -sf "../../library-music/$TRACK" "$FOLDER/musica.mp3"
 ```
 
+**Si el audio de voz dura más que el track de música** (los tracks son de 38-42s; videos largos con muchos breaks pueden superarlo): en vez de enlazar, generar una versión loopeada del track con ffmpeg:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$(pwd)/content/videos-narrados:/src" \
+  -v "$(pwd)/$FOLDER:/work" \
+  -w /work onmind-hyperframes:local \
+  ffmpeg -y -stream_loop 1 -i /src/library-music/$TRACK \
+  -t 76 -c:a libmp3lame -b:a 192k musica.mp3
+```
+
+(`-stream_loop 1` repite el track 1 vez extra = 2 reproducciones; `-t 76` trunca al largo deseado, que debe ser ≥ voz + 4s para tail). El mix-audio.sh aplica fade-out al final, lo que disimula el corte.
+
 Si se necesita música nueva, ver [references/music.md](references/music.md).
 
 ### Paso 8: Mezclar voz + música
@@ -196,9 +215,16 @@ Lee referencias en orden:
 
 Reglas críticas (ya validadas con render):
 - **Resolución:** 1080x1920 (9:16)
-- **Duración:** longitud del audio + 2-4s de tail visual
+- **Duración:** longitud de la mezcla + 2-4s de tail visual. `data-duration` del root y del audio deben coincidir con esta duración total.
+- **CRÍTICO — Offset de 2 segundos en timings visuales:**
+  - El forced alignment (`timestamps.json`) reporta tiempos sobre `voz.mp3` puro, que arranca en `0.0s`
+  - La pista de audio del video es `mezcla.mp3`, donde la voz arranca a **`2.0s`** (delay aplicado por `mix-audio.sh` para que la música arranque sola)
+  - **Todos los `showScene`, `hideScene`, `tl.from`, `tl.to`, count-ups, etc. deben usar `tiempo_voz + 2.0`** como timestamp
+  - Olvidarte de esto = los visuales aparecen 2s antes que la voz correspondiente. Es el bug más fácil de cometer.
+  - Si en algún momento cambian el delay en `mix-audio.sh` (4to argumento), ajustar el offset proporcionalmente.
 - **Sin emojis.** Tipografía + accentos geométricos (barras teal, divisores)
 - **Hold time:** datos clave deben quedar visibles 2-3 segundos DESPUÉS del count-up. Si la voz pasa al siguiente tema antes, mantener el dato visible.
+- **Tail post-voz:** el `hideScene` de cada escena debe ocurrir **mínimo 1.0s** después de la última palabra de esa escena (sumar el offset +2s al timestamp del forced alignment). Si no, el visual cambia mientras todavía se escucha la cola de la frase. Más tail (1.2-1.5s) en cambios entre escenas grandes.
 - **Combinar escenas relacionadas.** Si hay dos datos seguidos en el guion, ponerlos en la misma pantalla acumulando, no en escenas separadas que se cortan.
 - **Outro siempre con `@OnMindApp`** y al menos 2-3s de aire al final para Instagram (loop seamless).
 

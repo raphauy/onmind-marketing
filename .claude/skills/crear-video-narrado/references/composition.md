@@ -14,6 +14,29 @@ Ese skill (instalado en `.claude/skills/hyperframes/`) tiene las reglas exactas 
 
 Reglas sacadas de iteración real con feedback del usuario en sesión inicial:
 
+### 0. CRÍTICO — Offset de +2 segundos en todos los timings
+
+**El bug más fácil de cometer y el más difícil de detectar mirando el output.**
+
+- `timestamps.json` (forced alignment) reporta tiempos sobre `voz.mp3` puro — la voz empieza en `~0.0s`
+- La pista de audio del video es `mezcla.mp3`, donde `mix-audio.sh` aplicó `adelay=2000` a la voz para que la música arranque sola. La voz arranca a **`2.0s`**
+- Por lo tanto **TODOS los timings de la timeline GSAP deben usar `tiempo_voz_pura + 2.0`**:
+
+```js
+// MAL: usar timestamps del JSON directo
+showScene("s0", 0.3);  // visual aparece a 0.3s del video, pero la voz arranca a 2.0s
+// Resultado: visual va 2s adelantado, el espectador ve cambios sin escuchar nada
+
+// BIEN: sumar offset +2
+showScene("s0", 2.3);  // visual aparece cuando arranca la voz "OnMind..."
+```
+
+Aplica a: `showScene`, `hideScene`, `tl.from`, `tl.to`, count-ups, fade-ins de chips, todo lo que tenga timestamp.
+
+Si en algún momento se cambia el delay (4to argumento de `mix-audio.sh`, default `2000` ms), ajustar el offset proporcionalmente.
+
+**Síntoma del bug:** el usuario reporta que "la parte visual va adelantada", o que cuando el audio recién arranca, el video ya lleva 2 segundos.
+
 ### 1. Sin emojis en visuales
 Los emojis (📝 🏷️ etc) le quitan profesionalismo a B2B. Reemplazar con:
 - Tipografía bold + barra teal vertical a la izquierda
@@ -25,6 +48,12 @@ Después de un count-up, el número debe quedar visible **2-3 segundos** antes d
 
 **Mal:** count-up de 745 termina a 11.3s, escena se va a 12.0s. Visible solo 0.7s.
 **Bien:** count-up termina a 11.3s, escena se va a 13.0s. Visible 1.7s.
+
+### 2b. Tail post-voz mínimo de 1.0s al hacer hide
+
+El `hideScene` de cada escena debe ocurrir **mínimo 1.0s después** de la última palabra de esa escena (sumando el offset +2s al timestamp del forced alignment). Tail más generoso (1.2-1.5s) en cambios entre escenas grandes.
+
+Si el tail es 0.3-0.5s, el visual se va mientras todavía se escucha la cola de la frase y el espectador percibe el corte como adelantado.
 
 ### 3. Combinar escenas relacionadas
 Si dos datos están narrativamente conectados, ponerlos en la misma pantalla acumulando, no en escenas separadas que se cortan.

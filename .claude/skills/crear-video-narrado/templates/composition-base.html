@@ -11,11 +11,19 @@
   - Sin guion largo (—); usar coma o salto
   - Handle: @OnMindApp (NUNCA "CRM")
 
+  CRÍTICO — OFFSET DE +2 SEGUNDOS:
+  - timestamps.json (forced alignment) está en tiempo de voz.mp3 pura (arranca en 0s)
+  - La pista de audio del video es mezcla.mp3, donde la voz arranca a 2.0s (delay aplicado por mix-audio.sh)
+  - TODOS los timings de la timeline (showScene, hideScene, tl.from, tl.to, count-ups)
+    deben usar tiempo_voz_pura + 2.0
+  - Olvidarte = los visuales aparecen 2s antes que la voz correspondiente
+
   Patrón de escenas:
   - Cada escena es un .scene con position absolute y opacity 0
   - GSAP timeline controla opacidad de la escena (showScene/hideScene helpers)
   - Dentro de cada escena, los elementos entran con .from() (NUNCA exits salvo escena final)
   - Datos clave (números) deben quedar visibles 2-3s post count-up
+  - hideScene de cada escena al menos 1.0s después de la última palabra de la escena (+2s offset)
   - Combinar escenas relacionadas para que la data acumule (no se vaya rápido)
 
   Reemplazar TODOS los TODO antes de renderizar.

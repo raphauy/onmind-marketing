@@ -52,6 +52,36 @@ node .claude/skills/crear-video-narrado/templates/scripts/list-voices.mjs
 
 (Si el archivo no existe en templates/, está en `experimentos/hyperframes/onmind-narrado/scripts/list-voices.mjs`.)
 
+## Pausas con `<break time="Xs" />`
+
+El modelo `eleven_multilingual_v2` soporta el tag SSML `<break time="Xs" />` para insertar pausas explícitas dentro del texto. Sin este tag, los saltos de línea y punto-y-aparte producen pausas muy cortas — la voz sale apurada y suena como una sola oración corrida.
+
+**Sintaxis:** se mete directo dentro del `script.txt`. El script `tts.mjs` envía el texto tal cual.
+
+```
+OnMind no nació de una idea.
+Nació de una visita.
+<break time="1.2s" />
+Diciembre. Un amigo, agente inmobiliario.
+<break time="0.4s" />
+Pero él contó otra cosa.
+```
+
+**Reglas probadas:**
+
+| Duración | Cuándo usar |
+|---|---|
+| `0.4s` - `0.5s` | Entre frases del mismo bloque conceptual |
+| `0.8s` - `1.0s` | Entre frases cuando hay cambio de subidea |
+| `1.0s` - `1.2s` | Entre escenas / bloques narrativos distintos |
+| `1.5s` | Antes de un dato clave o un beat dramático |
+
+**Límite:** ElevenLabs recomienda máximo 3s por break. Más largo no garantiza respeto.
+
+**Impacto en duración:** cada break suma a la duración total del audio. Un script con 10 breaks de ~1s suma ~10s al audio. Esto es bueno para dar tiempo a los visuales.
+
+**Diagnóstico:** si el usuario reporta que la voz "va apurada" o "sale todo junto entre bloque y bloque", la solución es agregar breaks, no regenerar la voz ni alargar el script.
+
 ## Errores comunes
 
 | Error | Causa | Solución |

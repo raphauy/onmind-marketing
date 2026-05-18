@@ -1,0 +1,39 @@
+OnMind no nació de una idea.
+Nació de una visita.
+<break time="1.2s" />
+Diciembre. Un amigo, agente inmobiliario.
+La conversación iba a ser sobre otro software.
+<break time="0.4s" />
+Pero él contó otra cosa.
+<break time="1.2s" />
+Tenía dos personas, full time.
+Escribiendo mensajes de WhatsApp a mano.
+Una por una. Cliente por cliente.
+<break time="0.5s" />
+Una planilla. La web abierta todo el día.
+Y olvidos, todos los días.
+<break time="1.5s" />
+Volvimos a casa. Pensamos y construimos.
+<break time="1.2s" />
+Dos meses después, la primera versión salió a producción.
+<break time="1.0s" />
+Importó su base de contactos.
+<break time="0.4s" />
+Eran mil.
+<break time="1.0s" />
+Todos cargados, ordenados, listos para conversar.
+<break time="1.5s" />
+Pasaron tres meses.
+<break time="1.0s" />
+Hoy son más de dos mil.
+<break time="1.2s" />
+Los nuevos entraron solos, por WhatsApp.
+Cada uno categorizado.
+Cada uno con sus mensajes programados para los próximos doce meses.
+<break time="1.5s" />
+Y ya no es solo él.
+<break time="0.5s" />
+Dieciséis agentes lo están usando.
+Diez más empiezan esta semana.
+<break time="1.2s" />
+Lo que arrancó como una charla entre amigos, hoy mantiene viva la agenda de cientos de clientes inmobiliarios.
