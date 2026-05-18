@@ -1,0 +1,23 @@
+¿Sabés qué son las Categorías de OnMind? <break time="0.6s" />
+
+Una Categoría agrupa contactos por la frecuencia con que querés mantenerte presente. <break time="0.5s" />
+
+Porque tus contactos no son todos iguales. <break time="0.4s" />
+
+Hay clientes activos, hay cartera tibia, hay postventa. Cada uno necesita un ritmo distinto. <break time="0.7s" />
+
+Las Categorías son la forma de OnMind para que esa diferencia se traduzca en mensajes reales, sin tener que armar agendas a mano. <break time="0.8s" />
+
+Vos definís cuántos mensajes al año va a recibir cada grupo, y qué plantillas se van a usar. <break time="0.6s" />
+
+Por ejemplo: Clientes activos, doce mensajes al año. <break time="0.3s" /> Cartera tibia, seis. <break time="0.3s" /> Postventa, cuatro. <break time="0.9s" />
+
+OnMind rota las plantillas a lo largo del año, las personaliza con el nombre de cada contacto, y las programa en días hábiles. <break time="0.7s" />
+
+Asignar un contacto a una Categoría es un campo más en su ficha. <break time="0.4s" />
+
+Si cambiás de idea, lo movés a otra y OnMind reajusta su calendario. <break time="0.9s" />
+
+Configurás las Categorías una sola vez. El año entero queda armado. <break time="0.5s" />
+
+Definí la frecuencia. <break time="0.3s" /> Olvidate del resto.

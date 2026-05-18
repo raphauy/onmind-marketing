@@ -28,6 +28,8 @@ export const TEMPLATE_DURATION_SECONDS: Record<string, number> = {
   "tutorial-templates-9x16": 24,
   "tutorial-contactos": 72,
   "tutorial-contactos-9x16": 72,
+  "tutorial-categorias": 124,
+  "tutorial-categorias-corto-9x16": 77,
   // Thumbnail estático YT: 1 frame, duración nominal 1s para que Remotion acepte.
   "tutorial-thumbnail-yt": 1,
 }

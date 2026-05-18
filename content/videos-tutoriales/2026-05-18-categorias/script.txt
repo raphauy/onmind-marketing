@@ -1,0 +1,39 @@
+Estas son las Categorías de OnMind. <break time="0.6s" />
+
+Una Categoría agrupa contactos por la frecuencia con que querés mantenerte presente. <break time="0.5s" />
+
+En vez de pensar mensaje por mensaje, definís una sola vez al año cuánto querés aparecer en la vida de cada grupo de clientes. <break time="0.4s" />
+
+OnMind se encarga del resto. <break time="0.9s" />
+
+La idea es simple: tus contactos no son todos iguales. <break time="0.5s" />
+
+Hay clientes activos que merecen presencia constante, hay cartera tibia que conviene tocar cada tanto, y hay postventa que necesita aparecer en momentos clave. <break time="0.5s" />
+
+Las Categorías son la forma de OnMind para que esa diferencia se traduzca en mensajes reales, sin que tengas que armar agendas a mano. <break time="0.9s" />
+
+Entrás a Contactos, Configuración, Categorías. <break time="0.5s" />
+
+Para cada Categoría definís tres cosas. <break time="0.4s" />
+
+Un nombre, cuántos mensajes al año va a recibir cada contacto del grupo, y qué plantillas se van a usar. <break time="0.6s" />
+
+Por ejemplo: Clientes activos, doce mensajes al año. <break time="0.3s" /> Cartera tibia, seis. <break time="0.3s" /> Postventa, cuatro. <break time="0.9s" />
+
+Las plantillas que asignás se usan en rotación. <break time="0.4s" />
+
+En la categoría Buscadores, Martín tiene doce plantillas distintas. Una para cada mensaje del año. <break time="0.5s" />
+
+Cuando llega el momento de enviar, OnMind toma la plantilla que toca, la personaliza con el nombre de cada contacto, y la programa. <break time="0.9s" />
+
+Los mensajes de categoría caen en días hábiles. <break time="0.4s" />
+
+Fines de semana y feriados no se tocan, porque la presencia tiene que llegar cuando la persona está conectada a su WhatsApp profesional. <break time="0.9s" />
+
+Asignar un contacto a una Categoría es un campo más en su ficha. <break time="0.5s" />
+
+Si después cambiás de idea, lo movés a otra Categoría y OnMind reajusta su calendario. <break time="0.9s" />
+
+Configurás las Categorías una sola vez. El calendario entero del año queda armado. <break time="0.7s" />
+
+Definí la frecuencia. Olvidate del resto.

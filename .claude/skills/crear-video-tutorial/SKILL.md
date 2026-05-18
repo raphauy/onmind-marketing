@@ -144,16 +144,24 @@ Estructura general:
 ```
 
 Reglas del guion:
-- **Texto plano sin markdown**, saltos de línea = pausas naturales del TTS
+- **Texto plano sin markdown**, saltos de línea solos NO son suficientes para que el TTS pause.
+- **Pausas SSML obligatorias entre bloques de ideas** con `<break time="X.Xs" />`:
+  - `0.3-0.4s` — separación corta entre frases ligadas (ej: enumeración "Activos. <break/> Tibios. <break/> Postventa.")
+  - `0.5-0.6s` — separación entre frases del mismo párrafo
+  - `0.7-0.9s` — cambio de bloque temático / nueva idea
+  - `1.0s+` — solo para énfasis dramático fuerte
+  - Sin estos tags la voz lee todo de corrido y el video se siente atropellado, aunque la densidad de palabras parezca cómoda. Las pausas dan tiempo a leer la pantalla y absorber cada idea.
+  - `tts.mjs` pasa el script tal cual al API de ElevenLabs (model `eleven_multilingual_v2`), los tags se procesan en server.
 - **Sin "CRM"**, sin guion largo
 - **Pronunciar números importantes en palabras** ("setecientos cuarenta y cinco" en lugar de "745"). Pequeños o porcentajes pueden ir como dígitos.
-- **Densidad de palabras (clave para que no se sienta apurado):**
-  - Cómoda: **2.8-3.2 palabras/segundo** (~170-190 wpm). Da tiempo a leer la pantalla.
-  - Apurado: ≥3.5 wps. Si pasa esto, el espectador siente que los gráficos se le van. **Solución: agregar más texto, no acelerar la voz.**
-  - Lento: ≤2.5 wps. Riesgo de aburrir; cortar oraciones que no aportan.
-- **Frases cortas separadas por punto** generan pausas naturales del TTS. Es la forma más limpia de hacer respirar la narración. Evitar oraciones largas con muchos comas que el TTS lee corrido.
+- **Densidad de palabras (con pausas SSML incluidas):**
+  - Cómoda: **2.5-3.0 palabras/segundo** efectivas (contando que ~10-15% del tiempo total son pausas). Da tiempo a leer la pantalla.
+  - Apurado: ≥3.5 wps. Si pasa esto, el espectador siente que los gráficos se le van. **Solución: agregar más texto + más pausas, no acelerar la voz.**
+  - Lento: ≤2.0 wps efectivos. Riesgo de aburrir; cortar oraciones que no aportan o reducir tiempo de pausas.
+- **Frases cortas separadas por punto + `<break>`** es la combinación que mejor hace respirar la narración. Evitar oraciones largas con muchas comas que el TTS lee corrido.
 - **El handle `@OnMindApp` NO se lee** — va solo como overlay visual en el outro
 - **Si el video queda apurado en la revisión: AMPLIAR el guion**, no acelerar la voz ni acortar las escenas. Más palabras = más tiempo de visualización para cada gráfico, manteniendo la voz natural.
+- **Duración flexible:** los tutoriales 16:9 educativos no tienen tope rígido. Si la feature lo amerita, 2-3 minutos o más está bien. La completitud educativa importa más que la brevedad. Reservar la compresión para los Reels 9:16 derivados.
 
 Mostrá el guion al usuario y esperá feedback. Iterar hasta aprobación explícita.
 
@@ -211,6 +219,8 @@ SLUG: fechado en YYYY-MM-DD (zona Uruguay) + 2-4 palabras descriptivas separadas
 
 ### Paso 8: Generar voz TTS
 
+Asegurate de que el `script.txt` tiene `<break time="X.Xs" />` entre los bloques (ver Paso 5). Sin las pausas la voz queda atropellada — re-generar es barato pero el síntoma "se escucha todo seguido" es 100% por falta de breaks, no por la voz.
+
 ```bash
 node .claude/skills/crear-video-narrado/templates/scripts/tts.mjs \
   s4W8kh4jMEsHFHA7NqXQ \
@@ -226,19 +236,32 @@ ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:no
 
 Pedí al usuario que escuche `voz.mp3`. Si la entonación o velocidad no funcionan, sugerí editar el script (no cambiar la voz salvo razón fuerte). Iterar hasta aprobación.
 
+**Feedback típico y cómo resolverlo:**
+- *"Se escucha todo seguido / atropellado"* → faltan `<break>` entre bloques. Agregar pausas (0.5-0.9s entre bloques temáticos) y re-generar.
+- *"Va apurado / no me da tiempo a leer"* → ampliar el guion (más palabras + más pausas), no acelerar la voz.
+- *"Arranca de sopetón cuando le doy play"* → eso NO se arregla en el audio sino en la composición Remotion (Paso 10: pre-roll de 2s antes del audio).
+
 ### Paso 9: Diseñar el plan de escenas
 
-Con la duración real del audio (X segundos), distribuí escenas. Total = X + 2-3s de tail/outro.
+Con la duración real del audio (X segundos), distribuí escenas. **Total = 2s pre-roll + X + 2-3s outro.**
+
+**Pre-roll de 2 segundos (obligatorio):** la escena del título arranca a frame 0 y el audio entra a frame 60 (2s @ 30fps). Esto da respiración cuando el usuario aprieta play y evita la sensación de "arrancó de sopetón". Se implementa envolviendo `<Audio>` en `<Sequence from={60}>` (ver Paso 10).
+
+**Convención de timing (a 30 fps, REMOTION_FPS):**
+- Pre-roll: 60 frames (2s)
+- Audio: arranca en frame 60
+- Outro: empieza después del audio, dura 60-90 frames (2-3s) para Instagram loop
 
 Patrón típico para un tutorial de feature:
 
 ```
-Escena 1 — Title         (0 → 3s)        Nombre de la feature en grande, fade-in
-Escena 2 — Concepto/dato (3 → 8s)        Lo más visual o numérico de la feature
-Escena 3 — Detalle 1     (8 → 12s)       Una pieza concreta (tarjeta, lista, etc.)
-Escena 4 — Acción/CTA    (12 → 17s)      Lo que el usuario hace (botón, click, flujo)
-Escena 5 — Cierre        (17 → ~19.5s)   Frase memorable
-Outro    — @OnMindApp    (~19.5 → fin)
+Escena 1 — Title         (0 → 5s)        Nombre de la feature en grande, fade-in
+                                          [Audio arranca a 2s; el título respira los primeros 2s]
+Escena 2 — Concepto/dato (5 → 10s)       Lo más visual o numérico de la feature
+Escena 3 — Detalle 1     (10 → 14s)      Una pieza concreta (tarjeta, lista, etc.)
+Escena 4 — Acción/CTA    (14 → 19s)      Lo que el usuario hace (botón, click, flujo)
+Escena 5 — Cierre        (19 → ~21.5s)   Frase memorable
+Outro    — @OnMindApp    (~21.5 → fin)
 ```
 
 Para cada escena, pensá:
@@ -279,18 +302,29 @@ function SceneContent2() { ... }
 function Outro() { ... }
 
 // --- Root ---
+// IMPORTANTE: pre-roll de 2s (60 frames a 30fps) antes del audio.
+// La escena del título arranca a frame 0 con duración extendida para cubrir esos 2s.
+// Las escenas siguientes están corridas +60 frames respecto a la posición "natural" del audio.
+// El <Audio> se envuelve en <Sequence from={60}> para que empiece a sonar a los 2s.
 export function Tutorial<Feature>() {
   return (
     <AbsoluteFill style={{ background: BRAND.bg }}>
-      <Sequence from={0}   durationInFrames={90}>  <SceneTitle /></Sequence>
-      <Sequence from={90}  durationInFrames={150}> <SceneContent2 /></Sequence>
+      {/* Title incluye 2s de pre-roll antes del audio */}
+      <Sequence from={0}   durationInFrames={150}> <SceneTitle /></Sequence>
+      <Sequence from={150} durationInFrames={150}> <SceneContent2 /></Sequence>
       ...
-      <Sequence from={585} durationInFrames={75}>  <Outro /></Sequence>
-      <Audio src={AUDIO_SRC} />
+      <Sequence from={645} durationInFrames={75}>  <Outro /></Sequence>
+
+      {/* Audio arranca a frame 60 = 2s de respiración al inicio */}
+      <Sequence from={60}>
+        <Audio src={AUDIO_SRC} />
+      </Sequence>
     </AbsoluteFill>
   )
 }
 ```
+
+**Duración total en config.ts:** `TEMPLATE_DURATION_SECONDS["tutorial-<feature>"] = 2 + <audio_seconds> + <outro_seconds>` (los 2 iniciales son el pre-roll).
 
 **Patrones probados (ver `TutorialDashboardB.tsx`):**
 
@@ -370,6 +404,7 @@ Pedí al usuario que mire el video. Iterar la composición si hace falta:
 - Animación entra muy rápido/lento → ajustar `dur` en `useFadeSlide` o config del spring
 - Texto no legible → aumentar fontSize, contraste o agregar fondo semitransparente
 - Cortes duros entre escenas → agregar `interpolate` de opacity en los frames de transición
+- **"Arranca de sopetón al darle play"** → falta el pre-roll de 2s. Envolver el `<Audio>` en `<Sequence from={60}>`, extender la primera escena +60 frames, correr todas las siguientes +60 frames, sumar 2s a la duración en `config.ts`. Re-render. Ver Paso 10.
 - **"El video va apurado / los gráficos se me van" (feedback frecuente):**
   - Causa: densidad de palabras alta (~3.5+ wps) o escenas con un solo "evento" visual.
   - **NO** acelerar/acortar — **AMPLIAR el guion** para sumar contexto en cada escena (consultar al usuario qué detalles agregar).
