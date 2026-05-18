@@ -37,6 +37,7 @@
     ".claude",
     "experimentos",
     "content",
-    "scripts"
+    "scripts",
+    "src/remotion"
   ]
 }
