@@ -70,15 +70,29 @@ Con base en el estado:
 
 Pedí al usuario que elija o proponga otro tema. Confirmar tema antes de avanzar.
 
-### Paso 3: Pedir datos concretos
+### Paso 3: Traer datos frescos del producto
 
-El video se sostiene con datos reales y específicos. Para el tema elegido:
+El video se sostiene con datos reales y específicos. Antes de pedirle nada al usuario, **traé vos mismo los datos desde la DB del producto** con:
 
-- **Identificá qué números/hechos necesitás** (ej: cantidad de mensajes, tasa de respuesta, equipo del agente)
-- **Pedí al usuario que te los pase** (capturas de pantalla del producto, números directos, contexto)
-- **Validá** que los datos son atribuibles correctamente:
-  - Si decís "tasa de respuesta de X%", confirmá si es a mensajes específicos o agregada
-  - Si comparás contra benchmark de mercado, sé conservador (ej: "menos del 20%" en lugar de "15%" si no tenés fuente)
+```bash
+.claude/skills/crear-video-narrado/scripts/fetch-product-stats.sh --days 90
+```
+
+Defaults: team `team-sedes`, agente spotlight `martin-sedes-inmobiliaria`, ventana 90 días. Flags disponibles: `--team <slug>`, `--client <slug>`, `--days <N>`.
+
+Salida JSON con:
+- **`summaryInRange`** — agentes activos, contactos del team, mensajes enviados, tasa de respuesta agregada, errores en el rango
+- **`summaryHistorical`** — totales desde el inicio (primer mensaje enviado, total acumulado, tasa de respuesta histórica, mensajes pendientes futuros)
+- **`ranking`** — agentes del team ordenados por mensajes enviados, con tasa de respuesta individual
+- **`spotlightAgent`** — el agente "vitrina" con detalle: contactos por categoría, distribución de closing dates, mensajes pendientes a 7/30/365 días, total de plantillas configuradas y frecuencia (`messagesPerYear`) por categoría
+
+Reglas para usar esos datos:
+- **Atribución correcta:** si decís "tasa de respuesta del X%", el JSON deja claro si es del team o de un agente, y sobre qué período. No mezclar niveles (no atribuir el % del team a un solo agente).
+- **Benchmarks de mercado:** el script NO trae datos externos. Si querés comparar, sé conservador: usá rangos en vez de números exactos ("menos del 20%", "1 de cada 5") salvo que tengas fuente verificable.
+- **Redondeos para narración:** 7.008 → "más de 7.000", 50.1% → "1 de cada 2" o "más del 50%". Hace que el TTS fluya mejor y deja margen ante variaciones.
+- **Datos cambian en el tiempo:** correr el script de nuevo si pasaron días entre la decisión del tema y el render. Anotar la fecha del snapshot en el `meta.md` del video.
+
+Si querés cruzar con un dato que el script no devuelve (ej: captura del dashboard, número específico de una feature), ahí sí pedile al usuario.
 
 ### Paso 4: Drafterar el guion
 

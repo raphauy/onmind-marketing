@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #fafafa;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        color: #111;
+      }
+
+      .scene {
+        position: absolute; inset: 0; opacity: 0;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        padding: 160px 90px; text-align: center;
+      }
+
+      .chip {
+        position: absolute; top: 80px; left: 50%;
+        transform: translateX(-50%);
+        font-size: 36px; font-weight: 600;
+        color: #007056; background: #e7f4f0;
+        padding: 14px 32px; border-radius: 999px;
+        opacity: 0; z-index: 10;
+        letter-spacing: 0.02em;
+      }
+
+      /* ───── S0: Hook ───── */
+      .hook-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 22px;
+        max-width: 960px;
+      }
+      .hook-line {
+        font-size: 88px; font-weight: 800;
+        line-height: 1.05; letter-spacing: -0.025em;
+      }
+      .hook-line .accent { color: #007056; }
+      .hook-small {
+        font-size: 44px; font-weight: 600;
+        color: #555; line-height: 1.25;
+        margin-top: 8px;
+      }
+
+      /* ───── S1: Dashboard ───── */
+      .dash-wrap {
+        display: flex; flex-direction: column;
+        align-items: stretch; gap: 0;
+        width: 920px;
+      }
+      .dash-card {
+        background: #fff; border: 1px solid #e5e7eb;
+        border-radius: 28px;
+        padding: 44px 44px 36px;
+        box-shadow: 0 14px 40px rgba(0, 112, 86, 0.08);
+        display: flex; flex-direction: column; gap: 28px;
+      }
+      .dash-head {
+        display: flex; align-items: center;
+        justify-content: space-between;
+      }
+      .dash-title {
+        font-size: 38px; font-weight: 700;
+        color: #111; letter-spacing: -0.01em;
+      }
+      .dash-btn {
+        font-size: 24px; font-weight: 700;
+        color: #fff; background: #007056;
+        padding: 14px 22px; border-radius: 14px;
+        letter-spacing: -0.005em;
+        white-space: nowrap;
+      }
+      .dash-metric-row {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 12px;
+        padding: 30px 0 18px;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .dash-metric-label {
+        font-size: 32px; font-weight: 600;
+        color: #555; letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .dash-num {
+        font-size: 320px; font-weight: 900;
+        color: #007056; letter-spacing: -0.05em;
+        line-height: 0.92;
+        font-variant-numeric: tabular-nums;
+      }
+      .dash-sub {
+        font-size: 36px; font-weight: 600;
+        color: #111; letter-spacing: -0.01em;
+      }
+      .dash-list {
+        display: flex; flex-direction: column; gap: 14px;
+      }
+      .dash-row {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px;
+        background: #f7f8fa;
+        border-radius: 14px;
+        opacity: 0;
+      }
+      .dash-row-name {
+        font-size: 30px; font-weight: 600;
+        color: #1a1a1a; letter-spacing: -0.005em;
+      }
+      .dash-row-tag {
+        font-size: 22px; font-weight: 700;
+        color: #007056; background: #e7f4f0;
+        padding: 8px 16px; border-radius: 999px;
+        letter-spacing: 0.02em;
+      }
+
+      /* ───── S2: Botón Procesar ───── */
+      .proc-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 56px;
+        max-width: 960px;
+      }
+      .proc-pre {
+        font-size: 56px; font-weight: 600;
+        color: #555; letter-spacing: -0.015em;
+      }
+      .proc-btn {
+        font-size: 78px; font-weight: 800;
+        color: #fff; background: #007056;
+        padding: 50px 70px; border-radius: 32px;
+        letter-spacing: -0.02em;
+        box-shadow: 0 24px 60px rgba(0, 112, 86, 0.35);
+        line-height: 1;
+      }
+      .proc-click {
+        font-size: 64px; font-weight: 800;
+        color: #007056; letter-spacing: -0.02em;
+        opacity: 0;
+      }
+
+      /* ───── S3: Espaciado temporal ───── */
+      .spacing-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 36px;
+        width: 920px;
+      }
+      .spacing-pre {
+        font-size: 48px; font-weight: 700;
+        color: #1a1a1a; letter-spacing: -0.015em;
+        max-width: 860px;
+      }
+      .spacing-track {
+        position: relative;
+        width: 100%; height: 6px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        margin: 36px 0 20px;
+      }
+      .spacing-tick {
+        position: absolute; top: -10px;
+        width: 26px; height: 26px;
+        background: #007056; border-radius: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 0 0 6px #fafafa, 0 0 0 7px #007056;
+        opacity: 0;
+      }
+      .spacing-time {
+        position: absolute; top: -82px;
+        font-size: 26px; font-weight: 700;
+        color: #007056; transform: translateX(-50%);
+        letter-spacing: 0.02em;
+        opacity: 0;
+      }
+      .spacing-messages {
+        display: flex; flex-direction: column; gap: 14px;
+        width: 100%;
+      }
+      .msg-card {
+        display: flex; align-items: center; gap: 18px;
+        padding: 20px 24px; border-radius: 18px;
+        opacity: 0;
+        font-size: 30px; font-weight: 600;
+        text-align: left;
+      }
+      .msg-card.out {
+        background: #e7f4f0; color: #007056;
+        margin-right: 80px;
+      }
+      .msg-card.in {
+        background: #f3f4f6; color: #1a1a1a;
+        margin-left: 80px;
+      }
+      .msg-card .dot {
+        width: 14px; height: 14px; border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .msg-card.out .dot { background: #007056; }
+      .msg-card.in .dot { background: #6b7280; }
+      .msg-card .who {
+        font-size: 22px; font-weight: 700;
+        opacity: 0.7; min-width: 110px;
+      }
+
+      /* ───── S4: Historial ───── */
+      .hist-wrap {
+        display: flex; flex-direction: column;
+        align-items: stretch; gap: 24px;
+        width: 920px;
+      }
+      .hist-head {
+        display: flex; gap: 24px;
+        align-items: center; justify-content: center;
+      }
+      .hist-tab {
+        font-size: 30px; font-weight: 700;
+        color: #555; padding: 14px 26px;
+        border-radius: 14px;
+        background: #f3f4f6;
+      }
+      .hist-tab.active {
+        color: #007056; background: #e7f4f0;
+      }
+      .hist-row {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        padding: 24px 28px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        opacity: 0;
+        box-shadow: 0 6px 18px rgba(0, 112, 86, 0.04);
+      }
+      .hist-name {
+        font-size: 32px; font-weight: 700;
+        color: #1a1a1a; letter-spacing: -0.005em;
+      }
+      .hist-badge {
+        font-size: 24px; font-weight: 700;
+        color: #007056; background: #e7f4f0;
+        padding: 10px 18px; border-radius: 999px;
+        letter-spacing: 0.02em;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .hist-badge .check {
+        width: 22px; height: 22px;
+        background: #007056; color: #fff;
+        border-radius: 50%;
+        display: inline-flex; align-items: center;
+        justify-content: center; font-size: 16px;
+        font-weight: 800;
+      }
+
+      /* ───── S5: Conversaciones ───── */
+      .chat-frame {
+        width: 920px; height: 1200px;
+        background: #fff;
+        border-radius: 28px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 20px 60px rgba(0, 112, 86, 0.10);
+        display: flex; overflow: hidden;
+      }
+      .chat-sidebar {
+        width: 310px; background: #f0f2f5;
+        border-right: 1px solid #e5e7eb;
+        display: flex; flex-direction: column;
+        padding: 24px 14px;
+        gap: 12px;
+      }
+      .chat-sidebar-title {
+        font-size: 24px; font-weight: 700;
+        color: #1a1a1a;
+        padding: 0 10px 14px;
+        letter-spacing: -0.01em;
+      }
+      .chat-contact {
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 12px; border-radius: 12px;
+      }
+      .chat-contact.active { background: #fff; }
+      .chat-avatar {
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        background: #007056; color: #fff;
+        display: flex; align-items: center;
+        justify-content: center;
+        font-size: 22px; font-weight: 700;
+        flex-shrink: 0;
+      }
+      .chat-contact-name {
+        font-size: 22px; font-weight: 600;
+        color: #1a1a1a; letter-spacing: -0.005em;
+      }
+      .chat-main {
+        flex: 1; display: flex; flex-direction: column;
+        background: #efeae2;
+      }
+      .chat-header {
+        background: #f0f2f5;
+        padding: 22px 26px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex; align-items: center; gap: 16px;
+      }
+      .chat-header-name {
+        font-size: 24px; font-weight: 700;
+        color: #1a1a1a;
+      }
+      .chat-body {
+        flex: 1; padding: 32px 26px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .bubble {
+        max-width: 80%;
+        padding: 16px 20px;
+        border-radius: 16px;
+        font-size: 22px; font-weight: 500;
+        line-height: 1.3;
+        opacity: 0;
+      }
+      .bubble.in {
+        background: #fff;
+        color: #1a1a1a;
+        align-self: flex-start;
+        border-top-left-radius: 4px;
+      }
+      .bubble.out {
+        background: #d9fdd3;
+        color: #1a1a1a;
+        align-self: flex-end;
+        border-top-right-radius: 4px;
+      }
+      .bubble small {
+        display: block; margin-top: 6px;
+        font-size: 16px; color: #555;
+        text-align: right;
+      }
+
+      /* ───── S6: Cierre 2 min / 1 día ───── */
+      .close-wrap {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 40px;
+        max-width: 960px;
+      }
+      .close-row {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 4px;
+      }
+      .close-num {
+        font-size: 220px; font-weight: 900;
+        color: #007056; letter-spacing: -0.04em;
+        line-height: 0.95;
+      }
+      .close-label {
+        font-size: 44px; font-weight: 700;
+        color: #1a1a1a; letter-spacing: -0.01em;
+      }
+      .close-arrow {
+        font-size: 80px; font-weight: 800;
+        color: #007056;
+        line-height: 1;
+      }
+      .close-row.out .close-num { color: #007056; }
+      .close-row.out .close-label { color: #007056; }
+
+      /* ───── Outro ───── */
+      .outro-handle {
+        font-size: 132px; font-weight: 800;
+        color: #007056; letter-spacing: -0.025em;
+      }
+      .outro-tag {
+        font-size: 50px; font-weight: 500;
+        color: #444; margin-top: 30px;
+        max-width: 880px; line-height: 1.25;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="60"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio
+        id="audio-mezcla"
+        data-start="0"
+        data-duration="60"
+        data-track-index="9"
+        src="mezcla.mp3"
+        data-volume="1"
+      ></audio>
+
+      <div id="chip" class="chip">@OnMindApp</div>
+
+      <!-- S0: Hook -->
+      <div class="scene" id="s0">
+        <div class="hook-wrap">
+          <div class="hook-small" id="s0-small">Esto es lo que ve un agente inmobiliario</div>
+          <div class="hook-line" id="s0-l1">cuando abre <span class="accent">OnMind</span></div>
+          <div class="hook-line" id="s0-l2"><span class="accent">cada mañana</span>.</div>
+        </div>
+      </div>
+
+      <!-- S1: Dashboard con 30 mensajes -->
+      <div class="scene" id="s1">
+        <div class="dash-wrap">
+          <div class="dash-card">
+            <div class="dash-head">
+              <div class="dash-title">Mensajes programados</div>
+              <div class="dash-btn">Procesar mensajes para hoy</div>
+            </div>
+            <div class="dash-metric-row">
+              <div class="dash-metric-label">Pendientes hoy</div>
+              <div class="dash-num" id="s1-num">0</div>
+            </div>
+            <div class="dash-list">
+              <div class="dash-row" id="s1-r1">
+                <div class="dash-row-name">Gabriela Ungrini</div>
+                <div class="dash-row-tag">Categoría</div>
+              </div>
+              <div class="dash-row" id="s1-r2">
+                <div class="dash-row-name">Gerardo Referido R.</div>
+                <div class="dash-row-tag">Programado</div>
+              </div>
+              <div class="dash-row" id="s1-r3">
+                <div class="dash-row-name">Virginia Méndez</div>
+                <div class="dash-row-tag">Categoría</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: Botón Procesar + Click -->
+      <div class="scene" id="s2">
+        <div class="proc-wrap">
+          <div class="proc-pre" id="s2-pre">Un solo botón</div>
+          <div class="proc-btn" id="s2-btn">Procesar mensajes para hoy</div>
+          <div class="proc-click" id="s2-click">Click.</div>
+        </div>
+      </div>
+
+      <!-- S3: Espaciado temporal -->
+      <div class="scene" id="s3">
+        <div class="spacing-wrap">
+          <div class="spacing-pre" id="s3-pre">Cada 5 a 10 minutos sale uno.</div>
+          <div class="spacing-messages">
+            <div class="msg-card out" id="s3-m1">
+              <div class="dot"></div>
+              <div class="who">9:00</div>
+              <div>Mensaje enviado a Gabriela</div>
+            </div>
+            <div class="msg-card in" id="s3-m2">
+              <div class="dot"></div>
+              <div class="who">9:03</div>
+              <div>Gabriela respondió</div>
+            </div>
+            <div class="msg-card out" id="s3-m3">
+              <div class="dot"></div>
+              <div class="who">9:08</div>
+              <div>Mensaje enviado a Gerardo</div>
+            </div>
+            <div class="msg-card in" id="s3-m4">
+              <div class="dot"></div>
+              <div class="who">9:12</div>
+              <div>Gerardo respondió</div>
+            </div>
+            <div class="msg-card out" id="s3-m5">
+              <div class="dot"></div>
+              <div class="who">9:18</div>
+              <div>Mensaje enviado a Virginia</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: Historial -->
+      <div class="scene" id="s4">
+        <div class="hist-wrap">
+          <div class="hist-head">
+            <div class="hist-tab">Mensajes programados</div>
+            <div class="hist-tab active">Historial</div>
+          </div>
+          <div class="hist-row" id="s4-r1">
+            <div class="hist-name">Luna Trujillo</div>
+            <div class="hist-badge"><span class="check">✓</span>Visto ayer</div>
+          </div>
+          <div class="hist-row" id="s4-r2">
+            <div class="hist-name">José Manuel Rodríguez</div>
+            <div class="hist-badge"><span class="check">✓</span>Visto ayer</div>
+          </div>
+          <div class="hist-row" id="s4-r3">
+            <div class="hist-name">Mónica Diafutto</div>
+            <div class="hist-badge"><span class="check">✓</span>Respondió</div>
+          </div>
+          <div class="hist-row" id="s4-r4">
+            <div class="hist-name">Federica Toro</div>
+            <div class="hist-badge"><span class="check">✓</span>Respondió</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S5: Conversaciones -->
+      <div class="scene" id="s5">
+        <div class="chat-frame">
+          <div class="chat-sidebar">
+            <div class="chat-sidebar-title">Conversaciones</div>
+            <div class="chat-contact">
+              <div class="chat-avatar">M</div>
+              <div class="chat-contact-name">María R.</div>
+            </div>
+            <div class="chat-contact active">
+              <div class="chat-avatar">MD</div>
+              <div class="chat-contact-name">Mónica D.</div>
+            </div>
+            <div class="chat-contact">
+              <div class="chat-avatar">F</div>
+              <div class="chat-contact-name">Fanny C.</div>
+            </div>
+            <div class="chat-contact">
+              <div class="chat-avatar">L</div>
+              <div class="chat-contact-name">Luna T.</div>
+            </div>
+          </div>
+          <div class="chat-main">
+            <div class="chat-header">
+              <div class="chat-avatar">MD</div>
+              <div class="chat-header-name">Mónica Diafutto</div>
+            </div>
+            <div class="chat-body">
+              <div class="bubble in" id="s5-b1">
+                Hola, ¿cómo va todo en el depto?
+                <small>10:42</small>
+              </div>
+              <div class="bubble out" id="s5-b2">
+                Hola Mónica, todo muy bien por acá. ¿Hace cuánto que no nos vemos?
+                <small>10:43</small>
+              </div>
+              <div class="bubble in" id="s5-b3">
+                Casi un año. ¿Tenés tiempo para charlar esta semana?
+                <small>10:44</small>
+              </div>
+              <div class="bubble out" id="s5-b4">
+                Sí, el jueves a las 16h. Te confirmo dirección.
+                <small>10:45</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S6: Cierre 2 min / 1 día -->
+      <div class="scene" id="s6">
+        <div class="close-wrap">
+          <div class="close-row" id="s6-r1">
+            <div class="close-num">2 min</div>
+            <div class="close-label">de revisión a la mañana</div>
+          </div>
+          <div class="close-arrow" id="s6-arrow">↓</div>
+          <div class="close-row out" id="s6-r2">
+            <div class="close-num">1 día</div>
+            <div class="close-label">entero de presencia con clientes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outro -->
+      <div class="scene" id="outro">
+        <div class="outro-handle" id="outro-handle">@OnMindApp</div>
+        <div class="outro-tag" id="outro-tag">
+          automatizá el vínculo con tus clientes
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function showScene(id, t, dur = 0.5) {
+        tl.to("#" + id, { opacity: 1, duration: dur, ease: "power2.out" }, t);
+      }
+      function hideScene(id, t, dur = 0.4) {
+        tl.to("#" + id, { opacity: 0, duration: dur, ease: "power2.in" }, t);
+      }
+
+      // NOTA: Timestamps en tiempo de MEZCLA (voz arranca a 2.0s).
+      // forced alignment + 2.0 = tiempo de mezcla.
+
+      // Chip @OnMindApp persistente
+      tl.to("#chip", { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.2);
+
+      // ========== S0 (2.0 - 6.6) Hook ==========
+      // Voz: "Esto es lo que ve un agente inmobiliario" 2.08-3.50
+      //      "cuando abre OnMind" 4.14-5.84
+      //      "cada mañana." 5.66-6.40
+      showScene("s0", 2.0);
+      tl.from("#s0-small", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, 2.1);
+      tl.from("#s0-l1", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, 4.1);
+      tl.from("#s0-l2", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, 5.6);
+      hideScene("s0", 7.0);
+
+      // ========== S1 (7.4 - 15.8) Dashboard + count-up ==========
+      // Voz: "En la pantalla principal aparecen los mensajes programados para hoy." 7.68-11.78
+      //      "Veinte, treinta mensajes, listos para salir." 12.02-15.02
+      showScene("s1", 7.4);
+      tl.from("#s1-num", { opacity: 0, scale: 0.6, duration: 0.5, ease: "back.out(1.6)" }, 12.0);
+      const c30 = { v: 20 };
+      tl.to(c30, {
+        v: 30, duration: 1.4, ease: "power2.out",
+        onUpdate: function () {
+          const el = document.getElementById("s1-num");
+          if (el) el.textContent = Math.round(c30.v);
+        },
+      }, 12.02);
+      tl.from("#s1-r1", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 12.8);
+      tl.from("#s1-r2", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 13.15);
+      tl.from("#s1-r3", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 13.5);
+      hideScene("s1", 15.9);
+
+      // ========== S2 (15.8 - 20.6) Botón Procesar + Click ==========
+      // Voz: "Un solo botón: Procesar mensajes para hoy." 16.04-18.88
+      //      "Click." 19.26-20.0
+      showScene("s2", 15.8);
+      tl.from("#s2-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 16.04);
+      tl.from("#s2-btn", { opacity: 0, scale: 0.85, duration: 0.6, ease: "back.out(1.4)" }, 17.1);
+      tl.to("#s2-click", { opacity: 1, duration: 0.3, ease: "power2.out" }, 19.26);
+      tl.to("#s2-btn", { scale: 0.94, duration: 0.15, ease: "power2.in" }, 19.26);
+      tl.to("#s2-btn", { scale: 1.0, duration: 0.25, ease: "power2.out" }, 19.41);
+      hideScene("s2", 20.8);
+
+      // ========== S3 (20.7 - 32.0) Espaciado temporal ==========
+      // Voz: "Los mensajes se van enviando uno a uno, cada cinco o diez minutos." 20.58-25.20
+      //      "Para que las respuestas también lleguen espaciadas," 25.94-28.60
+      //      "y el agente pueda contestar sin abrumarse." 28.66-31.30
+      showScene("s3", 20.7);
+      tl.from("#s3-pre", { opacity: 0, y: 30, duration: 0.5, ease: "power2.out" }, 20.8);
+      tl.from("#s3-m1", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 21.7);
+      tl.from("#s3-m2", { opacity: 0, x: 30, duration: 0.4, ease: "power2.out" }, 26.2);
+      tl.from("#s3-m3", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 27.2);
+      tl.from("#s3-m4", { opacity: 0, x: 30, duration: 0.4, ease: "power2.out" }, 28.2);
+      tl.from("#s3-m5", { opacity: 0, x: -30, duration: 0.4, ease: "power2.out" }, 29.2);
+      hideScene("s3", 32.1);
+
+      // ========== S4 (32.3 - 38.0) Historial ==========
+      // Voz: "En la otra vista, el historial: todo lo que ya se envió, quién lo vio, quién respondió." 32.62-37.20
+      showScene("s4", 32.3);
+      tl.from("#s4-r1", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 32.9);
+      tl.from("#s4-r2", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 33.5);
+      tl.from("#s4-r3", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 34.2);
+      tl.from("#s4-r4", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 35.0);
+      hideScene("s4", 38.2);
+
+      // ========== S5 (38.6 - 47.6) Conversaciones ==========
+      // Voz: "Y un click en cualquier contacto abre la conversación entera." 39.20-43.10
+      //      "Un WhatsApp Web dentro de OnMind, con todo el historial de esa persona." 43.28-47.20
+      showScene("s5", 38.6);
+      tl.from("#s5-b1", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 39.9);
+      tl.from("#s5-b2", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 41.5);
+      tl.from("#s5-b3", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 43.6);
+      tl.from("#s5-b4", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 45.6);
+      hideScene("s5", 47.7);
+
+      // ========== S6 (48.0 - 54.0) Cierre 2 min / 1 día ==========
+      // Voz: "Dos minutos de revisión a la mañana." 48.56-50.32
+      //      "Un día entero de presencia con clientes." 51.22-52.78
+      showScene("s6", 48.0);
+      tl.from("#s6-r1", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, 48.5);
+      tl.from("#s6-arrow", { opacity: 0, y: -20, duration: 0.5, ease: "power2.out" }, 50.7);
+      tl.from("#s6-r2", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, 51.2);
+      hideScene("s6", 54.2);
+
+      // ========== Outro (54.2 - 60.0) ==========
+      showScene("outro", 54.2);
+      tl.from("#outro-handle", { opacity: 0, scale: 0.85, y: 30, duration: 0.7, ease: "back.out(1.4)" }, 54.3);
+      tl.from("#outro-tag", { opacity: 0, y: 20, duration: 0.6, ease: "power2.out" }, 54.8);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -23,6 +23,8 @@ import { TutorialContactos } from "./templates/TutorialContactos"
 import { TutorialContactos9x16 } from "./templates/TutorialContactos9x16"
 import { TutorialCategorias } from "./templates/TutorialCategorias"
 import { TutorialCategoriasCorto9x16 } from "./templates/TutorialCategoriasCorto9x16"
+import { TutorialAutomatizaciones } from "./templates/TutorialAutomatizaciones"
+import { TutorialAutomatizaciones9x16 } from "./templates/TutorialAutomatizaciones9x16"
 import {
   TutorialThumbnailYT,
   TutorialThumbnailYTDefaults,
@@ -115,6 +117,22 @@ export function RemotionRoot() {
         id="tutorial-categorias-corto-9x16"
         component={TutorialCategoriasCorto9x16}
         durationInFrames={templateDurationInFrames("tutorial-categorias-corto-9x16")}
+        fps={REMOTION_FPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="tutorial-automatizaciones"
+        component={TutorialAutomatizaciones}
+        durationInFrames={templateDurationInFrames("tutorial-automatizaciones")}
+        fps={REMOTION_FPS}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="tutorial-automatizaciones-9x16"
+        component={TutorialAutomatizaciones9x16}
+        durationInFrames={templateDurationInFrames("tutorial-automatizaciones-9x16")}
         fps={REMOTION_FPS}
         width={1080}
         height={1920}

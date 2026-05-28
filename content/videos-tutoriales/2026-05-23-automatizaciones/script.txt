@@ -1,0 +1,17 @@
+Estas son las Automatizaciones de OnMind. <break time="0.5s" /> Cómo trabajan en el día a día. <break time="0.8s" />
+
+Cuando alguien responde a tu pauta de Meta Ads por WhatsApp, <break time="0.4s" /> OnMind reconoce el texto disparador de esa pauta <break time="0.4s" /> y arma un lead automáticamente. <break time="0.8s" />
+
+Apenas llega el mensaje, <break time="0.3s" /> el lead aparece en estado Nuevo. <break time="0.5s" /> Ya con la categoría que definiste para esa pauta <break time="0.3s" /> y las etiquetas que aplican. <break time="0.8s" />
+
+A los dos minutos por defecto sale el primer mensaje. <break time="0.5s" /> Una bienvenida con el link o la información concreta de la propiedad. <break time="0.4s" /> El lead pasa a En seguimiento. <break time="0.8s" />
+
+Si el contacto no responde, <break time="0.3s" /> cuarenta y ocho horas después sale un recordatorio. <break time="0.5s" /> Siempre dentro de la franja laboral, <break time="0.3s" /> entre las diez de la mañana y las siete de la tarde. <break time="0.8s" />
+
+Si responde con algo real, <break time="0.3s" /> no un simple sí o un emoji, <break time="0.4s" /> el lead pasa a Conversando <break time="0.3s" /> y los seguimientos pendientes se cancelan solos. <break time="0.8s" />
+
+Cada pauta es una regla. <break time="0.4s" /> Definís el texto disparador, <break time="0.3s" /> la categoría, <break time="0.3s" /> las etiquetas, <break time="0.3s" /> los dos mensajes de seguimiento <break time="0.3s" /> y cuánto tiempo esperar entre cada uno. <break time="0.5s" /> Se configura una sola vez y queda corriendo. <break time="0.8s" />
+
+Todos los leads se ven en un tablero. <break time="0.4s" /> Vista Kanban para arrastrar, <break time="0.3s" /> vista Tabla para revisar y filtrar. <break time="0.8s" />
+
+Cada respuesta a una pauta entra al flujo. <break time="0.4s" /> Sin que tengas que mover un dedo.

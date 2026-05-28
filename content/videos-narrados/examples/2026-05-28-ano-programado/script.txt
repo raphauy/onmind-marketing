@@ -1,0 +1,37 @@
+Un agente inmobiliario configuró OnMind una vez.
+<break time="0.8s" />
+Categorías. Plantillas. Frecuencias.
+<break time="1.2s" />
+Y ahora el próximo año de su agenda ya está escrito.
+
+<break time="1.5s" />
+
+Más de siete mil trescientos mensajes.
+<break time="0.5s" />
+Repartidos en los próximos trescientos sesenta y cinco días.
+
+<break time="1.0s" />
+
+Cuarenta y nueve plantillas distintas.
+<break time="0.5s" />
+Un cliente categoría B recibe doce contactos al año.
+<break time="0.5s" />
+Un cliente A, seis.
+<break time="0.5s" />
+Uno R, también seis.
+
+<break time="1.2s" />
+
+Cada categoría con su frecuencia.
+<break time="0.5s" />
+Cada plantilla pensada una sola vez.
+<break time="0.5s" />
+Y ejecutándose sola, en el día exacto.
+
+<break time="1.5s" />
+
+No es magia.
+<break time="0.5s" />
+Es seguimiento ordenado.
+<break time="0.8s" />
+Lo que pasa cuando dejás de improvisar la presencia.

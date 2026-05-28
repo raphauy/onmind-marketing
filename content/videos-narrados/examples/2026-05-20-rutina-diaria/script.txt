@@ -1,0 +1,45 @@
+Esto es lo que ve un agente inmobiliario cuando abre OnMind cada mañana.
+
+<break time="0.8s" />
+
+En la pantalla principal aparecen los mensajes programados para hoy.
+
+<break time="0.4s" />
+
+Veinte, treinta mensajes, listos para salir.
+
+<break time="1.0s" />
+
+Un solo botón: "Procesar mensajes para hoy".
+
+<break time="0.5s" />
+
+Click.
+
+<break time="0.8s" />
+
+Los mensajes se van enviando uno a uno, cada cinco o diez minutos.
+
+<break time="0.4s" />
+
+Para que las respuestas también lleguen espaciadas, y el agente pueda contestar sin abrumarse.
+
+<break time="1.0s" />
+
+En la otra vista, el historial: todo lo que ya se envió, quién lo vio, quién respondió.
+
+<break time="1.0s" />
+
+Y un click en cualquier contacto abre la conversación entera.
+
+<break time="0.4s" />
+
+Un WhatsApp Web dentro de OnMind, con todo el historial de esa persona.
+
+<break time="1.2s" />
+
+Dos minutos de revisión a la mañana.
+
+<break time="0.4s" />
+
+Un día entero de presencia con clientes.
