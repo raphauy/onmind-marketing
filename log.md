@@ -1,5 +1,8 @@
 # Log de trabajo — OnMind Marketing
 
+## 2026-05-28
+- **Crons automáticos de generación de contenido.** Dos scripts bash en `scripts/` que invocan Claude Code headless (`claude -p`) para correr `/crear-pieza` (diario 08:00) y `/crear-video-narrado` (cada 2 días 08:15) sin intervención humana. Assets quedan en DB para aprobar/descartar desde la UI. Logs en `logs/` (gitignoreado). Detalles y líneas de crontab en [`docs/operacion/crons-automaticos-2026-05-28.md`](docs/operacion/crons-automaticos-2026-05-28.md).
+
 ## 2026-05-12
 - **Skill `crear-video-tutorial` consolidado y enriquecido.**
   - Sin tope rígido de duración: el video lleva el tiempo necesario para enseñar bien la feature. Reels 9:16 son cortos derivados, no sustituto del master 16:9 (educativo, landing/YouTube).

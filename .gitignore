@@ -47,6 +47,7 @@ copy-paste.txt
 .remotion-snapshot-bundle/
 /public-remotion/
 /borrar*.txt
+/logs/
 
 # python
 __pycache__/
