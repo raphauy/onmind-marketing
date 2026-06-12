@@ -51,45 +51,89 @@ export async function getProfile(): Promise<InstagramProfile> {
 
 // --- Instagram Graph API ---
 
+// Meta marca como temporales los errores de servidor con `is_transient: true`
+// (típicamente code 1 y 2: "An unexpected error has occurred. Please retry...").
+// Son fallos del lado de Meta que suelen resolverse en segundos; reintentar salva
+// al cron diario de baches puntuales. Los errores definitivos (token, permisos,
+// validación de media, rate limit) NO se reintentan: se propagan de inmediato.
+function isTransientMetaError(data: {
+  error?: { code?: number; is_transient?: boolean };
+}): boolean {
+  const err = data?.error;
+  if (!err) return false;
+  return err.is_transient === true || err.code === 1 || err.code === 2;
+}
+
+const MAX_POST_ATTEMPTS = 4; // 1 intento + 3 reintentos ante errores transitorios
+
+// POST a la Graph API. Inyecta el access_token y devuelve el JSON ya parseado.
+//
+// `retryTransient` activa reintento exponencial (2s, 4s, 8s) ante errores
+// temporales de Meta. SOLO debe usarse en operaciones idempotentes: crear un
+// container es seguro de reintentar (a lo sumo deja un container huérfano que
+// Meta expira solo), pero `media_publish` NO es idempotente — si Meta ya procesó
+// la publicación y devuelve igual un error transitorio, reintentar duplicaría el
+// post. Por eso el publish va en un único intento; su reintento lo maneja el cron
+// vía estado PENDING (ver publishDuePublications en scheduling-service).
+async function graphPost(
+  pathSuffix: string,
+  body: Record<string, unknown>,
+  fallbackError: string,
+  { retryTransient = false }: { retryTransient?: boolean } = {}
+): Promise<{ id: string }> {
+  const { accessToken } = getConfig();
+  const maxAttempts = retryTransient ? MAX_POST_ATTEMPTS : 1;
+  let lastError = fallbackError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const res = await fetch(`${GRAPH_API_BASE}/${pathSuffix}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...body, access_token: accessToken }),
+    });
+
+    const data = await res.json();
+    if (res.ok) return data;
+
+    lastError = data.error?.message || fallbackError;
+    const isLastAttempt = attempt === maxAttempts;
+    if (!isTransientMetaError(data) || isLastAttempt) {
+      throw new Error(lastError);
+    }
+
+    const delayMs = 2000 * 2 ** (attempt - 1); // 2s, 4s, 8s
+    console.warn(
+      `[Instagram] error transitorio de Meta (code ${data.error?.code}), ` +
+        `reintento ${attempt}/${maxAttempts - 1} en ${delayMs}ms`
+    );
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  throw new Error(lastError);
+}
+
 async function createMediaContainer(
   body: Record<string, unknown>
 ): Promise<string> {
-  const { accessToken, userId } = getConfig();
-
-  const res = await fetch(`${GRAPH_API_BASE}/${userId}/media`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...body,
-      access_token: accessToken,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error?.message || "Error al crear el container de media en Instagram");
-  }
-
+  const { userId } = getConfig();
+  // Idempotente: reintentamos ante baches transitorios de Meta (donde más fallan).
+  const data = await graphPost(
+    `${userId}/media`,
+    body,
+    "Error al crear el container de media en Instagram",
+    { retryTransient: true }
+  );
   return data.id;
 }
 
 async function publishMediaContainer(creationId: string): Promise<string> {
-  const { accessToken, userId } = getConfig();
-
-  const res = await fetch(`${GRAPH_API_BASE}/${userId}/media_publish`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      creation_id: creationId,
-      access_token: accessToken,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error?.message || "Error al publicar en Instagram");
-  }
-
+  const { userId } = getConfig();
+  // Un solo intento a propósito: media_publish no es idempotente (ver graphPost).
+  const data = await graphPost(
+    `${userId}/media_publish`,
+    { creation_id: creationId },
+    "Error al publicar en Instagram"
+  );
   return data.id;
 }
 
